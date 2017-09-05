@@ -1,0 +1,40 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26730.8
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Karambolo.Common.Test", "Karambolo.Common.Test\Karambolo.Common.Test.csproj", "{58122A23-D78D-4E8C-8C38-93964AE46675}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1B006999-DAC3-48E9-B537-6F516939C312}"
+	ProjectSection(SolutionItems) = preProject
+		Default.testsettings = Default.testsettings
+		Karambolo.Common.vsmdi = Karambolo.Common.vsmdi
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Karambolo.Common.Net45", "..\source\Karambolo.Common\Karambolo.Common.Net45.csproj", "{A9794534-BBA3-4908-B101-EDFC1DE5F336}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{58122A23-D78D-4E8C-8C38-93964AE46675}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{58122A23-D78D-4E8C-8C38-93964AE46675}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{58122A23-D78D-4E8C-8C38-93964AE46675}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{58122A23-D78D-4E8C-8C38-93964AE46675}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A9794534-BBA3-4908-B101-EDFC1DE5F336}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A9794534-BBA3-4908-B101-EDFC1DE5F336}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A9794534-BBA3-4908-B101-EDFC1DE5F336}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A9794534-BBA3-4908-B101-EDFC1DE5F336}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C307431B-60C2-4116-8734-0242EB76E5B8}
+	EndGlobalSection
+	GlobalSection(TestCaseManagementSettings) = postSolution
+		CategoryFile = Karambolo.Common.Test.vsmdi
+	EndGlobalSection
+EndGlobal
