@@ -7,6 +7,47 @@ namespace Karambolo.Common
 {
     public static partial class TaskUtils
     {
+#if NET40
+        public static Task<TResult> FromResult<TResult>(TResult result)
+        {
+            var tcs = new TaskCompletionSource<TResult>();
+            tcs.TrySetResult(result);
+            return tcs.Task;
+        }
+#endif
+
+#if NET40 || NET45
+        public static Task FromException(Exception exception)
+        {
+            return FromException<object>(exception);
+        }
+
+        public static Task<TResult> FromException<TResult>(Exception exception)
+        {
+            if (exception == null)
+                throw new ArgumentNullException(nameof(exception));
+
+            var tcs = new TaskCompletionSource<TResult>();
+            tcs.TrySetException(exception);
+            return tcs.Task;
+        }
+
+        public static Task FromCancelled(CancellationToken cancellationToken)
+        {
+            return FromCancelled<object>(cancellationToken);
+        }
+
+        public static Task<TResult> FromCancelled<TResult>(CancellationToken cancellationToken)
+        {
+            if (!cancellationToken.IsCancellationRequested)
+                throw new ArgumentOutOfRangeException(nameof(cancellationToken));
+
+            var tcs = new TaskCompletionSource<TResult>();
+            tcs.TrySetCanceled();
+            return tcs.Task;
+        }
+#endif
+
         public static IAsyncResult BeginExecuteTask(this Task task, AsyncCallback callback, object state)
         {
             var tcs = new TaskCompletionSource<Task>(state);
