@@ -5,11 +5,11 @@
     <SolutionPath>$(MSBuildProjectDirectory)\..\source</SolutionPath>
     <Solution>$(SolutionPath)\Karambolo.Common.sln</Solution>
     <AssemblyInfoPath>$(SolutionPath)\Karambolo.Common\Properties\AssemblyInfo.cs</AssemblyInfoPath>
-    <NetstdCsprojPath>$(SolutionPath)\Karambolo.Common\Karambolo.Common.Netstd2.csproj</NetstdCsprojPath>
+    <NetstdProjPath>$(SolutionPath)\Karambolo.Common\Properties\AssemblyInfo.props</NetstdProjPath>
     <NuspecPath>$(MSBuildProjectDirectory)\package.nuspec</NuspecPath>
   </PropertyGroup>
 
-  <Target Name="Make">
+  <Target Name="GetVersion" Condition="$(TagVersion) == '' Or $(Revision) == ''">
     <!-- checking active branch -->
     <Exec Command="&quot;$(Git)&quot; branch | find &quot;* (HEAD detached at &quot;" IgnoreExitCode="true">
       <Output TaskParameter="ExitCode" PropertyName="BranchExitCode"></Output>
@@ -38,10 +38,12 @@
     <Exec Command="&quot;$(Git)&quot; log --oneline 2> nul | find /v /c &quot;&quot;" ConsoleToMSBuild="true">
       <Output TaskParameter="ConsoleOutput" PropertyName="Revision" />
     </Exec>
+  </Target>
 
+  <Target Name="Make" DependsOnTargets="GetVersion">
     <!-- setting version -->
     <UpdateVersion TagVersion="$(TagVersion)" Revision="$(Revision)"
-                   AssemblyInfoPath="$(AssemblyInfoPath)" NetstdCsprojPath="$(NetstdCsprojPath)" NuspecPath="$(NuspecPath)" />
+                   AssemblyInfoPath="$(AssemblyInfoPath)" NetstdProjPath="$(NetstdProjPath)" NuspecPath="$(NuspecPath)" />
 
     <!-- build -->
     <MSBuild Projects="$(Solution)" Targets="Restore;Rebuild" Properties="Configuration=Release;Platform=Any CPU" />
@@ -54,7 +56,7 @@
   </Target>
 
   <Target Name="Cleanup" AfterTargets="Make">
-    <RestoreVersion AssemblyInfoPath="$(AssemblyInfoPath)" NetstdCsprojPath="$(NetstdCsprojPath)" NuspecPath="$(NuspecPath)" />
+    <RestoreVersion AssemblyInfoPath="$(AssemblyInfoPath)" NetstdProjPath="$(NetstdProjPath)" NuspecPath="$(NuspecPath)" />
   </Target>
 
   <UsingTask TaskName="DownloadNuGet" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
@@ -93,7 +95,7 @@
       <TagVersion ParameterType="System.String" Required="true" />
       <Revision ParameterType="System.String" Required="true" />
       <AssemblyInfoPath ParameterType="System.String" Required="true" />
-      <NetstdCsprojPath ParameterType="System.String" Required="true" />
+      <NetstdProjPath ParameterType="System.String" Required="true" />
       <NuspecPath ParameterType="System.String" Required="true" />
     </ParameterGroup>
     <Task>
@@ -144,7 +146,7 @@ update(AssemblyInfoPath,
   @"^(?<start>\s*\[\s*assembly\s*:\s*(?<attr>AssemblyVersion|AssemblyFileVersion)\(\s*"").+(?<end>""\s*\)\s*\]\s*)$",
     m => m.Groups["start"] + (m.Groups["attr"].Value == "AssemblyVersion" ? assemblyVersion : assemblyFileVersion) + m.Groups["end"]);
 
-update(NetstdCsprojPath,
+update(NetstdProjPath,
   @"^(?<start>\s*<(?<tag>Version|FileVersion)>).+(?<end></\k<tag>>\s*)$",
     m => m.Groups["start"] + (m.Groups["tag"].Value == "Version" ? assemblyVersion : assemblyFileVersion) + m.Groups["end"]);
 
@@ -159,7 +161,7 @@ update(NuspecPath,
   <UsingTask TaskName="RestoreVersion" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v12.0.dll" >
     <ParameterGroup>
       <AssemblyInfoPath ParameterType="System.String" Required="true" />
-      <NetstdCsprojPath ParameterType="System.String" Required="true" />
+      <NetstdProjPath ParameterType="System.String" Required="true" />
       <NuspecPath ParameterType="System.String" Required="true" />
     </ParameterGroup>
     <Task>
@@ -176,7 +178,7 @@ Action<string> restore = path =>
 };
 
 restore(AssemblyInfoPath);
-restore(NetstdCsprojPath);
+restore(NetstdProjPath);
 restore(NuspecPath);
 ]]>
       </Code>

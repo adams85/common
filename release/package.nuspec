@@ -2,7 +2,7 @@
 <package >
     <metadata>
         <id>Karambolo.Common</id>
-        <version>1.2.0</version>
+        <version>1.0.0</version>
         <title>Karambolo.Common</title>
         <authors>Adam Simon</authors>
         <owners>adams85</owners>
@@ -20,6 +20,8 @@
       <file src="..\source\Karambolo.Common\bin\Release\net40\Karambolo.Common.pdb" target="lib\net40" />
       <file src="..\source\Karambolo.Common\bin\Release\net45\Karambolo.Common.dll" target="lib\net45" />
       <file src="..\source\Karambolo.Common\bin\Release\net45\Karambolo.Common.pdb" target="lib\net45" />
+      <file src="..\source\Karambolo.Common\bin\Release\netstandard1.2\Karambolo.Common.dll" target="lib\netstandard1.2" />
+      <file src="..\source\Karambolo.Common\bin\Release\netstandard1.2\Karambolo.Common.pdb" target="lib\netstandard1.2" />
       <file src="..\source\Karambolo.Common\bin\Release\netstandard2.0\Karambolo.Common.dll" target="lib\netstandard2.0" />
       <file src="..\source\Karambolo.Common\bin\Release\netstandard2.0\Karambolo.Common.pdb" target="lib\netstandard2.0" />
     </files>
