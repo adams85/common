@@ -3,12 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26730.8
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1B006999-DAC3-48E9-B537-6F516939C312}"
-	ProjectSection(SolutionItems) = preProject
-		Default.testsettings = Default.testsettings
-		Karambolo.Common.vsmdi = Karambolo.Common.vsmdi
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Karambolo.Common.Net40", "Karambolo.Common\Karambolo.Common.Net40.csproj", "{BFA3AE0E-4AB1-4765-82FB-6E949B0AE9CF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Karambolo.Common.Netstd20", "Karambolo.Common\Karambolo.Common.Netstd20.csproj", "{0DC3AE1D-2555-4E75-B3ED-A8BB0E0A4F7C}"

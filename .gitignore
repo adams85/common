@@ -299,6 +299,5 @@ __pycache__/
 *.xsd.cs
 
 # Other
-.svn
-**/NuGet.exe
-**/*.nupkg
+.svn/
+NuGet.exe
