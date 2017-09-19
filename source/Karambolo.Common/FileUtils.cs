@@ -108,7 +108,7 @@ namespace Karambolo.Common
         static IDictionary<string, ICollection<CompareDirResultItem>> CompareDirsSetDirsIsIdentical(List<CompareDirResultItem> result,
             out CompareDirResultItem root)
         {
-            var tree = new Dictionary<string, ICollection<CompareDirResultItem>>(StringComparer.InvariantCultureIgnoreCase);
+            var tree = new Dictionary<string, ICollection<CompareDirResultItem>>(StringComparer.OrdinalIgnoreCase);
             foreach (var item in result)
             {
                 var parent = Path.GetDirectoryName(item.RelativePath);
@@ -162,12 +162,12 @@ namespace Karambolo.Common
                 (!excludeDirs ?
                     new DirectoryInfo(leftDirPath).GetFileSystemInfos("*", searchOption) :
                     new DirectoryInfo(leftDirPath).GetFiles("*", searchOption))
-                .ToDictionary(x => x.FullName.Substring(leftPrefixLength), x => x, StringComparer.InvariantCultureIgnoreCase);
+                .ToDictionary(x => x.FullName.Substring(leftPrefixLength), Identity<FileSystemInfo>.Func, StringComparer.OrdinalIgnoreCase);
             var rightEntries =
                 (!excludeDirs ?
                     new DirectoryInfo(rightDirPath).GetFileSystemInfos("*", searchOption) :
                     new DirectoryInfo(rightDirPath).GetFiles("*", searchOption))
-                .ToDictionary(x => x.FullName.Substring(rightPrefixLength), x => x, StringComparer.InvariantCultureIgnoreCase);
+                .ToDictionary(x => x.FullName.Substring(rightPrefixLength), Identity<FileSystemInfo>.Func, StringComparer.OrdinalIgnoreCase);
 
             var result = new List<CompareDirResultItem>();
             var filesToBeChecked = new Dictionary<string, Tuple<FileInfo, FileInfo>>();

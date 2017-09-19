@@ -57,6 +57,7 @@
     <Compile Include="Collections\CollectionConverters.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Collections\Compatibility.Net40.cs" />
     <Compile Include="Collections\ReadOnlyCollections.cs" />
     <Compile Include="Comparers.cs" />
     <Compile Include="ConcurrencyUtils.cs" />

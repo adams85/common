@@ -11,7 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Karambolo.Common.Net40", "Karambolo.Common\Karambolo.Common.Net40.csproj", "{BFA3AE0E-4AB1-4765-82FB-6E949B0AE9CF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Karambolo.Common.Netstd2", "Karambolo.Common\Karambolo.Common.Netstd2.csproj", "{0DC3AE1D-2555-4E75-B3ED-A8BB0E0A4F7C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Karambolo.Common.Netstd20", "Karambolo.Common\Karambolo.Common.Netstd20.csproj", "{0DC3AE1D-2555-4E75-B3ED-A8BB0E0A4F7C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Karambolo.Common.Net45", "Karambolo.Common\Karambolo.Common.Net45.csproj", "{A9794534-BBA3-4908-B101-EDFC1DE5F336}"
 EndProject

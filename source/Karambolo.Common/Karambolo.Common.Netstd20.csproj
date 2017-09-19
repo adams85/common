@@ -20,8 +20,15 @@
   <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
   <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
   <ItemGroup>
+    <Compile Remove="Logging\**" />
     <Compile Remove="obj\**" />
+    <EmbeddedResource Remove="Logging\**" />
     <EmbeddedResource Remove="obj\**" />
+    <None Remove="Logging\**" />
     <None Remove="obj\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Collections\Compatibility.Net40.cs" />
+    <Compile Remove="Properties\AssemblyInfo.cs" />
   </ItemGroup>
 </Project>
