@@ -6,8 +6,12 @@ using Karambolo.Common.Properties;
 
 namespace Karambolo.Common.Finances
 {
-    [Serializable]
+#if !NETSTANDARD1_2
+    [System.Serializable]
     public struct Money : IEquatable<Money>, IComparable<Money>, IFormattable, IConvertible, IComparable
+#else
+    public struct Money : IEquatable<Money>, IComparable<Money>, IFormattable, IComparable
+#endif
     {
         public static readonly Money Zero = new Money(0);
 
@@ -205,7 +209,7 @@ namespace Karambolo.Common.Finances
 
         public static Money Round(Money value, int? decimals = null, MidpointRounding mode = MidpointRounding.ToEven)
         {
-            return new Money(decimal.Round(value._amount, decimals ?? value._currency.DefaultDecimals, mode), value._currency);
+            return new Money(Math.Round(value._amount, decimals ?? value._currency.DefaultDecimals, mode), value._currency);
         }
 
         public static Money ChangeAmount(Money value, decimal amount)
@@ -311,6 +315,7 @@ namespace Karambolo.Common.Finances
             return _amount.ToString(format, CustomizeNumberFormat(numberFormat));
         }
 
+#if !NETSTANDARD1_2
         public TypeCode GetTypeCode()
         {
             return TypeCode.Object;
@@ -395,5 +400,6 @@ namespace Karambolo.Common.Finances
         {
             throw new NotSupportedException();
         }
+#endif
     }
 }

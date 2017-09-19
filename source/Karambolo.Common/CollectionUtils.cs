@@ -238,6 +238,19 @@ namespace Karambolo.Common
         {
             return Convert<TSource, TDest>(source, Identity<TSource>.Func, s => (TDest)s);
         }
+
+        public static HashSet<T> ToHashSet<T>(this IEnumerable<T> source, IEqualityComparer<T> comparer)
+        {
+            if (source == null)
+                throw new NullReferenceException();
+
+            return new HashSet<T>(source, comparer);
+        }
+
+        public static HashSet<T> ToHashSet<T>(this IEnumerable<T> source)
+        {
+            return ToHashSet(source, null);
+        }
         #endregion
 
         #region Lists
@@ -356,6 +369,36 @@ namespace Karambolo.Common
         {
             return Convert<TKey, TSource, TDest>(source, Identity<TSource>.Func, s => (TDest)s);
         }
+
+        public static OrderedDictionary<TKey, TElement> ToOrderedDictionary<T, TKey, TElement>(this IEnumerable<T> source,
+            Func<T, TKey> keySelector, Func<T, TElement> elementSelector, IEqualityComparer<TKey> comparer)
+        {
+            if (source == null)
+                throw new NullReferenceException();
+
+            var result = new OrderedDictionary<TKey, TElement>(comparer);
+            foreach (var item in source)
+                result.Add(keySelector(item), elementSelector(item));
+
+            return result;
+        }
+
+        public static OrderedDictionary<TKey, TElement> ToOrderedDictionary<T, TKey, TElement>(this IEnumerable<T> source,
+            Func<T, TKey> keySelector, Func<T, TElement> elementSelector)
+        {
+            return ToOrderedDictionary(source, keySelector, elementSelector, null);
+        }
+
+        public static OrderedDictionary<TKey, T> ToOrderedDictionary<T, TKey>(this IEnumerable<T> source, Func<T, TKey> keySelector,
+            IEqualityComparer<TKey> comparer)
+        {
+            return ToOrderedDictionary(source, keySelector, Identity<T>.Func, comparer);
+        }
+
+        public static OrderedDictionary<TKey, T> ToOrderedDictionary<T, TKey>(this IEnumerable<T> source, Func<T, TKey> keySelector)
+        {
+            return ToOrderedDictionary(source, keySelector, Identity<T>.Func, null);
+        }
         #endregion
 
         #region Keyed Collections
@@ -418,6 +461,33 @@ namespace Karambolo.Common
             where TDest : class, TSource
         {
             return Convert<TKey, TSource, TDest>(source, Identity<TSource>.Func, s => (TDest)s);
+        }
+
+        public static GenericKeyedCollection<TKey, TElement> ToKeyedCollection<T, TKey, TElement>(this IEnumerable<T> source,
+            Func<TElement, TKey> keyFromValueSelector, Func<T, TElement> elementSelector,
+            IEqualityComparer<TKey> comparer = null, int dictionaryCreationThreshold = 0)
+        {
+            if (source == null)
+                throw new NullReferenceException();
+
+            var result = new GenericKeyedCollection<TKey, TElement>(keyFromValueSelector, comparer, dictionaryCreationThreshold);
+            foreach (var item in source)
+                result.Add(elementSelector(item));
+
+            return result;
+        }
+
+        public static GenericKeyedCollection<TKey, T> ToKeyedCollection<TKey, T>(this IEnumerable<T> source, Func<T, TKey> keyFromValueSelector,
+            IEqualityComparer<TKey> comparer = null, int dictionaryCreationThreshold = 0)
+        {
+            if (source == null)
+                throw new NullReferenceException();
+
+            var result = new GenericKeyedCollection<TKey, T>(keyFromValueSelector, comparer, dictionaryCreationThreshold);
+            foreach (var item in source)
+                result.Add(item);
+
+            return result;
         }
         #endregion
 

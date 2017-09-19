@@ -82,7 +82,10 @@ namespace Karambolo.Common
 
             return textLocalizer(total > 0 ? futureFormat : pastFormat, args: new[] { builder.ToString() });
 
-            int GetValue(ref long r, int i) => (int)Math.DivRem(r, periods[i].Divisor, out r);
+            int GetValue(ref long r, int i)
+            {
+                return (int)MathCompat.DivRem(r, periods[i].Divisor, out r);
+            }
 
             void AddValue(StringBuilder sb, int i, int v, TextLocalizer t)
             {

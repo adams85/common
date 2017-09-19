@@ -76,6 +76,7 @@ namespace Karambolo.Common
 #endif
         }
 
+#if !NETSTANDARD1_2
         public static Task WaitForExitAsync(this Process process)
         {
             var tcs = new TaskCompletionSource<object>();
@@ -91,6 +92,7 @@ namespace Karambolo.Common
 
             return tcs.Task;
         }
+#endif
     }
 
 #if !NET40

@@ -2,7 +2,7 @@
   <PropertyGroup>
     <AssemblyName>Karambolo.Common</AssemblyName>
     <RootNamespace>Karambolo.Common</RootNamespace>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard1.2</TargetFramework>
     <PackageId>Karambolo.Common</PackageId>
     <Version>1.0</Version>
     <Authors />
@@ -13,7 +13,7 @@
     <FileVersion>1.0.0.0</FileVersion>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>Karambolo.Public.snk</AssemblyOriginatorKeyFile>
-    <BaseIntermediateOutputPath>obj\netstd20\</BaseIntermediateOutputPath>
+    <BaseIntermediateOutputPath>obj\netstd1x\</BaseIntermediateOutputPath>
   </PropertyGroup>
 
   <!-- https://stackoverflow.com/questions/45750068/setting-of-baseintermediateoutputpath-prevents-running-targets-from-nuget -->
@@ -29,7 +29,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="Compatibility.Net40.cs" />
-    <Compile Remove="Compatibility.Netstd12.cs" />
+    <Compile Remove="FileUtils.NotNetstd12.cs" />
     <Compile Remove="Properties\AssemblyInfo.cs" />
+    <Compile Remove="ReflectionUtils.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Compatibility.Netstd12.cs" />
   </ItemGroup>
 </Project>

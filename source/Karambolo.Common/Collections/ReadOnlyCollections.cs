@@ -3,14 +3,15 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Runtime.Serialization;
 using System.Collections.Specialized;
 using System.ComponentModel;
 
 namespace Karambolo.Common.Collections
 {
     #region Collections
-    [Serializable]
+#if !NETSTANDARD1_2
+    [System.Serializable]
+#endif
     [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(ReadOnlyCollectionDebugView<>))]
     public class ReadOnlyCollection<T, TCollection> : ICollection<T>, IReadOnlyCollection<T>
         where TCollection : ICollection<T>
@@ -78,7 +79,9 @@ namespace Karambolo.Common.Collections
         bool SetEquals(IEnumerable<T> other);
     }
 
-    [Serializable]
+#if !NETSTANDARD1_2
+    [System.Serializable]
+#endif
     [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(ReadOnlyCollectionDebugView<>))]
     public class ReadOnlyEnabledHashSet<T> : HashSet<T>, IReadOnlySet<T>
     {
@@ -86,10 +89,15 @@ namespace Karambolo.Common.Collections
         public ReadOnlyEnabledHashSet(IEqualityComparer<T> comparer) : base(comparer) { }
         public ReadOnlyEnabledHashSet(IEnumerable<T> collection) : base(collection) { }
         public ReadOnlyEnabledHashSet(IEnumerable<T> collection, IEqualityComparer<T> comparer) : base(collection, comparer) { }
-        protected ReadOnlyEnabledHashSet(SerializationInfo info, StreamingContext context) : base(info, context) { }
+
+#if !NETSTANDARD1_2
+        protected ReadOnlyEnabledHashSet(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
+#endif
     }
 
-    [Serializable]
+#if !NETSTANDARD1_2
+    [System.Serializable]
+#endif
     [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(ReadOnlyCollectionDebugView<>))]
     public class ReadOnlySet<T, TSet> : ReadOnlyCollection<T, TSet>, ISet<T>, IReadOnlySet<T>
         where TSet : ISet<T>
@@ -151,10 +159,12 @@ namespace Karambolo.Common.Collections
             throw new NotSupportedException();
         }
     }
-    #endregion
+#endregion
 
-    #region Dictionaries
-    [Serializable]
+#region Dictionaries
+#if !NETSTANDARD1_2
+    [System.Serializable]
+#endif
     [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(ReadOnlyDictionaryDebugView<,>))]
     public class ReadOnlyDictionary<TKey, TValue, TDictionary> : ReadOnlyCollection<KeyValuePair<TKey, TValue>, TDictionary>, 
         IDictionary<TKey, TValue>, IReadOnlyDictionary<TKey, TValue>
@@ -207,7 +217,9 @@ namespace Karambolo.Common.Collections
         }
     }
 
-    [Serializable]
+#if !NETSTANDARD1_2
+    [System.Serializable]
+#endif
     [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(ReadOnlyDictionaryDebugView<,>))]
     public class ReadOnlyOrderedDictionary<TKey, TValue, TDictionary> : ReadOnlyDictionary<TKey, TValue, TDictionary>, IOrderedDictionary<TKey, TValue>
         where TDictionary : IOrderedDictionary<TKey, TValue>
@@ -236,10 +248,12 @@ namespace Karambolo.Common.Collections
             throw new NotSupportedException();
         }
     }
-    #endregion
+#endregion
 
-    #region Keyed Collections
-    [Serializable]
+#region Keyed Collections
+#if !NETSTANDARD1_2
+    [System.Serializable]
+#endif
     [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(KeyedCollectionDebugView<,>))]
     public class ReadOnlyKeyedCollection<TKey, TValue, TKeyedCollection> : ReadOnlyCollection<TValue, TKeyedCollection>, IKeyedCollection<TKey, TValue>
         where TKeyedCollection : IKeyedCollection<TKey, TValue>
@@ -292,7 +306,9 @@ namespace Karambolo.Common.Collections
         }
     }
 
-    [Serializable]
+#if !NETSTANDARD1_2
+    [System.Serializable]
+#endif
     [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(KeyedCollectionDebugView<,>))]
     public class ReadOnlyObservableKeyedCollection<TKey, TValue, TKeyedCollection> : ReadOnlyKeyedCollection<TKey, TValue, TKeyedCollection>, 
         IObservableKeyedCollection<TKey, TValue>
@@ -377,7 +393,7 @@ namespace Karambolo.Common.Collections
             remove => _source.PropertyChanged -= value;
         }
     }
-    #endregion
+#endregion
 }
 
 

@@ -14,7 +14,7 @@ namespace Karambolo.Common
                 throw new ArgumentNullException(nameof(expression));
 
             var memberExpression = expression.Body as MemberExpression;
-            return memberExpression != null && allowedMemberTypes.HasFlag(memberExpression.Member.MemberType) ? memberExpression : null;
+            return memberExpression != null && allowedMemberTypes.HasFlag(memberExpression.Member.MemberType()) ? memberExpression : null;
         }
 
         static IEnumerable<MemberInfo> GetMemberPath(LambdaExpression expression, MemberTypes allowedMemberTypes, Func<Expression, bool> isSource)
@@ -28,7 +28,7 @@ namespace Karambolo.Common
             do
             {
                 memberExpression = bodyExpression as MemberExpression;
-                if (memberExpression == null || !allowedMemberTypes.HasFlag(memberExpression.Member.MemberType))
+                if (memberExpression == null || !allowedMemberTypes.HasFlag(memberExpression.Member.MemberType()))
                     throw new ArgumentException(null, nameof(expression));
 
                 memberExpressions.Add(memberExpression.Member);
@@ -187,8 +187,8 @@ namespace Karambolo.Common
 
         public static MethodInfo MakeGenericMethod(this Expression<Action> expression, params Type[] typeArgs)
         {
-            var method = Lambda.Method(expression);
-            
+            var method = Method(expression);
+
             if (!method.IsGenericMethod)
                 throw new ArgumentException(null, nameof(expression));
 
@@ -197,8 +197,8 @@ namespace Karambolo.Common
 
         public static MethodInfo MakeGenericMethod<T>(this Expression<Action<T>> expression, params Type[] typeArgs)
         {
-            var method = Lambda.Method(expression);
-            
+            var method = Method(expression);
+
             if (!method.IsGenericMethod)
                 throw new ArgumentException(null, nameof(expression));
 
@@ -207,7 +207,7 @@ namespace Karambolo.Common
 
         public static MethodInfo MakeGenericMethod<T, TArg>(this Expression<Action<T, TArg>> expression, params Type[] typeArgs)
         {
-            var method = Lambda.Method(expression);
+            var method = Method(expression);
 
             if (!method.IsGenericMethod)
                 throw new ArgumentException(null, nameof(expression));

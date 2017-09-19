@@ -2,7 +2,9 @@
 
 namespace Karambolo.Common.Finances
 {
-    [Serializable]
+#if !NETSTANDARD1_2
+    [System.Serializable]
+#endif
     public sealed class Conversion
     {
         readonly Currency _from;

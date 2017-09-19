@@ -5,7 +5,9 @@ using System.Globalization;
 
 namespace Karambolo.Common.Finances
 {
-    [Serializable]
+#if !NETSTANDARD1_2
+    [System.Serializable]
+#endif
     public struct Currency : IEquatable<Currency>
     {
         class Metadata
@@ -18,7 +20,8 @@ namespace Karambolo.Common.Finances
 
         static readonly Dictionary<string, Metadata> metadataLookup = new Dictionary<string, Metadata>(StringComparer.OrdinalIgnoreCase);
 
-        static Currency()
+#if !NETSTANDARD1_2
+        public static void RegisterSystemDefaults()
         {
             foreach (var culture in CultureInfo.GetCultures(CultureTypes.SpecificCultures))
             {
@@ -32,6 +35,7 @@ namespace Karambolo.Common.Finances
                 };
             }
         }
+#endif
 
         public static void Register(string code, string symbol, int defaultDecimals)
         {
@@ -48,6 +52,14 @@ namespace Karambolo.Common.Finances
                 Symbol = symbol,
                 DefaultDecimals = defaultDecimals
             };
+        }
+
+        public static bool IsRegistered(string code)
+        {
+            if (code == null)
+                throw new ArgumentNullException(nameof(code));
+
+            return metadataLookup.ContainsKey(code);
         }
 
         static Metadata GetMetadata(string code)

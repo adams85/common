@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Karambolo.Common.Collections;
 
 namespace Karambolo.Common
 {
@@ -81,76 +80,6 @@ namespace Karambolo.Common
                 if (enumerator.MoveNext())
                     for (var item = enumerator.Current; enumerator.MoveNext(); item = enumerator.Current)
                         yield return item;
-        }
-
-        public static HashSet<T> ToHashSet<T>(this IEnumerable<T> source, IEqualityComparer<T> comparer)
-        {
-            if (source == null)
-                throw new NullReferenceException();
-
-            return new HashSet<T>(source, comparer);
-        }
-
-        public static HashSet<T> ToHashSet<T>(this IEnumerable<T> source)
-        {
-            return ToHashSet(source, null);
-        }
-
-        public static OrderedDictionary<TKey, TElement> ToOrderedDictionary<T, TKey, TElement>(this IEnumerable<T> source,
-            Func<T, TKey> keySelector, Func<T, TElement> elementSelector, IEqualityComparer<TKey> comparer)
-        {
-            if (source == null)
-                throw new NullReferenceException();
-
-            var result = new OrderedDictionary<TKey, TElement>(comparer);
-            foreach (var item in source)
-                result.Add(keySelector(item), elementSelector(item));
-
-            return result;
-        }
-
-        public static OrderedDictionary<TKey, TElement> ToOrderedDictionary<T, TKey, TElement>(this IEnumerable<T> source,
-            Func<T, TKey> keySelector, Func<T, TElement> elementSelector)
-        {
-            return ToOrderedDictionary(source, keySelector, elementSelector, null);
-        }
-
-        public static OrderedDictionary<TKey, T> ToOrderedDictionary<T, TKey>(this IEnumerable<T> source, Func<T, TKey> keySelector,
-            IEqualityComparer<TKey> comparer)
-        {
-            return ToOrderedDictionary(source, keySelector, Identity<T>.Func, comparer);
-        }
-
-        public static OrderedDictionary<TKey, T> ToOrderedDictionary<T, TKey>(this IEnumerable<T> source, Func<T, TKey> keySelector)
-        {
-            return ToOrderedDictionary(source, keySelector, Identity<T>.Func, null);
-        }
-
-        public static GenericKeyedCollection<TKey, TElement> ToKeyedCollection<T, TKey, TElement>(this IEnumerable<T> source,
-            Func<TElement, TKey> keyFromValueSelector, Func<T, TElement> elementSelector,
-            IEqualityComparer<TKey> comparer = null, int dictionaryCreationThreshold = 0)
-        {
-            if (source == null)
-                throw new NullReferenceException();
-
-            var result = new GenericKeyedCollection<TKey, TElement>(keyFromValueSelector, comparer, dictionaryCreationThreshold);
-            foreach (var item in source)
-                result.Add(elementSelector(item));
-
-            return result;
-        }
-
-        public static GenericKeyedCollection<TKey, T> ToKeyedCollection<TKey, T>(this IEnumerable<T> source, Func<T, TKey> keyFromValueSelector,
-            IEqualityComparer<TKey> comparer = null, int dictionaryCreationThreshold = 0)
-        {
-            if (source == null)
-                throw new NullReferenceException();
-
-            var result = new GenericKeyedCollection<TKey, T>(keyFromValueSelector, comparer, dictionaryCreationThreshold);
-            foreach (var item in source)
-                result.Add(item);
-
-            return result;
         }
     }
 }

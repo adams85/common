@@ -7,11 +7,12 @@ using System.Diagnostics;
 using Karambolo.Common.Diagnostics;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Runtime.Serialization;
 
 namespace Karambolo.Common.Collections
 {
-    [Serializable]
+#if !NETSTANDARD1_2
+    [System.Serializable]
+#endif
     [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(ReadOnlyCollectionConverterDebugView<,>))]
     public class ReadOnlyCollectionConverter<TSource, TDest, TCollection> : IReadOnlyCollection<TDest>
         where TCollection : IReadOnlyCollection<TSource>
@@ -46,17 +47,21 @@ namespace Karambolo.Common.Collections
             return ((IEnumerable<TDest>)this).GetEnumerator();
         }
 
-        [OnSerializing]
-        internal void OnSerializing(StreamingContext context)
+#if !NETSTANDARD1_2
+        [System.Runtime.Serialization.OnSerializing]
+        internal void OnSerializing(System.Runtime.Serialization.StreamingContext context)
         {
             // using expressions would be a much better solution but currently there is no simple way to serialize them
             // http://stackoverflow.com/questions/25721711/how-to-identify-a-lambda-closure-with-reflection
             if (_convertToSource.Target != null || _convertToDest.Target != null)
                 throw new InvalidOperationException(Resources.DelegateSerializationNotSupported);
         }
+#endif
     }
 
-    [Serializable]
+#if !NETSTANDARD1_2
+    [System.Serializable]
+#endif
     [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(CollectionConverterDebugView<,>))]
     public class CollectionConverter<TSource, TDest, TCollection> : ICollection<TDest>
         where TCollection : ICollection<TSource>
@@ -127,17 +132,21 @@ namespace Karambolo.Common.Collections
             return ((IEnumerable<TDest>)this).GetEnumerator();
         }
 
-        [OnSerializing]
-        internal void OnSerializing(StreamingContext context)
+#if !NETSTANDARD1_2
+        [System.Runtime.Serialization.OnSerializing]
+        internal void OnSerializing(System.Runtime.Serialization.StreamingContext context)
         {
             // using expressions would be a much better solution but currently there is no simple way to serialize them
             // http://stackoverflow.com/questions/25721711/how-to-identify-a-lambda-closure-with-reflection
             if (_convertToSource.Target != null || _convertToDest.Target != null)
                 throw new InvalidOperationException(Resources.DelegateSerializationNotSupported);
         }
+#endif
     }
 
-    [Serializable]
+#if !NETSTANDARD1_2
+    [System.Serializable]
+#endif
     [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(ReadOnlyCollectionConverterDebugView<,>))]
     public class ReadOnlySetConverter<TSource, TDest, TList> : ReadOnlyCollectionConverter<TSource, TDest, TList>, IReadOnlySet<TDest>
         where TList : IReadOnlySet<TSource>
@@ -183,7 +192,9 @@ namespace Karambolo.Common.Collections
         }
     }
 
-    [Serializable]
+#if !NETSTANDARD1_2
+    [System.Serializable]
+#endif
     [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(CollectionConverterDebugView<,>))]
     public class SetConverter<TSource, TDest, TList> : CollectionConverter<TSource, TDest, TList>, ISet<TDest>
         where TList : ISet<TSource>
@@ -249,7 +260,9 @@ namespace Karambolo.Common.Collections
         }
     }
 
-    [Serializable]
+#if !NETSTANDARD1_2
+    [System.Serializable]
+#endif
     [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(ReadOnlyCollectionConverterDebugView<,>))]
     public class ReadOnlyListConverter<TSource, TDest, TList> : ReadOnlyCollectionConverter<TSource, TDest, TList>, IReadOnlyList<TDest>
         where TList : IReadOnlyList<TSource>
@@ -262,7 +275,9 @@ namespace Karambolo.Common.Collections
         public TDest this[int index] => _convertToDest(_source[index]);
     }
 
-    [Serializable]
+#if !NETSTANDARD1_2
+    [System.Serializable]
+#endif
     [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(CollectionConverterDebugView<,>))]
     public class ListConverter<TSource, TDest, TList> : CollectionConverter<TSource, TDest, TList>, IList<TDest>
         where TList : IList<TSource>
@@ -294,7 +309,9 @@ namespace Karambolo.Common.Collections
         }
     }
 
-    [Serializable]
+#if !NETSTANDARD1_2
+    [System.Serializable]
+#endif
     [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(DictionaryConverterDebugView<,,>))]
     public class ReadOnlyDictionaryConverter<TKey, TSource, TDest, TDictionary> :
         ReadOnlyCollectionConverter<KeyValuePair<TKey, TSource>, KeyValuePair<TKey, TDest>, TDictionary>,
@@ -318,8 +335,9 @@ namespace Karambolo.Common.Collections
             _convertToDest = convertToDest;
         }
 
-        [OnSerializing]
-        internal new void OnSerializing(StreamingContext context)
+#if !NETSTANDARD1_2
+        [System.Runtime.Serialization.OnSerializing]
+        internal new void OnSerializing(System.Runtime.Serialization.StreamingContext context)
         {
             base.OnSerializing(context);
 
@@ -328,6 +346,7 @@ namespace Karambolo.Common.Collections
             if (_convertToSource.Target != null || _convertToDest.Target != null)
                 throw new InvalidOperationException(Resources.DelegateSerializationNotSupported);
         }
+#endif
 
         public bool ContainsKey(TKey key)
         {
@@ -349,7 +368,9 @@ namespace Karambolo.Common.Collections
         public TDest this[TKey key] => _convertToDest(_source[key]);
     }
 
-    [Serializable]
+#if !NETSTANDARD1_2
+    [System.Serializable]
+#endif
     [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(DictionaryConverterDebugView<,,>))]
     public class DictionaryConverter<TKey, TSource, TDest, TDictionary> :
         CollectionConverter<KeyValuePair<TKey, TSource>, KeyValuePair<TKey, TDest>, TDictionary>,
@@ -407,8 +428,9 @@ namespace Karambolo.Common.Collections
             set => _source[key] = _convertToSource(value);
         }
 
-        [OnSerializing]
-        internal new void OnSerializing(StreamingContext context)
+#if !NETSTANDARD1_2
+        [System.Runtime.Serialization.OnSerializing]
+        internal new void OnSerializing(System.Runtime.Serialization.StreamingContext context)
         {
             base.OnSerializing(context);
 
@@ -417,9 +439,12 @@ namespace Karambolo.Common.Collections
             if (_convertToSource.Target != null || _convertToDest.Target != null)
                 throw new InvalidOperationException(Resources.DelegateSerializationNotSupported);
         }
+#endif
     }
 
-    [Serializable]
+#if !NETSTANDARD1_2
+    [System.Serializable]
+#endif
     [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(DictionaryConverterDebugView<,,>))]
     public class OrderedDictionaryConverter<TKey, TSource, TDest, TDictionary> :
         DictionaryConverter<TKey, TSource, TDest, TDictionary>,
@@ -462,7 +487,9 @@ namespace Karambolo.Common.Collections
         IEnumerable<TDest> IReadOnlyDictionary<TKey, TDest>.Values => Values;
     }
 
-    [Serializable]
+#if !NETSTANDARD1_2
+    [System.Serializable]
+#endif
     [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(KeyedCollectionConverterDebugView<,,>))]
     public class KeyedCollectionConverter<TKey, TSource, TDest, TCollection> :
         ListConverter<TSource, TDest, TCollection>,
@@ -497,7 +524,9 @@ namespace Karambolo.Common.Collections
         }
     }
 
-    [Serializable]
+#if !NETSTANDARD1_2
+    [System.Serializable]
+#endif
     [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(CollectionConverterDebugView<,>))]
     public class ObservableCollectionConverter<TSource, TDest, TList> : CollectionConverter<TSource, TDest, TList>, IObservableCollection<TDest>
         where TList : IObservableCollection<TSource>
@@ -556,7 +585,9 @@ namespace Karambolo.Common.Collections
 
     }
 
-    [Serializable]
+#if !NETSTANDARD1_2
+    [System.Serializable]
+#endif
     [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(CollectionConverterDebugView<,>))]
     public class ObservableListConverter<TSource, TDest, TList> : ListConverter<TSource, TDest, TList>, IObservableList<TDest>
         where TList : IObservableList<TSource>
@@ -644,7 +675,9 @@ namespace Karambolo.Common.Collections
         }
     }
 
-    [Serializable]
+#if !NETSTANDARD1_2
+    [System.Serializable]
+#endif
     [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(KeyedCollectionConverterDebugView<,,>))]
     public class ObservableKeyedCollectionConverter<TKey, TSource, TDest, TCollection> :
         ObservableListConverter<TSource, TDest, TCollection>,

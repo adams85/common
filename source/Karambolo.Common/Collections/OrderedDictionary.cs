@@ -97,7 +97,9 @@ namespace Karambolo.Common.Collections
     /// </summary>
     /// <typeparam name="TKey">The type of the keys in the dictionary</typeparam>
     /// <typeparam name="TValue">The type of the values in the dictionary</typeparam>
-    [Serializable]
+#if !NETSTANDARD1_2
+    [System.Serializable]
+#endif
     [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(DictionaryDebugView<,>))]
     public class OrderedDictionary<TKey, TValue> : IOrderedDictionary<TKey, TValue>, IOrderedDictionary
     {
@@ -275,13 +277,19 @@ namespace Karambolo.Common.Collections
         private readonly Dictionary<TKey, TValue> _dictionary;
         private readonly List<TKey> _list;
 
-        [NonSerialized]
+#if !NETSTANDARD1_2
+        [System.NonSerialized]
+#endif
         private ICollection<TKey> _keyCollection;
 
-        [NonSerialized]
+#if !NETSTANDARD1_2
+        [System.NonSerialized]
+#endif
         private ICollection<TValue> _valueCollection;
 
-        [NonSerialized]
+#if !NETSTANDARD1_2
+        [System.NonSerialized]
+#endif
         private object _syncRoot;
 
         /// <summary>

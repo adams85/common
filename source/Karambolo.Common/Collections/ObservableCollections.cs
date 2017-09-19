@@ -62,7 +62,9 @@ namespace Karambolo.Common.Collections
 
     public interface IObservableKeyedCollection<TKey, TValue> : IObservableList<TValue>, IReadOnlyObservableKeyedCollection<TKey, TValue>, IKeyedCollection<TKey, TValue> { }
 
-    [Serializable]
+#if !NETSTANDARD1_2
+    [System.Serializable]
+#endif
     [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(CollectionDebugView<>))]
     public class ObservableCollectionDecorator<T, TCollection> : IObservableCollection<T>, ICollection
         where TCollection : ICollection<T>
@@ -70,7 +72,9 @@ namespace Karambolo.Common.Collections
         protected const string countPropertyName = "Count";
         protected const string indexerPropertyName = "Item[]";
 
-        [Serializable]
+#if !NETSTANDARD1_2
+        [System.Serializable]
+#endif
         class SimpleMonitor : IDisposable
         {
             int _busyCount;
@@ -87,7 +91,9 @@ namespace Karambolo.Common.Collections
             }
         }
 
-        [Serializable]
+#if !NETSTANDARD1_2
+        [System.Serializable]
+#endif
         class ResetSectionImpl : IDisposable
         {
             HashSet<string> _changedProperties;
@@ -397,7 +403,9 @@ namespace Karambolo.Common.Collections
         public event NotifyCollectionChangedEventHandler CollectionChanged;
     }
 
-    [Serializable]
+#if !NETSTANDARD1_2
+    [System.Serializable]
+#endif
     [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(CollectionDebugView<>))]
     public class ObservableListDecorator<T, TCollection> : ObservableCollectionDecorator<T, TCollection>, IObservableList<T>, IList
         where TCollection : IList<T>
@@ -730,7 +738,9 @@ namespace Karambolo.Common.Collections
         }
     }
 
-    [Serializable]
+#if !NETSTANDARD1_2
+    [System.Serializable]
+#endif
     [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(CollectionDebugView<>))]
     public class ObservableListClassDecorator<T, TCollection> : ObservableListDecorator<T, TCollection>, IObservableList<T>
         where TCollection : List<T>
@@ -802,7 +812,9 @@ namespace Karambolo.Common.Collections
         }
     }
 
-    [Serializable]
+#if !NETSTANDARD1_2
+    [System.Serializable]
+#endif
     [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(KeyedCollectionDebugView<,>))]
     public class ObservableKeyedCollectionDecorator<TKey, TValue, TCollection> : ObservableListDecorator<TValue, TCollection>, IObservableKeyedCollection<TKey, TValue>
         where TCollection : IKeyedCollection<TKey, TValue>

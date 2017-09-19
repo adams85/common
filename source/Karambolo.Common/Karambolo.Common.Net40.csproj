@@ -57,20 +57,22 @@
     <Compile Include="Collections\CollectionConverters.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Collections\Compatibility.Net40.cs" />
+    <Compile Include="Compatibility.cs" />
+    <Compile Include="Compatibility.Net40.cs" />
     <Compile Include="Collections\ReadOnlyCollections.cs" />
     <Compile Include="Comparers.cs" />
     <Compile Include="ConcurrencyUtils.cs" />
     <Compile Include="DateTimeUtils.cs" />
     <Compile Include="Delegates.cs" />
-    <Compile Include="Diagnostics\DebugViews.cs" />
     <Compile Include="Collections\ObservableCollections.cs" />
     <Compile Include="CollectionUtils.cs" />
     <Compile Include="Collections\KeyedCollection.cs" />
     <Compile Include="Diagnostics\Assert.cs" />
+    <Compile Include="Diagnostics\CollectionDebugViews.cs" />
     <Compile Include="EnumerableUtils.cs" />
     <Compile Include="ErrorStateReporter.cs" />
     <Compile Include="FileUtils.cs" />
+    <Compile Include="FileUtils.NotNetstd12.cs" />
     <Compile Include="Finances\Conversion.cs" />
     <Compile Include="Finances\Currency.cs" />
     <Compile Include="Finances\Money.cs" />
@@ -106,8 +108,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Karambolo.snk" />
-    <None Include="ReadMe.txt" />
+    <None Include="Karambolo.Public.snk" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

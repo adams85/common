@@ -71,6 +71,7 @@ namespace Karambolo.Common
             return result;
         }
 
+#if !NETSTANDARD1_2
         public static long[] GetLongLengths(this Array array)
         {
             if (array == null)
@@ -84,6 +85,7 @@ namespace Karambolo.Common
 
             return result;
         }
+#endif
 
         public static void Fill<T>(this T[] array, T value)
         {

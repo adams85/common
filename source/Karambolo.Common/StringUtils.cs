@@ -197,6 +197,7 @@ namespace Karambolo.Common
             return @this.Length <= length ? @this : @this.Substring(0, length);
         }
 
+#if !NETSTANDARD1_2
         // http://weblogs.asp.net/fmarguerie/archive/2006/10/30/removing-diacritics-accents-from-strings.aspx
         public static string RemoveDiacritics(this string @this)
         {
@@ -218,5 +219,6 @@ namespace Karambolo.Common
 
             return stringBuilder.ToString();
         }
+#endif
     }
 }

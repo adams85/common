@@ -5,7 +5,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Runtime.Serialization;
 
 namespace Karambolo.Common.Collections
 {
@@ -24,7 +23,9 @@ namespace Karambolo.Common.Collections
         new TValue this[int index] { get; set; }
     }
 
-    [Serializable]
+#if !NETSTANDARD1_2
+    [System.Serializable]
+#endif
     [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(KeyedCollectionDebugView<,>))]
     public class GenericKeyedCollection<TKey, TValue> : KeyedCollection<TKey, TValue>, IKeyedCollection<TKey, TValue>
     {
@@ -89,7 +90,9 @@ namespace Karambolo.Common.Collections
         }
 
         readonly Func<TValue, TKey> _keyFromItemSelector;
-        [NonSerialized]
+#if !NETSTANDARD1_2
+        [System.NonSerialized]
+#endif
         KeyCollection _keyCollection;
 
         public GenericKeyedCollection(Func<TValue, TKey> keyFromItemSelector, IEqualityComparer<TKey> comparer = null, int dictionaryCreationThreshold = 0)
@@ -147,13 +150,15 @@ namespace Karambolo.Common.Collections
             return Contains(key);
         }
 
-        [OnSerializing]
-        internal void OnSerializing(StreamingContext context)
+#if !NETSTANDARD1_2
+        [System.Runtime.Serialization.OnSerializing]
+        internal void OnSerializing(System.Runtime.Serialization.StreamingContext context)
         {
             // using expressions would be a much better solution but currently there is no simple way to serialize them
             // http://stackoverflow.com/questions/25721711/how-to-identify-a-lambda-closure-with-reflection
             if (_keyFromItemSelector.Target != null)
                 throw new InvalidOperationException(Resources.DelegateSerializationNotSupported);
         }
+#endif
     }
 }
