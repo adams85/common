@@ -399,10 +399,10 @@ namespace Karambolo.Common.Collections
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return ((IEnumerable<KeyValuePair<TKey, TValue>>)this).GetEnumerator();
+            return GetEnumerator();
         }
 
-        IEnumerator<KeyValuePair<TKey, TValue>> IEnumerable<KeyValuePair<TKey, TValue>>.GetEnumerator()
+        public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
         {
             var count = _list.Count;
             for (var i = 0; i < count; i++)
@@ -802,7 +802,7 @@ namespace Karambolo.Common.Collections
         /// <value>An <see cref="T:System.Collections.Generic.ICollection{TKey}">ICollection&lt;TKey&gt;</see> object containing the keys in the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see>.</value>
         /// <remarks>The returned <see cref="T:System.Collections.Generic.ICollection{TKey}">ICollection&lt;TKey&gt;</see> object is not a static copy; instead, the collection refers back to the keys in the original <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see>. Therefore, changes to the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see> continue to be reflected in the key collection.
         /// It is guaranteed that the order of the keys is the same as in the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see>.</remarks>
-        public ICollection<TKey> Keys => _keyCollection ?? (_keyCollection = new ReadOnlyCollection<TKey>(_list));
+        public ICollection<TKey> Keys => _keyCollection ?? (_keyCollection = _list.AsReadOnly());
 
         IEnumerable<TKey> IReadOnlyDictionary<TKey, TValue>.Keys => Keys;
 
