@@ -5,7 +5,7 @@ using System.Globalization;
 
 namespace Karambolo.Common.Finances
 {
-#if !NETSTANDARD1_2
+#if !NETSTANDARD1_0
     [System.Serializable]
 #endif
     public struct Currency : IEquatable<Currency>
@@ -20,7 +20,7 @@ namespace Karambolo.Common.Finances
 
         static readonly Dictionary<string, Metadata> metadataLookup = new Dictionary<string, Metadata>(StringComparer.OrdinalIgnoreCase);
 
-#if !NETSTANDARD1_2
+#if !NETSTANDARD1_0
         public static void RegisterSystemDefaults()
         {
             foreach (var culture in CultureInfo.GetCultures(CultureTypes.SpecificCultures))
@@ -42,7 +42,7 @@ namespace Karambolo.Common.Finances
             if (code == null)
                 throw new ArgumentNullException(nameof(code));
             if (code.Length != 3 ||
-                (code = code.ToUpperInvariant()).Any(c => c < 'A' || 'Z' < c))
+                (code = code.ToUpperInvariant()).AsEnumerable().Any(c => c < 'A' || 'Z' < c))
                 throw new ArgumentException(null, nameof(code));
             if (symbol == null)
                 throw new ArgumentNullException(nameof(symbol));

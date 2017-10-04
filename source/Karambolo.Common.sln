@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.8
+VisualStudioVersion = 15.0.26730.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Karambolo.Common.Net40", "Karambolo.Common\Karambolo.Common.Net40.csproj", "{BFA3AE0E-4AB1-4765-82FB-6E949B0AE9CF}"
 EndProject
@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Karambolo.Common.Netstd20",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Karambolo.Common.Net45", "Karambolo.Common\Karambolo.Common.Net45.csproj", "{A9794534-BBA3-4908-B101-EDFC1DE5F336}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Karambolo.Common.Netstd12", "Karambolo.Common\Karambolo.Common.Netstd12.csproj", "{15C045EA-7E8F-4DF6-9662-7A989B67AAFC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Karambolo.Common.Netstd10", "Karambolo.Common\Karambolo.Common.Netstd10.csproj", "{15C045EA-7E8F-4DF6-9662-7A989B67AAFC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,8 +39,5 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C307431B-60C2-4116-8734-0242EB76E5B8}
-	EndGlobalSection
-	GlobalSection(TestCaseManagementSettings) = postSolution
-		CategoryFile = Karambolo.Common.vsmdi
 	EndGlobalSection
 EndGlobal

@@ -42,15 +42,15 @@ namespace Karambolo.Common
 
         public static string ToTimeReference(this TimeSpan @this, int precision)
         {
-            return @this.ToTimeReference(precision, NullTextLocalizer.Instance);
+            return @this.ToTimeReference(precision, DefaultTextLocalizer.Instance);
         }
 
-        public static string ToTimeReference(this TimeSpan @this, int precision, TextLocalizer textLocalizer)
+        public static string ToTimeReference(this TimeSpan @this, int precision, TextLocalizer localizer)
         {
-            return @this.ToTimeReference(precision, DefaultPastFormat, DefaultNowText, DefaultFutureFormat, NullTextLocalizer.Instance);
+            return @this.ToTimeReference(precision, DefaultPastFormat, DefaultNowText, DefaultFutureFormat, localizer);
         }
 
-        public static string ToTimeReference(this TimeSpan @this, int precision, string pastFormat, string nowText, string futureFormat, TextLocalizer textLocalizer)
+        public static string ToTimeReference(this TimeSpan @this, int precision, string pastFormat, string nowText, string futureFormat, TextLocalizer localizer)
         {
             var periodCount = periods.Length;
             if (precision < 1 || periodCount < precision)
@@ -58,7 +58,7 @@ namespace Karambolo.Common
 
             var total = @this.Ticks / TimeSpan.TicksPerSecond;
             if (total == 0)
-                return textLocalizer(nowText);
+                return localizer(nowText);
 
             var remainder = Math.Abs(total);
 
@@ -68,30 +68,30 @@ namespace Karambolo.Common
                     break;
 
             var builder = new StringBuilder();
-            AddValue(builder, index++, value, textLocalizer);
+            AddValue(builder, index++, value, localizer);
             precision--;
 
             for (; index < periods.Length && precision > 0; index++, precision--)
                 if ((value = GetValue(ref remainder, index)) > 0)
                 {
                     builder.Append(' ');
-                    AddValue(builder, index, value, textLocalizer);
+                    AddValue(builder, index, value, localizer);
                 }
                 else
                     break;
 
-            return textLocalizer(total > 0 ? futureFormat : pastFormat, args: new[] { builder.ToString() });
+            return localizer(total > 0 ? futureFormat : pastFormat, builder.ToString());
 
             int GetValue(ref long r, int i)
             {
                 return (int)MathCompat.DivRem(r, periods[i].Divisor, out r);
             }
 
-            void AddValue(StringBuilder sb, int i, int v, TextLocalizer t)
+            void AddValue(StringBuilder sb, int i, int v, TextLocalizer loc)
             {
                 sb.Append(v);
                 sb.Append(' ');
-                sb.Append(t(v > 1 ? periods[i].PluralName : periods[i].SingularName));
+                sb.Append(loc(periods[i].SingularName, Plural.From(periods[i].PluralName, v)));
             }
         }
     }

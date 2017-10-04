@@ -2,7 +2,7 @@
 
 namespace Karambolo.Common.Finances
 {
-#if !NETSTANDARD1_2
+#if !NETSTANDARD1_0
     [System.Serializable]
 #endif
     public sealed class Conversion

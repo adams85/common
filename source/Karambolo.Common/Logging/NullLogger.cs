@@ -1,10 +1,10 @@
 ﻿namespace Karambolo.Common.Logging
 {
-    public class NullLogger : ILogger
+    public sealed class NullLogger : ILogger
     {
-        public static readonly NullLogger Instance = new NullLogger(null);
+        public static readonly NullLogger Instance = new NullLogger();
 
-        public NullLogger(string sourceName) { }
+        NullLogger() { }
 
         public void LogEvent(LoggerEventType level, string message, params object[] args) { }
     }

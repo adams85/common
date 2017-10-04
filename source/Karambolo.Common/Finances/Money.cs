@@ -6,7 +6,7 @@ using Karambolo.Common.Properties;
 
 namespace Karambolo.Common.Finances
 {
-#if !NETSTANDARD1_2
+#if !NETSTANDARD1_0
     [System.Serializable]
     public struct Money : IEquatable<Money>, IComparable<Money>, IFormattable, IConvertible, IComparable
 #else
@@ -107,7 +107,7 @@ namespace Karambolo.Common.Finances
             // pre-number
             char c;
             var builder = new StringBuilder();
-            var separator = numberFormat.CurrencyDecimalSeparator.First();
+            var separator = numberFormat.CurrencyDecimalSeparator.AsEnumerable().First();
             for (var i = 0; i < length - 1; i++)
                 if (!char.IsDigit(c = value[i]) && c != separator)
                     builder.Append(c);
@@ -132,7 +132,7 @@ namespace Karambolo.Common.Finances
 
             // post-number
             builder.Clear();
-            separator = numberFormat.CurrencyDecimalSeparator.Last();
+            separator = numberFormat.CurrencyDecimalSeparator.AsEnumerable().Last();
             for (var i = length - 1; i > 0; i--)
                 if (!char.IsDigit(c = value[i]) && c != separator)
                     builder.Insert(0, c);
@@ -315,7 +315,7 @@ namespace Karambolo.Common.Finances
             return _amount.ToString(format, CustomizeNumberFormat(numberFormat));
         }
 
-#if !NETSTANDARD1_2
+#if !NETSTANDARD1_0
         public TypeCode GetTypeCode()
         {
             return TypeCode.Object;

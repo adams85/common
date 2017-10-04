@@ -2,10 +2,13 @@
   <PropertyGroup>
     <AssemblyName>Karambolo.Common</AssemblyName>
     <RootNamespace>Karambolo.Common</RootNamespace>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard1.0</TargetFramework>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>Karambolo.Public.snk</AssemblyOriginatorKeyFile>
-    <BaseIntermediateOutputPath>obj\netstd20\</BaseIntermediateOutputPath>
+    <BaseIntermediateOutputPath>obj\netstd10\</BaseIntermediateOutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
   </PropertyGroup>
 
   <Import Project="Properties\AssemblyInfo.props" />
@@ -26,8 +29,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="Compatibility.Net40.cs" />
-    <Compile Remove="Compatibility.Netstd10.cs" />
+    <Compile Remove="ConcurrencyUtils.cs" />
+    <Compile Remove="FileUtils.NotNetstd10.cs" />
     <Compile Remove="Properties\AssemblyInfo.cs" />
+    <Compile Remove="ReflectionUtils.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Localization\Plural.cs" />

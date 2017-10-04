@@ -2,23 +2,29 @@
 
 namespace Karambolo.Common.Localization
 {
-    public class NullTextLocalizer : ITextLocalizer
+    public sealed class NullTextLocalizer : TextLocalizerBase
     {
-        static readonly NullTextLocalizer instance = new NullTextLocalizer();
-        public static readonly TextLocalizer Instance = (h, d, a) => new LocalizedText(instance) { Hint = h, FormatArgs = a }.Value;
+        public static readonly NullTextLocalizer Instance = new NullTextLocalizer();
 
-        public virtual string Localize(ILocalizableText localizedObject)
+        NullTextLocalizer() { }
+
+        public override string Localize(ILocalizableText localizableObject)
         {
-            if (localizedObject == null)
-                throw new ArgumentNullException(nameof(localizedObject));
+            if (localizableObject == null)
+                throw new ArgumentNullException(nameof(localizableObject));
 
-            if (localizedObject.ObjectId == null)
+            if (localizableObject.Id == null)
                 return string.Empty;
 
-            if (localizedObject.FormatArgs == null || localizedObject.FormatArgs.Length == 0)
-                return localizedObject.ObjectId;
-            else
-                return string.Format(localizedObject.ObjectId, localizedObject.FormatArgs);
+            var id =
+                localizableObject.Plural.Id == null || localizableObject.Plural.Count == 1 ?
+                localizableObject.Id :
+                localizableObject.Plural.Id;
+
+            return
+                ArrayUtils.IsNullOrEmpty(localizableObject.FormatArgs) ?
+                id :
+                string.Format(id, localizableObject.FormatArgs);
         }
     }
 }

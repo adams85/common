@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
@@ -32,6 +33,19 @@ namespace System.Collections.Specialized
 
 namespace Karambolo.Common
 {
+    static partial class StringExtensions
+    {
+        public static IEnumerable<char> AsEnumerable(this string source)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+
+            var n = source.Length;
+            for (var i = 0; i < n; i++)
+                yield return source[i];
+        }
+    }
+
     static partial class ReflectionExtensions
     {
         public static PropertyInfo[] GetProperties(this Type @this)

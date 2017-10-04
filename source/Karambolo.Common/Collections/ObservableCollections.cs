@@ -62,7 +62,7 @@ namespace Karambolo.Common.Collections
 
     public interface IObservableKeyedCollection<TKey, TValue> : IObservableList<TValue>, IReadOnlyObservableKeyedCollection<TKey, TValue>, IKeyedCollection<TKey, TValue> { }
 
-#if !NETSTANDARD1_2
+#if !NETSTANDARD1_0
     [System.Serializable]
 #endif
     [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(CollectionDebugView<>))]
@@ -72,7 +72,7 @@ namespace Karambolo.Common.Collections
         protected const string countPropertyName = "Count";
         protected const string indexerPropertyName = "Item[]";
 
-#if !NETSTANDARD1_2
+#if !NETSTANDARD1_0
         [System.Serializable]
 #endif
         class SimpleMonitor : IDisposable
@@ -91,7 +91,7 @@ namespace Karambolo.Common.Collections
             }
         }
 
-#if !NETSTANDARD1_2
+#if !NETSTANDARD1_0
         [System.Serializable]
 #endif
         class ResetSectionImpl : IDisposable
@@ -403,7 +403,7 @@ namespace Karambolo.Common.Collections
         public event NotifyCollectionChangedEventHandler CollectionChanged;
     }
 
-#if !NETSTANDARD1_2
+#if !NETSTANDARD1_0
     [System.Serializable]
 #endif
     [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(CollectionDebugView<>))]
@@ -738,7 +738,7 @@ namespace Karambolo.Common.Collections
         }
     }
 
-#if !NETSTANDARD1_2
+#if !NETSTANDARD1_0
     [System.Serializable]
 #endif
     [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(CollectionDebugView<>))]
@@ -812,7 +812,7 @@ namespace Karambolo.Common.Collections
         }
     }
 
-#if !NETSTANDARD1_2
+#if !NETSTANDARD1_0
     [System.Serializable]
 #endif
     [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(KeyedCollectionDebugView<,>))]

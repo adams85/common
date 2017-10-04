@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Reflection;
 
 namespace Karambolo.Common
@@ -8,7 +7,7 @@ namespace Karambolo.Common
     {
         public static Assembly Assembly(this Type @this)
         {
-#if !NETSTANDARD1_2
+#if !NETSTANDARD1_0
             return @this.Assembly;
 #else
             return @this.GetTypeInfo().Assembly;
@@ -17,7 +16,7 @@ namespace Karambolo.Common
 
         public static MemberTypes MemberType(this MemberInfo @this)
         {
-#if !NETSTANDARD1_2
+#if !NETSTANDARD1_0
             return @this.MemberType;
 #else
             if (@this == null)
@@ -41,7 +40,7 @@ namespace Karambolo.Common
     {
         public static int DivRem(int a, int b, out int result)
         {
-#if !NETSTANDARD1_2
+#if !NETSTANDARD1_0
             return Math.DivRem(a, b, out result);
 #else
             var remainder = a % b;
@@ -52,7 +51,7 @@ namespace Karambolo.Common
 
         public static long DivRem(long a, long b, out long result)
         {
-#if !NETSTANDARD1_2
+#if !NETSTANDARD1_0
             return Math.DivRem(a, b, out result);
 #else
             var remainder = a % b;

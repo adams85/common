@@ -9,7 +9,7 @@ using System.ComponentModel;
 namespace Karambolo.Common.Collections
 {
     #region Collections
-#if !NETSTANDARD1_2
+#if !NETSTANDARD1_0
     [System.Serializable]
 #endif
     [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(ReadOnlyCollectionDebugView<>))]
@@ -79,7 +79,7 @@ namespace Karambolo.Common.Collections
         bool SetEquals(IEnumerable<T> other);
     }
 
-#if !NETSTANDARD1_2
+#if !NETSTANDARD1_0
     [System.Serializable]
 #endif
     [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(ReadOnlyCollectionDebugView<>))]
@@ -90,12 +90,12 @@ namespace Karambolo.Common.Collections
         public ReadOnlyEnabledHashSet(IEnumerable<T> collection) : base(collection) { }
         public ReadOnlyEnabledHashSet(IEnumerable<T> collection, IEqualityComparer<T> comparer) : base(collection, comparer) { }
 
-#if !NETSTANDARD1_2
+#if !NETSTANDARD1_0
         protected ReadOnlyEnabledHashSet(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
 #endif
     }
 
-#if !NETSTANDARD1_2
+#if !NETSTANDARD1_0
     [System.Serializable]
 #endif
     [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(ReadOnlyCollectionDebugView<>))]
@@ -162,7 +162,7 @@ namespace Karambolo.Common.Collections
 #endregion
 
 #region Dictionaries
-#if !NETSTANDARD1_2
+#if !NETSTANDARD1_0
     [System.Serializable]
 #endif
     [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(ReadOnlyDictionaryDebugView<,>))]
@@ -217,7 +217,7 @@ namespace Karambolo.Common.Collections
         }
     }
 
-#if !NETSTANDARD1_2
+#if !NETSTANDARD1_0
     [System.Serializable]
 #endif
     [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(ReadOnlyDictionaryDebugView<,>))]
@@ -251,7 +251,7 @@ namespace Karambolo.Common.Collections
 #endregion
 
 #region Keyed Collections
-#if !NETSTANDARD1_2
+#if !NETSTANDARD1_0
     [System.Serializable]
 #endif
     [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(KeyedCollectionDebugView<,>))]
@@ -306,7 +306,7 @@ namespace Karambolo.Common.Collections
         }
     }
 
-#if !NETSTANDARD1_2
+#if !NETSTANDARD1_0
     [System.Serializable]
 #endif
     [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(KeyedCollectionDebugView<,>))]

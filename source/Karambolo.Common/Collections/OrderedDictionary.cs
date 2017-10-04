@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Threading;
-using System.Collections.ObjectModel;
 using Karambolo.Common.Properties;
 using System.Diagnostics;
 using Karambolo.Common.Diagnostics;
@@ -97,7 +96,7 @@ namespace Karambolo.Common.Collections
     /// </summary>
     /// <typeparam name="TKey">The type of the keys in the dictionary</typeparam>
     /// <typeparam name="TValue">The type of the values in the dictionary</typeparam>
-#if !NETSTANDARD1_2
+#if !NETSTANDARD1_0
     [System.Serializable]
 #endif
     [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(DictionaryDebugView<,>))]
@@ -277,17 +276,17 @@ namespace Karambolo.Common.Collections
         private readonly Dictionary<TKey, TValue> _dictionary;
         private readonly List<TKey> _list;
 
-#if !NETSTANDARD1_2
+#if !NETSTANDARD1_0
         [System.NonSerialized]
 #endif
         private ICollection<TKey> _keyCollection;
 
-#if !NETSTANDARD1_2
+#if !NETSTANDARD1_0
         [System.NonSerialized]
 #endif
         private ICollection<TValue> _valueCollection;
 
-#if !NETSTANDARD1_2
+#if !NETSTANDARD1_0
         [System.NonSerialized]
 #endif
         private object _syncRoot;

@@ -23,7 +23,7 @@ namespace Karambolo.Common.Collections
         new TValue this[int index] { get; set; }
     }
 
-#if !NETSTANDARD1_2
+#if !NETSTANDARD1_0
     [System.Serializable]
 #endif
     [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(KeyedCollectionDebugView<,>))]
@@ -90,7 +90,7 @@ namespace Karambolo.Common.Collections
         }
 
         readonly Func<TValue, TKey> _keyFromItemSelector;
-#if !NETSTANDARD1_2
+#if !NETSTANDARD1_0
         [System.NonSerialized]
 #endif
         KeyCollection _keyCollection;
@@ -150,7 +150,7 @@ namespace Karambolo.Common.Collections
             return Contains(key);
         }
 
-#if !NETSTANDARD1_2
+#if !NETSTANDARD1_0
         [System.Runtime.Serialization.OnSerializing]
         internal void OnSerializing(System.Runtime.Serialization.StreamingContext context)
         {

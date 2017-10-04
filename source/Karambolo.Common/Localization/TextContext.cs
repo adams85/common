@@ -1,0 +1,22 @@
+﻿using System;
+
+namespace Karambolo.Common.Localization
+{
+    public struct TextContext
+    {
+        public static TextContext From(string id)
+        {
+            return new TextContext(id);
+        }
+
+        TextContext(string id)
+        {
+            if (id == null)
+                throw new ArgumentNullException(nameof(id));
+
+            Id = id;
+        }
+
+        public string Id { get; }
+    }
+}

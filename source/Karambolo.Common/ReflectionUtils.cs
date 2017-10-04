@@ -7,7 +7,7 @@ using System.Linq.Expressions;
 
 namespace Karambolo.Common
 {
-    // TODO: port to Netstandard 1.2?
+    // TODO: port to Netstandard 1.0?
     public static class ReflectionUtils
     {
         const string instanceMemberName = "Instance";

@@ -10,7 +10,7 @@ using System.ComponentModel;
 
 namespace Karambolo.Common.Collections
 {
-#if !NETSTANDARD1_2
+#if !NETSTANDARD1_0
     [System.Serializable]
 #endif
     [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(ReadOnlyCollectionConverterDebugView<,>))]
@@ -47,7 +47,7 @@ namespace Karambolo.Common.Collections
             return ((IEnumerable<TDest>)this).GetEnumerator();
         }
 
-#if !NETSTANDARD1_2
+#if !NETSTANDARD1_0
         [System.Runtime.Serialization.OnSerializing]
         internal void OnSerializing(System.Runtime.Serialization.StreamingContext context)
         {
@@ -59,7 +59,7 @@ namespace Karambolo.Common.Collections
 #endif
     }
 
-#if !NETSTANDARD1_2
+#if !NETSTANDARD1_0
     [System.Serializable]
 #endif
     [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(CollectionConverterDebugView<,>))]
@@ -132,7 +132,7 @@ namespace Karambolo.Common.Collections
             return ((IEnumerable<TDest>)this).GetEnumerator();
         }
 
-#if !NETSTANDARD1_2
+#if !NETSTANDARD1_0
         [System.Runtime.Serialization.OnSerializing]
         internal void OnSerializing(System.Runtime.Serialization.StreamingContext context)
         {
@@ -144,7 +144,7 @@ namespace Karambolo.Common.Collections
 #endif
     }
 
-#if !NETSTANDARD1_2
+#if !NETSTANDARD1_0
     [System.Serializable]
 #endif
     [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(ReadOnlyCollectionConverterDebugView<,>))]
@@ -192,7 +192,7 @@ namespace Karambolo.Common.Collections
         }
     }
 
-#if !NETSTANDARD1_2
+#if !NETSTANDARD1_0
     [System.Serializable]
 #endif
     [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(CollectionConverterDebugView<,>))]
@@ -260,7 +260,7 @@ namespace Karambolo.Common.Collections
         }
     }
 
-#if !NETSTANDARD1_2
+#if !NETSTANDARD1_0
     [System.Serializable]
 #endif
     [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(ReadOnlyCollectionConverterDebugView<,>))]
@@ -275,7 +275,7 @@ namespace Karambolo.Common.Collections
         public TDest this[int index] => _convertToDest(_source[index]);
     }
 
-#if !NETSTANDARD1_2
+#if !NETSTANDARD1_0
     [System.Serializable]
 #endif
     [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(CollectionConverterDebugView<,>))]
@@ -309,7 +309,7 @@ namespace Karambolo.Common.Collections
         }
     }
 
-#if !NETSTANDARD1_2
+#if !NETSTANDARD1_0
     [System.Serializable]
 #endif
     [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(DictionaryConverterDebugView<,,>))]
@@ -335,7 +335,7 @@ namespace Karambolo.Common.Collections
             _convertToDest = convertToDest;
         }
 
-#if !NETSTANDARD1_2
+#if !NETSTANDARD1_0
         [System.Runtime.Serialization.OnSerializing]
         internal new void OnSerializing(System.Runtime.Serialization.StreamingContext context)
         {
@@ -368,7 +368,7 @@ namespace Karambolo.Common.Collections
         public TDest this[TKey key] => _convertToDest(_source[key]);
     }
 
-#if !NETSTANDARD1_2
+#if !NETSTANDARD1_0
     [System.Serializable]
 #endif
     [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(DictionaryConverterDebugView<,,>))]
@@ -428,7 +428,7 @@ namespace Karambolo.Common.Collections
             set => _source[key] = _convertToSource(value);
         }
 
-#if !NETSTANDARD1_2
+#if !NETSTANDARD1_0
         [System.Runtime.Serialization.OnSerializing]
         internal new void OnSerializing(System.Runtime.Serialization.StreamingContext context)
         {
@@ -442,7 +442,7 @@ namespace Karambolo.Common.Collections
 #endif
     }
 
-#if !NETSTANDARD1_2
+#if !NETSTANDARD1_0
     [System.Serializable]
 #endif
     [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(DictionaryConverterDebugView<,,>))]
@@ -487,7 +487,7 @@ namespace Karambolo.Common.Collections
         IEnumerable<TDest> IReadOnlyDictionary<TKey, TDest>.Values => Values;
     }
 
-#if !NETSTANDARD1_2
+#if !NETSTANDARD1_0
     [System.Serializable]
 #endif
     [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(KeyedCollectionConverterDebugView<,,>))]
@@ -524,7 +524,7 @@ namespace Karambolo.Common.Collections
         }
     }
 
-#if !NETSTANDARD1_2
+#if !NETSTANDARD1_0
     [System.Serializable]
 #endif
     [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(CollectionConverterDebugView<,>))]
@@ -585,7 +585,7 @@ namespace Karambolo.Common.Collections
 
     }
 
-#if !NETSTANDARD1_2
+#if !NETSTANDARD1_0
     [System.Serializable]
 #endif
     [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(CollectionConverterDebugView<,>))]
@@ -675,7 +675,7 @@ namespace Karambolo.Common.Collections
         }
     }
 
-#if !NETSTANDARD1_2
+#if !NETSTANDARD1_0
     [System.Serializable]
 #endif
     [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(KeyedCollectionConverterDebugView<,,>))]
