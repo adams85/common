@@ -53,19 +53,47 @@ namespace Karambolo.Common
             return result;
         }
 
-        public static IEnumerable<string> Split(this string @this, Func<char, bool> condition, StringSplitOptions options = StringSplitOptions.None)
+        public static int FindIndex(this string @this, Func<char, bool> match)
+        {
+            return @this.FindIndex(match, 0, @this.Length);
+        }
+
+        public static int FindIndex(this string @this, Func<char, bool> match, int startIndex)
+        {
+            return @this.FindIndex(match, startIndex, @this.Length - startIndex);
+        }
+
+        public static int FindIndex(this string @this, Func<char, bool> match, int startIndex, int count)
+        {
+            var length = @this.Length;
+            var endIndex = startIndex + count;
+
+            if (startIndex < 0 || length < startIndex)
+                throw new ArgumentOutOfRangeException(nameof(startIndex));
+
+            if (count < 0 || length < endIndex)
+                throw new ArgumentOutOfRangeException(nameof(count));
+
+            for (; startIndex < endIndex; startIndex++)
+                if (match(@this[startIndex]))
+                    return startIndex;
+
+            return -1;
+        }
+
+        public static IEnumerable<string> Split(this string @this, Func<char, bool> match, StringSplitOptions options = StringSplitOptions.None)
         {
             if (@this == null)
                 throw new NullReferenceException();
 
-            if (condition == null)
-                throw new ArgumentNullException(nameof(condition));
+            if (match == null)
+                throw new ArgumentNullException(nameof(match));
 
             string section;
             var startIndex = 0;
             for (var index = 0; index < @this.Length; index++)
             {
-                if (condition(@this[index]))
+                if (match(@this[index]))
                 {
                     section = @this.Substring(startIndex, index - startIndex);
                     if (options != StringSplitOptions.RemoveEmptyEntries || section.Length > 0)
@@ -88,7 +116,7 @@ namespace Karambolo.Common
             if (@this == null)
                 throw new NullReferenceException();
 
-            if (@this == string.Empty)
+            if (@this.Length == 0)
                 return string.Empty;
 
             var result = new StringBuilder();
@@ -110,7 +138,7 @@ namespace Karambolo.Common
             if (@this == null)
                 throw new NullReferenceException();
 
-            if (@this == string.Empty)
+            if (@this.Length == 0)
                 return string.Empty;
 
             var result = new StringBuilder();
@@ -133,31 +161,41 @@ namespace Karambolo.Common
             return result.ToString();
         }
 
-        public static int IndexOfEscaped(this string @this, char escapeChar, char value, int startIndex = 0)
+        public static int IndexOfEscaped(this string @this, char escapeChar, char value)
         {
-            if (@this == null)
-                throw new NullReferenceException();
+            return @this.IndexOfEscaped(escapeChar, value, 0, @this.Length);
+        }
 
-            if (startIndex < 0 || startIndex >= @this.Length)
+        public static int IndexOfEscaped(this string @this, char escapeChar, char value, int startIndex)
+        {
+            return @this.IndexOfEscaped(escapeChar, value, startIndex, @this.Length - startIndex);
+        }
+
+        public static int IndexOfEscaped(this string @this, char escapeChar, char value, int startIndex, int count)
+        {
+            var length = @this.Length;
+            var endIndex = startIndex + count;
+
+            if (startIndex < 0 || length < startIndex)
                 throw new ArgumentOutOfRangeException(nameof(startIndex));
 
-            if (@this == string.Empty)
-                return -1;
+            if (count < 0 || length < endIndex)
+                throw new ArgumentOutOfRangeException(nameof(count));
 
             Func<int, bool> checker;
             if (escapeChar != value)
                 checker = j => true;
             else
-                checker = j => j < @this.Length - 1 && @this[j + 1] == value;
+                checker = j => j < endIndex - 1 && @this[j + 1] == value;
 
-            for (var i = startIndex; i < @this.Length; i++)
+            for (; startIndex < endIndex; startIndex++)
             {
-                var c = @this[i];
+                var c = @this[startIndex];
 
-                if (c == escapeChar && checker(i))
-                    i++;
+                if (c == escapeChar && checker(startIndex))
+                    startIndex++;
                 else if (c == value)
-                    return i;
+                    return startIndex;
             }
 
             return -1;
@@ -168,7 +206,7 @@ namespace Karambolo.Common
             if (@this == null)
                 throw new NullReferenceException();
 
-            if (@this == string.Empty)
+            if (@this.Length == 0)
             {
                 if (options != StringSplitOptions.RemoveEmptyEntries)
                     yield return string.Empty;
@@ -204,7 +242,7 @@ namespace Karambolo.Common
             if (@this == null)
                 throw new NullReferenceException();
 
-            if (@this == string.Empty)
+            if (@this.Length == 0)
                 return string.Empty;
 
             var normalizedString = @this.Normalize(NormalizationForm.FormD);

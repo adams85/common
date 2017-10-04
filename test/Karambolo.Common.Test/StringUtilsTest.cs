@@ -27,6 +27,24 @@ namespace Karambolo.Common.Test
         }
 
         [TestMethod]
+        public void IndexOfEscapedTest()
+        {
+            var text = "This is a quotation: \\\"blablabla\"";
+            var result = text.IndexOfEscaped('\\', '"');
+            Assert.AreEqual(text.Length - 1, result);
+
+            text = "This is a quotation: \\\"blablabla\\\"";
+            result = text.IndexOfEscaped('\\', '"');
+            Assert.AreEqual(-1, result);
+
+            result = text.IndexOfEscaped('\\', '"', text.Length - 1);
+            Assert.AreEqual(text.Length - 1, result);
+
+            result = text.IndexOfEscaped('\\', '"', text.Length);
+            Assert.AreEqual(-1, result);
+        }
+
+        [TestMethod]
         public void SplitTest()
         {
             var text = "From the stars we came, to the stars we rise.";
