@@ -81,6 +81,35 @@ namespace Karambolo.Common
             return -1;
         }
 
+        public static int FindLastIndex(this string @this, Func<char, bool> match)
+        {
+            var length = @this.Length;
+            return @this.FindLastIndex(match, length - 1, length);
+        }
+
+        public static int FindLastIndex(this string @this, Func<char, bool> match, int startIndex)
+        {
+            return @this.FindLastIndex(match, startIndex, startIndex + 1);
+        }
+
+        public static int FindLastIndex(this string @this, Func<char, bool> match, int startIndex, int count)
+        {
+            var length = @this.Length;
+            var endIndex = startIndex - count;
+
+            if (startIndex < -1 || length <= startIndex)
+                throw new ArgumentOutOfRangeException(nameof(startIndex));
+
+            if (count < 0 || endIndex < -1)
+                throw new ArgumentOutOfRangeException(nameof(count));
+
+            for (; startIndex > endIndex; startIndex--)
+                if (match(@this[startIndex]))
+                    return startIndex;
+
+            return -1;
+        }
+
         public static IEnumerable<string> Split(this string @this, Func<char, bool> match, StringSplitOptions options = StringSplitOptions.None)
         {
             if (@this == null)
@@ -182,23 +211,72 @@ namespace Karambolo.Common
             if (count < 0 || length < endIndex)
                 throw new ArgumentOutOfRangeException(nameof(count));
 
-            Func<int, bool> checker;
-            if (escapeChar != value)
-                checker = j => true;
-            else
-                checker = j => j < endIndex - 1 && @this[j + 1] == value;
+            Func<int, bool> isEscaped = escapeChar == value ? IsEscaped : True<int>.Func;
 
             for (; startIndex < endIndex; startIndex++)
             {
                 var c = @this[startIndex];
 
-                if (c == escapeChar && checker(startIndex))
+                if (c == escapeChar && isEscaped(startIndex))
                     startIndex++;
                 else if (c == value)
                     return startIndex;
             }
 
             return -1;
+
+            bool IsEscaped(int i)
+            {
+                return i < endIndex - 1 && @this[i + 1] == value;
+            }
+        }
+
+        public static int LastIndexOfEscaped(this string @this, char escapeChar, char value)
+        {
+            var length = @this.Length;
+            return @this.LastIndexOfEscaped(escapeChar, value, length - 1, length);
+        }
+
+        public static int LastIndexOfEscaped(this string @this, char escapeChar, char value, int startIndex)
+        {
+            return @this.LastIndexOfEscaped(escapeChar, value, startIndex, startIndex + 1);
+        }
+
+        public static int LastIndexOfEscaped(this string @this, char escapeChar, char value, int startIndex, int count)
+        {
+            var length = @this.Length;
+            var endIndex = startIndex - count;
+
+            if (startIndex < -1 || length <= startIndex)
+                throw new ArgumentOutOfRangeException(nameof(startIndex));
+
+            if (count < 0 || endIndex < -1)
+                throw new ArgumentOutOfRangeException(nameof(count));
+
+            for (; startIndex > endIndex; startIndex--)
+            {
+                var c = @this[startIndex];
+
+                if (c == value)
+                    if (IsEscaped(startIndex))
+                        startIndex--;
+                    else
+                        return startIndex;
+            }
+
+            return -1;
+
+            bool IsEscaped(int i)
+            {
+                bool result = false;
+                for (i--; i > endIndex; i--)
+                    if (@this[i] == escapeChar)
+                        result = !result;
+                    else
+                        break;
+
+                return result;
+            }
         }
 
         public static IEnumerable<string> SplitEscaped(this string @this, char escapeChar, char separatorChar, StringSplitOptions options = StringSplitOptions.None)

@@ -194,7 +194,7 @@ namespace Karambolo.Common
                 yield return counter++;
         }
 
-        public static IEnumerable<long> IterateWhileTrueInt64(Func<bool> condition)
+        public static IEnumerable<long> IterateWhileTrueLong(Func<bool> condition)
         {
             var counter = 0L;
             while (condition())
