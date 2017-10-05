@@ -20,8 +20,8 @@
       <file src="..\source\Karambolo.Common\bin\Release\net40\Karambolo.Common.pdb" target="lib\net40" />
       <file src="..\source\Karambolo.Common\bin\Release\net45\Karambolo.Common.dll" target="lib\net45" />
       <file src="..\source\Karambolo.Common\bin\Release\net45\Karambolo.Common.pdb" target="lib\net45" />
-      <file src="..\source\Karambolo.Common\bin\Release\netstandard1.2\Karambolo.Common.dll" target="lib\netstandard1.2" />
-      <file src="..\source\Karambolo.Common\bin\Release\netstandard1.2\Karambolo.Common.pdb" target="lib\netstandard1.2" />
+      <file src="..\source\Karambolo.Common\bin\Release\netstandard1.0\Karambolo.Common.dll" target="lib\netstandard1.0" />
+      <file src="..\source\Karambolo.Common\bin\Release\netstandard1.0\Karambolo.Common.pdb" target="lib\netstandard1.0" />
       <file src="..\source\Karambolo.Common\bin\Release\netstandard2.0\Karambolo.Common.dll" target="lib\netstandard2.0" />
       <file src="..\source\Karambolo.Common\bin\Release\netstandard2.0\Karambolo.Common.pdb" target="lib\netstandard2.0" />
     </files>
