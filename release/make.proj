@@ -1,7 +1,10 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="12.0" DefaultTargets="Make">
   <PropertyGroup>
     <Git>git.exe</Git>
+    <VsTest>vstest.console.exe</VsTest>
     <NuGet>$(MSBuildProjectDirectory)\nuget.exe</NuGet>
+    <TestSolutionPath>$(MSBuildProjectDirectory)\..\test</TestSolutionPath>
+    <TestSolution>$(TestSolutionPath)\Karambolo.Common.Test.sln</TestSolution>
     <SolutionPath>$(MSBuildProjectDirectory)\..\source</SolutionPath>
     <Solution>$(SolutionPath)\Karambolo.Common.sln</Solution>
     <AssemblyInfoPath>$(SolutionPath)\Karambolo.Common\Properties\AssemblyInfo.cs</AssemblyInfoPath>
@@ -9,6 +12,10 @@
     <NuspecPath>$(MSBuildProjectDirectory)\package.nuspec</NuspecPath>
   </PropertyGroup>
 
+  <ItemGroup>
+    <TestProject Include="$(TestSolutionPath)\Karambolo.Common.Test\bin\Release\Karambolo.Common.Test.dll" />
+  </ItemGroup>
+  
   <Target Name="GetVersion" Condition="$(TagVersion) == '' Or $(Revision) == ''">
     <!-- checking active branch -->
     <Exec Command="&quot;$(Git)&quot; branch | find &quot;* (HEAD detached at &quot;" IgnoreExitCode="true">
@@ -40,7 +47,15 @@
     </Exec>
   </Target>
 
-  <Target Name="Make" DependsOnTargets="GetVersion">
+  <Target Name="RunTests">
+    <!-- build -->
+    <MSBuild Projects="$(TestSolution)" Properties="Configuration=Release;Platform=Any CPU" />
+
+    <!-- run tests -->
+    <Exec Command="&quot;$(VsTest)&quot; &quot;%(TestProject.Identity)&quot;" />
+  </Target>
+
+  <Target Name="Make" DependsOnTargets="RunTests;GetVersion">
     <!-- setting version -->
     <UpdateVersion TagVersion="$(TagVersion)" Revision="$(Revision)"
                    AssemblyInfoPath="$(AssemblyInfoPath)" NetstdProjPath="$(NetstdProjPath)" NuspecPath="$(NuspecPath)" />
