@@ -2,17 +2,17 @@
 
 namespace Karambolo.Common
 {
-    public static class Empty
+    public static class Noop
     {
         public static readonly Action Action = () => { };
     }
 
-    public static class Empty<T>
+    public static class Noop<T>
     {
         public static readonly Action<T> Action = arg => { };
     }
 
-    public static class Empty<T1, T2>
+    public static class Noop<T1, T2>
     {
         public static readonly Action<T1, T2> Action = (arg1, arg2) => { };
     }
