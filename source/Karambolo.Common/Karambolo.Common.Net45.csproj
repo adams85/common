@@ -54,6 +54,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ArrayUtils.cs" />
+    <Compile Include="CachedDelegates.cs" />
     <Compile Include="Collections\CollectionConverters.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -62,7 +63,6 @@
     <Compile Include="Compatibility.cs" />
     <Compile Include="ConcurrencyUtils.cs" />
     <Compile Include="DateTimeUtils.cs" />
-    <Compile Include="Delegates.cs" />
     <Compile Include="Collections\ObservableCollections.cs" />
     <Compile Include="CollectionUtils.cs" />
     <Compile Include="Collections\KeyedCollection.cs" />

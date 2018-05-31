@@ -36,15 +36,16 @@ namespace Karambolo.Common
             if ((value.Length & 1) != 0)
                 throw new FormatException();
 
+            value = value.ToUpperInvariant();
             var byteCount = value.Length >> 1;
             var result = new byte[byteCount];
             var index = 0;
             for (var i = 0; i < byteCount; i++)
             {
-                var hi = hexDigitLookup.IndexOf(char.ToUpperInvariant(value[index++]));
+                var hi = hexDigitLookup.IndexOf(value[index++]);
                 if (hi < 0)
                     throw new FormatException();
-                var lo = hexDigitLookup.IndexOf(char.ToUpperInvariant(value[index++]));
+                var lo = hexDigitLookup.IndexOf(value[index++]);
                 if (lo < 0)
                     throw new FormatException();
                 result[i] = (byte)(hi << 4 | lo);
