@@ -301,3 +301,4 @@ __pycache__/
 # Other
 .svn/
 NuGet.exe
+.axoCover/
