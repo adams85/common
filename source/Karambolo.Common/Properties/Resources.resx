@@ -189,4 +189,10 @@
   <data name="NotInterfaceType" xml:space="preserve">
     <value>Type is not an interface.</value>
   </data>
+  <data name="InvalidPublicKeyToken" xml:space="preserve">
+    <value>Invalid public key token. Size must be {0} bytes.</value>
+  </data>
+  <data name="PropertyCannotBeNull" xml:space="preserve">
+    <value>Property {0} cannot be null.</value>
+  </data>
 </root>

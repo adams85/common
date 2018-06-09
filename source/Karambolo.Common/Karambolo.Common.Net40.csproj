@@ -88,6 +88,7 @@
     <Compile Include="Logging\Logger.cs" />
     <Compile Include="Logging\NullLogger.cs" />
     <Compile Include="Logging\TraceSourceLogger.cs" />
+    <Compile Include="AssemblyNameBuilder.cs" />
     <Compile Include="Owned.cs" />
     <Compile Include="PredicateBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -102,6 +103,7 @@
     <Compile Include="StringUtils.cs" />
     <Compile Include="TaskUtils.cs" />
     <Compile Include="TreeUtils.cs" />
+    <Compile Include="TypeNameBuilder.cs" />
     <Compile Include="UriUtils.cs" />
   </ItemGroup>
   <ItemGroup>

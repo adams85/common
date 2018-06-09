@@ -151,6 +151,15 @@ namespace Karambolo.Common.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Invalid public key token. Size must be {0} bytes..
+        /// </summary>
+        internal static string InvalidPublicKeyToken {
+            get {
+                return ResourceManager.GetString("InvalidPublicKeyToken", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Value must be of type {0}..
         /// </summary>
         internal static string InvalidValueType {
@@ -255,6 +264,15 @@ namespace Karambolo.Common.Properties {
         internal static string PopulatingObjectFailed {
             get {
                 return ResourceManager.GetString("PopulatingObjectFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Property {0} cannot be null..
+        /// </summary>
+        internal static string PropertyCannotBeNull {
+            get {
+                return ResourceManager.GetString("PropertyCannotBeNull", resourceCulture);
             }
         }
         

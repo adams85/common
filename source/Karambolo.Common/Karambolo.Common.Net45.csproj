@@ -54,6 +54,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ArrayUtils.cs" />
+    <Compile Include="AssemblyNameBuilder.cs" />
     <Compile Include="CachedDelegates.cs" />
     <Compile Include="Collections\CollectionConverters.cs">
       <SubType>Code</SubType>
@@ -101,6 +102,7 @@
     <Compile Include="StringUtils.cs" />
     <Compile Include="TaskUtils.cs" />
     <Compile Include="TreeUtils.cs" />
+    <Compile Include="TypeNameBuilder.cs" />
     <Compile Include="UriUtils.cs" />
   </ItemGroup>
   <ItemGroup>
