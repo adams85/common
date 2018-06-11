@@ -13,11 +13,11 @@ namespace Karambolo.Common.Test
         {
             // simple
             var builder = new TypeNameBuilder("System.String");
-            Assert.AreEqual("System.String", builder.TypeName);
+            Assert.AreEqual("System.String", builder.BaseName);
             Assert.IsNull(builder.AssemblyName);
-            Assert.IsFalse(builder.IsGenericType);
+            Assert.IsFalse(builder.IsGeneric);
             Assert.AreEqual(0, builder.GenericArguments.Count);
-            Assert.IsFalse(builder.IsArrayType);
+            Assert.IsFalse(builder.IsArray);
             Assert.AreEqual(0, builder.ArrayDimensions.Count);
 
             try
@@ -29,9 +29,9 @@ namespace Karambolo.Common.Test
 
             // array
             builder = new TypeNameBuilder("System.String[],mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089");
-            Assert.AreEqual("System.String", builder.TypeName);
+            Assert.AreEqual("System.String", builder.BaseName);
             Assert.AreEqual("mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089", builder.AssemblyName);
-            Assert.IsFalse(builder.IsGenericType);
+            Assert.IsFalse(builder.IsGeneric);
             Assert.AreEqual(0, builder.GenericArguments.Count);
             Assert.AreEqual(1, builder.ArrayDimensions.Count);
             Assert.AreEqual(1, builder.ArrayDimensions[0]);
@@ -59,9 +59,9 @@ namespace Karambolo.Common.Test
 
             // array of array
             builder = new TypeNameBuilder("System.String[ , ] [, ,][], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089");
-            Assert.AreEqual("System.String", builder.TypeName);
+            Assert.AreEqual("System.String", builder.BaseName);
             Assert.AreEqual("mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089", builder.AssemblyName);
-            Assert.IsFalse(builder.IsGenericType);
+            Assert.IsFalse(builder.IsGeneric);
             Assert.AreEqual(0, builder.GenericArguments.Count);
             Assert.AreEqual(3, builder.ArrayDimensions.Count);
             Assert.AreEqual(2, builder.ArrayDimensions[0]);
@@ -70,19 +70,19 @@ namespace Karambolo.Common.Test
 
             // generic
             builder = new TypeNameBuilder("System.Collections.Generic.List`1[[System.String]]");
-            Assert.AreEqual("System.Collections.Generic.List", builder.TypeName);
+            Assert.AreEqual("System.Collections.Generic.List", builder.BaseName);
             Assert.IsNull(builder.AssemblyName);
-            Assert.IsTrue(builder.IsGenericType);
+            Assert.IsTrue(builder.IsGeneric);
             Assert.AreEqual(1, builder.GenericArguments.Count);
-            Assert.IsFalse(builder.IsArrayType);
+            Assert.IsFalse(builder.IsArray);
             Assert.AreEqual(0, builder.ArrayDimensions.Count);
 
             var builder2 = builder.GenericArguments[0];
-            Assert.AreEqual("System.String", builder2.TypeName);
+            Assert.AreEqual("System.String", builder2.BaseName);
             Assert.IsNull(builder2.AssemblyName);
-            Assert.IsFalse(builder2.IsGenericType);
+            Assert.IsFalse(builder2.IsGeneric);
             Assert.AreEqual(0, builder2.GenericArguments.Count);
-            Assert.IsFalse(builder2.IsArrayType);
+            Assert.IsFalse(builder2.IsArray);
             Assert.AreEqual(0, builder2.ArrayDimensions.Count);
 
             try
@@ -136,20 +136,20 @@ namespace Karambolo.Common.Test
 
             // array of generic
             builder = new TypeNameBuilder("System.Collections.Generic.List`1[[System.String[,]]] []");
-            Assert.AreEqual("System.Collections.Generic.List", builder.TypeName);
+            Assert.AreEqual("System.Collections.Generic.List", builder.BaseName);
             Assert.IsNull(builder.AssemblyName);
-            Assert.IsTrue(builder.IsGenericType);
+            Assert.IsTrue(builder.IsGeneric);
             Assert.AreEqual(1, builder.GenericArguments.Count);
-            Assert.IsTrue(builder.IsArrayType);
+            Assert.IsTrue(builder.IsArray);
             Assert.AreEqual(1, builder.ArrayDimensions.Count);
             Assert.AreEqual(1, builder.ArrayDimensions[0]);
 
             builder2 = builder.GenericArguments[0];
-            Assert.AreEqual("System.String", builder2.TypeName);
+            Assert.AreEqual("System.String", builder2.BaseName);
             Assert.IsNull(builder2.AssemblyName);
-            Assert.IsFalse(builder2.IsGenericType);
+            Assert.IsFalse(builder2.IsGeneric);
             Assert.AreEqual(0, builder2.GenericArguments.Count);
-            Assert.IsTrue(builder2.IsArrayType);
+            Assert.IsTrue(builder2.IsArray);
             Assert.AreEqual(1, builder2.ArrayDimensions.Count);
             Assert.AreEqual(2, builder2.ArrayDimensions[0]);
 
@@ -162,35 +162,35 @@ namespace Karambolo.Common.Test
 
             // generic of generic
             builder = new TypeNameBuilder(" System.Collections.Generic.Dictionary`2[[ System.Int32 , mscorlib2 ], [System.Collections.Generic.List`1[[System.String, mscorlib4]] ,mscorlib3] ] , mscorlib1");
-            Assert.AreEqual("System.Collections.Generic.Dictionary", builder.TypeName);
+            Assert.AreEqual("System.Collections.Generic.Dictionary", builder.BaseName);
             Assert.AreEqual("mscorlib1", builder.AssemblyName);
-            Assert.IsTrue(builder.IsGenericType);
+            Assert.IsTrue(builder.IsGeneric);
             Assert.AreEqual(2, builder.GenericArguments.Count);
-            Assert.IsFalse(builder.IsArrayType);
+            Assert.IsFalse(builder.IsArray);
             Assert.AreEqual(0, builder.ArrayDimensions.Count);
 
             builder2 = builder.GenericArguments[0];
-            Assert.AreEqual("System.Int32", builder2.TypeName);
+            Assert.AreEqual("System.Int32", builder2.BaseName);
             Assert.AreEqual("mscorlib2", builder2.AssemblyName);
-            Assert.IsFalse(builder2.IsGenericType);
+            Assert.IsFalse(builder2.IsGeneric);
             Assert.AreEqual(0, builder2.GenericArguments.Count);
-            Assert.IsFalse(builder2.IsArrayType);
+            Assert.IsFalse(builder2.IsArray);
             Assert.AreEqual(0, builder2.ArrayDimensions.Count);
 
             builder2 = builder.GenericArguments[1];
-            Assert.AreEqual("System.Collections.Generic.List", builder2.TypeName);
+            Assert.AreEqual("System.Collections.Generic.List", builder2.BaseName);
             Assert.AreEqual("mscorlib3", builder2.AssemblyName);
-            Assert.IsTrue(builder2.IsGenericType);
+            Assert.IsTrue(builder2.IsGeneric);
             Assert.AreEqual(1, builder2.GenericArguments.Count);
-            Assert.IsFalse(builder2.IsArrayType);
+            Assert.IsFalse(builder2.IsArray);
             Assert.AreEqual(0, builder2.ArrayDimensions.Count);
 
             var builder3 = builder2.GenericArguments[0];
-            Assert.AreEqual("System.String", builder3.TypeName);
+            Assert.AreEqual("System.String", builder3.BaseName);
             Assert.AreEqual("mscorlib4", builder3.AssemblyName);
-            Assert.IsFalse(builder3.IsGenericType);
+            Assert.IsFalse(builder3.IsGeneric);
             Assert.AreEqual(0, builder3.GenericArguments.Count);
-            Assert.IsFalse(builder3.IsArrayType);
+            Assert.IsFalse(builder3.IsArray);
             Assert.AreEqual(0, builder3.ArrayDimensions.Count);
 
             // transforms
@@ -202,35 +202,35 @@ namespace Karambolo.Common.Test
                     TypeNameTransform = n => n.Replace("System.", "")
                 });
 
-            Assert.AreEqual("Collections.Generic.Dictionary", builder.TypeName);
+            Assert.AreEqual("Collections.Generic.Dictionary", builder.BaseName);
             Assert.AreEqual("mscorlib", builder.AssemblyName);
-            Assert.IsTrue(builder.IsGenericType);
+            Assert.IsTrue(builder.IsGeneric);
             Assert.AreEqual(2, builder.GenericArguments.Count);
-            Assert.IsFalse(builder.IsArrayType);
+            Assert.IsFalse(builder.IsArray);
             Assert.AreEqual(0, builder.ArrayDimensions.Count);
 
             builder2 = builder.GenericArguments[0];
-            Assert.AreEqual("Int32", builder2.TypeName);
+            Assert.AreEqual("Int32", builder2.BaseName);
             Assert.AreEqual("mscorlib", builder2.AssemblyName);
-            Assert.IsFalse(builder2.IsGenericType);
+            Assert.IsFalse(builder2.IsGeneric);
             Assert.AreEqual(0, builder2.GenericArguments.Count);
-            Assert.IsFalse(builder2.IsArrayType);
+            Assert.IsFalse(builder2.IsArray);
             Assert.AreEqual(0, builder2.ArrayDimensions.Count);
 
             builder2 = builder.GenericArguments[1];
-            Assert.AreEqual("Collections.Generic.List", builder2.TypeName);
+            Assert.AreEqual("Collections.Generic.List", builder2.BaseName);
             Assert.AreEqual("mscorlib", builder2.AssemblyName);
-            Assert.IsTrue(builder2.IsGenericType);
+            Assert.IsTrue(builder2.IsGeneric);
             Assert.AreEqual(1, builder2.GenericArguments.Count);
-            Assert.IsFalse(builder2.IsArrayType);
+            Assert.IsFalse(builder2.IsArray);
             Assert.AreEqual(0, builder2.ArrayDimensions.Count);
 
             builder3 = builder2.GenericArguments[0];
-            Assert.AreEqual("String", builder3.TypeName);
+            Assert.AreEqual("String", builder3.BaseName);
             Assert.AreEqual("mscorlib", builder3.AssemblyName);
-            Assert.IsFalse(builder3.IsGenericType);
+            Assert.IsFalse(builder3.IsGeneric);
             Assert.AreEqual(0, builder3.GenericArguments.Count);
-            Assert.IsFalse(builder3.IsArrayType);
+            Assert.IsFalse(builder3.IsArray);
             Assert.AreEqual(0, builder3.ArrayDimensions.Count);
         }
 
@@ -240,7 +240,7 @@ namespace Karambolo.Common.Test
             // simple
             var builder = new TypeNameBuilder
             {
-                TypeName = "System.String",
+                BaseName = "System.String",
                 AssemblyName = "mscorlib"
             };
             Assert.AreEqual("System.String, mscorlib", builder.ToString());
@@ -248,24 +248,24 @@ namespace Karambolo.Common.Test
             // complex
             builder = new TypeNameBuilder
             {
-                TypeName = "System.Collections.Generic.Dictionary",
+                BaseName = "System.Collections.Generic.Dictionary",
                 AssemblyName = "mscorlib",
                 GenericArguments =
                 {
                     new TypeNameBuilder
                     {
-                        TypeName = "System.Int32",
+                        BaseName = "System.Int32",
                         AssemblyName = "mscorlib",
                     },
                     new TypeNameBuilder
                     {
-                        TypeName = "System.Collections.Generic.List",
+                        BaseName = "System.Collections.Generic.List",
                         AssemblyName = "mscorlib",
                         GenericArguments =
                         {
                             new TypeNameBuilder
                             {
-                                TypeName = "System.String",
+                                BaseName = "System.String",
                                 AssemblyName = "mscorlib",
                                 ArrayDimensions = { 1, 2 }
                             },

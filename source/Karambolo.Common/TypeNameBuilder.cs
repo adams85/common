@@ -128,30 +128,30 @@ namespace Karambolo.Common
             else
                 isAssemblyQualified = true;
 
-            var typeName =
+            var baseName =
                 bracketIndex >= 0 ?
                 input.Substring(startIndex, bracketIndex - startIndex) :
                 input.Substring(startIndex, i - startIndex);
 
             if (bracketIndex >= 0)
             {
-                if (typeName.Length > 0 && char.IsWhiteSpace(typeName[typeName.Length - 1]))
+                if (baseName.Length > 0 && char.IsWhiteSpace(baseName[baseName.Length - 1]))
                     throw new FormatException();
 
                 if (isGeneric)
                 {
-                    var index = typeName.IndexOf('`');
-                    if (!int.TryParse(typeName.Substring(index + 1), out int genericArgumentCount) || genericArgumentCount != genericArguments.Count)
+                    var index = baseName.IndexOf('`');
+                    if (!int.TryParse(baseName.Substring(index + 1), out int genericArgumentCount) || genericArgumentCount != genericArguments.Count)
                         throw new FormatException();
 
-                    typeName = typeName.Substring(0, index);
-                    if (typeName.Length > 0 && char.IsWhiteSpace(typeName[typeName.Length - 1]))
+                    baseName = baseName.Substring(0, index);
+                    if (baseName.Length > 0 && char.IsWhiteSpace(baseName[baseName.Length - 1]))
                         throw new FormatException();
                 }
             }
 
-            typeName = typeName.Trim();
-            if (typeName.Length == 0)
+            baseName = baseName.Trim();
+            if (baseName.Length == 0)
                 throw new FormatException();
 
             string assemblyName;
@@ -164,7 +164,7 @@ namespace Karambolo.Common
             else
                 assemblyName = null;
 
-            builder.TypeName = settings.TypeNameTransform(typeName);
+            builder.BaseName = settings.TypeNameTransform(baseName);
             builder.AssemblyName = assemblyName != null ? settings.AssemblyNameTransform(assemblyName) : null;
             builder._genericArguments = genericArguments;
             builder._arrayDimensions = arrayDimensions;
@@ -194,69 +194,75 @@ namespace Karambolo.Common
             ParseCore(this, typeName, 0, typeName.Length, settings);
         }
 
-        public string TypeName { get; set; }
+        public string BaseName { get; set; }
         public string AssemblyName { get; set; }
 
         IList<TypeNameBuilder> _genericArguments;
         public IList<TypeNameBuilder> GenericArguments => _genericArguments ?? (_genericArguments = new List<TypeNameBuilder>());
-        public bool IsGenericType => _genericArguments != null && _genericArguments.Count > 0;
+        public bool IsGeneric => _genericArguments != null && _genericArguments.Count > 0;
 
         IList<int> _arrayDimensions;
         public IList<int> ArrayDimensions => _arrayDimensions ?? (_arrayDimensions = new List<int>());
-        public bool IsArrayType => _arrayDimensions != null && _arrayDimensions.Count > 0;
+        public bool IsArray => _arrayDimensions != null && _arrayDimensions.Count > 0;
+
+        public string GetFullName()
+        {
+            if (BaseName == null)
+                return string.Empty;
+
+            var isGenericType = IsGeneric;
+            var isArrayType = IsArray;
+            if (!isGenericType && !isArrayType)
+                return BaseName;
+
+            var builder = new StringBuilder(BaseName);
+
+            if (isGenericType)
+            {
+                var n = GenericArguments.Count;
+
+                builder.Append('`');
+                builder.Append(n);
+
+                builder.Append('[');
+                for (var i = 0; i < n; i++)
+                {
+                    if (i > 0)
+                        builder.Append(',');
+                    builder.Append('[');
+                    builder.Append(GenericArguments[i].ToString());
+                    builder.Append(']');
+                }
+                builder.Append(']');
+            }
+
+            if (isArrayType)
+            {
+                var n = ArrayDimensions.Count;
+                for (var i = 0; i < n; i++)
+                {
+                    builder.Append('[');
+                    var m = ArrayDimensions[i];
+                    if (--m > 0)
+                        builder.Append(new string(',', m));
+                    builder.Append(']');
+                }
+            }
+
+            return builder.ToString();
+        }
 
         public override string ToString()
         {
-            if (TypeName == null)
+            if (BaseName == null)
                 return string.Empty;
 
-            var isGenericType = IsGenericType;
-            var isArrayType = IsArrayType;
-            string fullTypeName;
-            if (isGenericType || isArrayType)
-            {
-                var builder = new StringBuilder(TypeName);
-                if (isGenericType)
-                {
-                    var n = GenericArguments.Count;
-
-                    builder.Append('`');
-                    builder.Append(n);
-
-                    builder.Append('[');
-                    for (var i = 0; i < n; i++)
-                    {
-                        if (i > 0)
-                            builder.Append(',');
-                        builder.Append('[');
-                        builder.Append(GenericArguments[i].ToString());
-                        builder.Append(']');
-                    }
-                    builder.Append(']');
-                }
-
-                if (isArrayType)
-                {
-                    var n = ArrayDimensions.Count;
-                    for (var i = 0; i < n; i++)
-                    {
-                        builder.Append('[');
-                        var m = ArrayDimensions[i];
-                        if (--m > 0)
-                            builder.Append(new string(',', m));
-                        builder.Append(']');
-                    }
-                }
-
-                fullTypeName = builder.ToString();
-            }
-            else
-                fullTypeName = TypeName;
+            var fullName = GetFullName();
 
             return
                 AssemblyName == null ?
-                fullTypeName :
-                string.Concat(fullTypeName, ", ", AssemblyName);
+                fullName :
+                string.Concat(fullName, ", ", AssemblyName);
         }
     }
 }
