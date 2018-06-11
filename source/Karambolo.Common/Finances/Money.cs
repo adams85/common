@@ -281,10 +281,7 @@ namespace Karambolo.Common.Finances
 
         public bool Equals(Money other)
         {
-            if (!IsCompatibleWith(other))
-                throw new InvalidOperationException(Resources.IncompatibleCurrencies);
-
-            return _amount == other._amount;
+            return IsCompatibleWith(other) && _amount == other._amount;
         }
 
         public int CompareTo(Money other)
