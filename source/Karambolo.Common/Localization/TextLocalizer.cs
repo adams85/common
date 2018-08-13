@@ -4,7 +4,7 @@ namespace Karambolo.Common.Localization
 {
     public delegate string TextLocalizer(string id, params object[] formatArgs);
 
-    class DefaultTextLocalizer
+    public class DefaultTextLocalizer
     {
         public static readonly TextLocalizer Instance = (id, args) =>
         {
