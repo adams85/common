@@ -1,12 +1,16 @@
 <Project>
   <PropertyGroup>
     <PackageId>Karambolo.Common</PackageId>
-    <Version>1.0</Version>
-    <Authors />
+    <Version>1.0.0</Version>
+    <Authors>Adam Simon</Authors>
     <Company>Karambolo</Company>
     <Product>Karambolo.Common</Product>
-    <Description />
-    <Copyright>© 2017 Adam Simon</Copyright>
+    <Description>A library of commonly used and utility classes.</Description>
+    <Copyright>© 2018 Adam Simon</Copyright>
+    <AssemblyVersion>1.0</AssemblyVersion>
     <FileVersion>1.0.0.0</FileVersion>
+    <PackageLicenseUrl>https://github.com/adams85/common/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/adams85/common</PackageProjectUrl>
+    <PackageTags>common utility</PackageTags>
   </PropertyGroup>
 </Project>

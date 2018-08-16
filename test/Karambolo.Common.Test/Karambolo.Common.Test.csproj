@@ -67,9 +67,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\source\Karambolo.Common\Karambolo.Common.Net45.csproj">
+    <ProjectReference Include="..\..\source\Karambolo.Common\Karambolo.Common.csproj">
       <Project>{a9794534-bba3-4908-b101-edfc1de5f336}</Project>
-      <Name>Karambolo.Common.Net45</Name>
+      <Name>Karambolo.Common</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />

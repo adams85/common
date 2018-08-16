@@ -10,7 +10,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Default.testsettings = Default.testsettings
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Karambolo.Common.Net45", "..\source\Karambolo.Common\Karambolo.Common.Net45.csproj", "{A9794534-BBA3-4908-B101-EDFC1DE5F336}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Karambolo.Common", "..\source\Karambolo.Common\Karambolo.Common.csproj", "{A9794534-BBA3-4908-B101-EDFC1DE5F336}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

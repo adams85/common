@@ -2,20 +2,17 @@
   <PropertyGroup>
     <Git>git.exe</Git>
     <VsTest>vstest.console.exe</VsTest>
-    <NuGet>$(MSBuildProjectDirectory)\nuget.exe</NuGet>
-    <TestSolutionPath>$(MSBuildProjectDirectory)\..\test</TestSolutionPath>
-    <TestSolution>$(TestSolutionPath)\Karambolo.Common.Test.sln</TestSolution>
     <SolutionPath>$(MSBuildProjectDirectory)\..\source</SolutionPath>
     <Solution>$(SolutionPath)\Karambolo.Common.sln</Solution>
-    <AssemblyInfoPath>$(SolutionPath)\Karambolo.Common\Properties\AssemblyInfo.cs</AssemblyInfoPath>
-    <NetstdProjPath>$(SolutionPath)\Karambolo.Common\Properties\AssemblyInfo.props</NetstdProjPath>
-    <NuspecPath>$(MSBuildProjectDirectory)\package.nuspec</NuspecPath>
+    <TestSolutionPath>$(MSBuildProjectDirectory)\..\test</TestSolutionPath>
+    <TestSolution>$(TestSolutionPath)\Karambolo.Common.Test.sln</TestSolution>
+    <VersionPropsPath>$(SolutionPath)\Karambolo.Common\Properties\AssemblyInfo.props</VersionPropsPath>
   </PropertyGroup>
 
   <ItemGroup>
     <TestProject Include="$(TestSolutionPath)\Karambolo.Common.Test\bin\Release\Karambolo.Common.Test.dll" />
   </ItemGroup>
-  
+
   <Target Name="GetVersion" Condition="$(TagVersion) == '' Or $(Revision) == ''">
     <!-- checking active branch -->
     <Exec Command="&quot;$(Git)&quot; branch | find &quot;* (HEAD detached at &quot;" IgnoreExitCode="true">
@@ -47,7 +44,17 @@
     </Exec>
   </Target>
 
-  <Target Name="RunTests">
+  <Target Name="Build" DependsOnTargets="GetVersion">
+    <!-- setting version -->
+    <UpdateVersion TagVersion="$(TagVersion)" Revision="$(Revision)" VersionPropsPath="$(VersionPropsPath)" />
+
+    <!-- build -->
+    <MSBuild Projects="$(Solution)" Targets="Restore;Rebuild;Pack" Properties="Configuration=Release;Platform=Any CPU" />
+
+    <OnError ExecuteTargets="Cleanup" />
+  </Target>
+
+  <Target Name="RunTests" DependsOnTargets="Build">
     <!-- build -->
     <MSBuild Projects="$(TestSolution)" Properties="Configuration=Release;Platform=Any CPU" />
 
@@ -55,68 +62,29 @@
     <Exec Command="&quot;$(VsTest)&quot; &quot;%(TestProject.Identity)&quot;" />
   </Target>
 
-  <Target Name="Make" DependsOnTargets="RunTests;GetVersion">
-    <!-- setting version -->
-    <UpdateVersion TagVersion="$(TagVersion)" Revision="$(Revision)"
-                   AssemblyInfoPath="$(AssemblyInfoPath)" NetstdProjPath="$(NetstdProjPath)" NuspecPath="$(NuspecPath)" />
+  <Target Name="Make" DependsOnTargets="RunTests">
+    <!-- copy over package-->
+    <ItemGroup>
+      <Package Include="$(SolutionPath)\**\bin\Release\*.nupkg" />
+    </ItemGroup>
 
-    <!-- build -->
-    <MSBuild Projects="$(Solution)" Targets="Restore;Rebuild" Properties="Configuration=Release;Platform=Any CPU" />
-
-    <!-- create nuget package -->
-    <DownloadNuGet Condition="!Exists('$(NuGet)')" OutputFilename="$(NuGet)" />
-    <Exec Command="&quot;$(NuGet)&quot; pack &quot;$(NuspecPath)&quot;" />
-    
-    <OnError ExecuteTargets="Cleanup" />
+    <Move SourceFiles="@(Package)" DestinationFolder="$(MSBuildProjectDirectory)" />
   </Target>
 
-  <Target Name="Cleanup" AfterTargets="Make">
-    <RestoreVersion AssemblyInfoPath="$(AssemblyInfoPath)" NetstdProjPath="$(NetstdProjPath)" NuspecPath="$(NuspecPath)" />
+  <Target Name="Cleanup" AfterTargets="Build">
+    <RestoreVersion VersionPropsPath="$(VersionPropsPath)" />
   </Target>
-
-  <UsingTask TaskName="DownloadNuGet" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
-      <ParameterGroup>
-          <OutputFilename ParameterType="System.String" Required="true" />
-      </ParameterGroup>
-      <Task>
-          <Reference Include="System.Core" />
-          <Using Namespace="System" />
-          <Using Namespace="System.IO" />
-          <Using Namespace="System.Net" />
-          <Using Namespace="Microsoft.Build.Framework" />
-          <Using Namespace="Microsoft.Build.Utilities" />
-          <Code Type="Fragment" Language="cs">
-              <![CDATA[
-              try {
-                  OutputFilename = Path.GetFullPath(OutputFilename);
-
-                  Log.LogMessage("Downloading latest version of NuGet.exe...");
-                  WebClient webClient = new WebClient();
-                  webClient.DownloadFile("https://dist.nuget.org/win-x86-commandline/v4.3.0/nuget.exe", OutputFilename);
-
-                  return true;
-              }
-              catch (Exception ex) {
-                  Log.LogErrorFromException(ex);
-                  return false;
-              }
-          ]]>
-          </Code>
-      </Task>
-  </UsingTask>
 
   <UsingTask TaskName="UpdateVersion" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v12.0.dll" >
     <ParameterGroup>
       <TagVersion ParameterType="System.String" Required="true" />
       <Revision ParameterType="System.String" Required="true" />
-      <AssemblyInfoPath ParameterType="System.String" Required="true" />
-      <NetstdProjPath ParameterType="System.String" Required="true" />
-      <NuspecPath ParameterType="System.String" Required="true" />
+      <VersionPropsPath ParameterType="System.String" Required="true" />
     </ParameterGroup>
     <Task>
       <!--<Reference Include="" />-->
       <Using Namespace="System.IO" />
-      <Using Namespace="System.Text.RegularExpressions" />      
+      <Using Namespace="System.Text.RegularExpressions" />
       <Code Type="Fragment" Language="cs">
 <![CDATA[
 // building version
@@ -158,17 +126,12 @@ Action<string, string, MatchEvaluator> update = (path, regex, replacer) =>
     File.WriteAllText(path, fileContent);
 };
 
-update(AssemblyInfoPath,
-  @"^(?<start>\s*\[\s*assembly\s*:\s*(?<attr>AssemblyVersion|AssemblyFileVersion)\(\s*"").+(?<end>""\s*\)\s*\]\s*)$",
-    m => m.Groups["start"] + (m.Groups["attr"].Value == "AssemblyVersion" ? assemblyVersion : fileVersion) + m.Groups["end"]);
-
-update(NetstdProjPath,
-  @"^(?<start>\s*<(?<tag>Version|FileVersion)>).+(?<end></\k<tag>>\s*)$",
-    m => m.Groups["start"] + (m.Groups["tag"].Value == "Version" ? assemblyVersion : fileVersion) + m.Groups["end"]);
-
-update(NuspecPath,
-  @"^(?<start>\s*<(?<tag>version)>).+(?<end></\k<tag>>\s*)$",
-    m => m.Groups["start"] + nugetVersion + m.Groups["end"]);
+update(VersionPropsPath,
+  @"^(?<start>\s*<(?<tag>Version|AssemblyVersion|FileVersion)>).+(?<end></\k<tag>>\s*)$",
+    m => m.Groups["start"] + (
+      m.Groups["tag"].Value == "AssemblyVersion" ? assemblyVersion :
+      m.Groups["tag"].Value == "FileVersion" ? fileVersion :
+      nugetVersion) + m.Groups["end"]);
 ]]>
       </Code>
     </Task>
@@ -176,9 +139,7 @@ update(NuspecPath,
 
   <UsingTask TaskName="RestoreVersion" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v12.0.dll" >
     <ParameterGroup>
-      <AssemblyInfoPath ParameterType="System.String" Required="true" />
-      <NetstdProjPath ParameterType="System.String" Required="true" />
-      <NuspecPath ParameterType="System.String" Required="true" />
+      <VersionPropsPath ParameterType="System.String" Required="true" />
     </ParameterGroup>
     <Task>
       <Using Namespace="System.IO" />
@@ -193,11 +154,9 @@ Action<string> restore = path =>
     File.Delete(backupPath);
 };
 
-restore(AssemblyInfoPath);
-restore(NetstdProjPath);
-restore(NuspecPath);
+restore(VersionPropsPath);
 ]]>
       </Code>
     </Task>
-  </UsingTask>  
+  </UsingTask>
 </Project>
