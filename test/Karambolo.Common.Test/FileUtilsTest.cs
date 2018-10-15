@@ -1,70 +1,14 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Linq;
+﻿using System;
 using System.Collections.Generic;
-using Karambolo.Common.Collections;
-using System.Collections.Specialized;
-using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
+using Xunit;
 
 namespace Karambolo.Common.Test
 {
-
-
-    /// <summary>
-    ///This is a test class for FileUtilsTest and is intended
-    ///to contain all FileUtilsTest Unit Tests
-    ///</summary>
-    [TestClass()]
-    public class FileUtilsTest
+    public class FileStructureFixture : IDisposable
     {
-        static string leftDirPath, rightDirPath;
-
-        private TestContext _testContextInstance;
-
-        /// <summary>
-        ///Gets or sets the test context which provides
-        ///information about and functionality for the current test run.
-        ///</summary>
-        public TestContext TestContext
-        {
-            get => _testContextInstance;
-            set => _testContextInstance = value;
-        }
-
-        #region Additional test attributes
-        // 
-        //You can use the following additional attributes as you write your tests:
-        //
-        //Use ClassInitialize to run code before running the first test in the class
-        //[ClassInitialize()]
-        //public static void MyClassInitialize(TestContext testContext)
-        //{
-        //}
-        //
-        //Use ClassCleanup to run code after all tests in a class have run
-        //[ClassCleanup()]
-        //public static void MyClassCleanup()
-        //{
-        //}
-        //
-        //Use TestInitialize to run code before running each test
-        //[TestInitialize()]
-        //public void MyTestInitialize()
-        //{
-        //}
-        //
-        //Use TestCleanup to run code after each test has run
-        //[TestCleanup()]
-        //public void MyTestCleanup()
-        //{
-        //}
-        //
-        #endregion
-
-
-        static void CreateDirStructureHelper(byte[] fileContent, byte[] fileContentModified, string leftDirPath, string rightDirPath, bool sameOnly,
-            int level = 0)
+        static void CreateDirStructureHelper(byte[] fileContent, byte[] fileContentModified, string leftDirPath, string rightDirPath, bool sameOnly, int level = 0)
         {
             Directory.CreateDirectory(leftDirPath);
             Directory.CreateDirectory(Path.Combine(leftDirPath, "dirInBoth"));
@@ -80,7 +24,7 @@ namespace Karambolo.Common.Test
             }
 
             Directory.CreateDirectory(rightDirPath);
-            Directory.CreateDirectory(Path.Combine(rightDirPath, "dirinboth")); // case-insenitive teszteléshez
+            Directory.CreateDirectory(Path.Combine(rightDirPath, "dirinboth")); // for case-insensitive testing
             File.WriteAllBytes(Path.Combine(rightDirPath, "fileInBothSameContent"), fileContent);
             if (!sameOnly)
             {
@@ -99,14 +43,10 @@ namespace Karambolo.Common.Test
             }
         }
 
-        #region Additional test attributes
-        // 
-        //You can use the following additional attributes as you write your tests:
-        //
+        public string leftDirPath { get; }
+        public string rightDirPath { get; }
 
-        //Use ClassInitialize to run code before running the first test in the class
-        [ClassInitialize()]
-        public static void MyClassInitialize(TestContext testContext)
+        public FileStructureFixture()
         {
             var random = new Random();
             var fileContent = new byte[10000];
@@ -126,33 +66,26 @@ namespace Karambolo.Common.Test
             CreateDirStructureHelper(fileContent, fileContentModified, leftDirPath, rightDirPath, false);
         }
 
-        //Use ClassCleanup to run code after all tests in a class have run
-        [ClassCleanup()]
-        public static void MyClassCleanup()
+        public void Dispose()
         {
             if (Directory.Exists(Path.GetDirectoryName(leftDirPath)))
                 Directory.Delete(Path.GetDirectoryName(leftDirPath), true);
         }
+    }
 
-        //
-        //Use TestInitialize to run code before running each test
-        //[TestInitialize()]
-        //public void MyTestInitialize()
-        //{
-        //}
-        //
-        //Use TestCleanup to run code after each test has run
-        //[TestCleanup()]
-        //public void MyTestCleanup()
-        //{
-        //}
-        //
-        #endregion
+    public class FileUtilsTest : IClassFixture<FileStructureFixture>
+    {
+        readonly FileStructureFixture _fileStructureFixture;
+
+        public FileUtilsTest(FileStructureFixture fileStructureFixture)
+        {
+            _fileStructureFixture = fileStructureFixture;
+        }
 
         /// <summary>
         ///A test for CompareDirs
         ///</summary>
-        [TestMethod()]
+        [Fact]
         public void CompareDirsTest1()
         {
             try { FileUtils.CompareDirs(null, string.Empty); }
@@ -171,253 +104,253 @@ namespace Karambolo.Common.Test
                 processedLength = pl;
             };
 
-            #region rekurzív, könyvtárakkal, fájltartalom figyelembevételével, callbackkel
+            #region recursive, include dirs, check file content, using callback
             totalLength = 5 * 10000;
-            result = FileUtils.CompareDirs(leftDirPath, rightDirPath, progressCallback: progressCallback);
-            Assert.AreEqual(29, result.Count);
+            result = FileUtils.CompareDirs(_fileStructureFixture.leftDirPath, _fileStructureFixture.rightDirPath, progressCallback: progressCallback);
+            Assert.Equal(29, result.Count);
 
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"dirInBoth", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"dirInLeft", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"dirInRight", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"dirInLeftFileInRight", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"dirInLeftFileInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInLeft", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInLeftDirInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInLeftDirInRight", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInBothNotSameLength", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInBothNotSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInBothSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"dirInBoth", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"dirInLeft", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"dirInRight", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"dirInLeftFileInRight", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"dirInLeftFileInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInLeft", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInLeftDirInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInLeftDirInRight", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInBothNotSameLength", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInBothNotSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInBothSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
 
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\dirInBoth", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\dirInLeft", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\dirInRight", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\dirInLeftFileInRight", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\dirInLeftFileInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\fileInLeft", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\fileInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\fileInLeftDirInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\fileInLeftDirInRight", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\fileInBothNotSameLength", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\fileInBothNotSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\fileInBothSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\dirInBoth", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\dirInLeft", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\dirInRight", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\dirInLeftFileInRight", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\dirInLeftFileInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\fileInLeft", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\fileInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\fileInLeftDirInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\fileInLeftDirInRight", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\fileInBothNotSameLength", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\fileInBothNotSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\fileInBothSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
 
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirSame", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subDirSame\dirInBoth", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subDirSame\fileInBothSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirSame", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subDirSame\dirInBoth", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subDirSame\fileInBothSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
 
-            Assert.AreEqual(totalLength, processedLength);
+            Assert.Equal(totalLength, processedLength);
 
             // CompareDirsResultItem.ToString()
-            Assert.AreEqual("[DLR!] ", result.SingleOrDefault(x => string.Equals(x.RelativePath, @"")).ToString());
-            Assert.AreEqual("[FLR=] fileInBothSameContent", result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInBothSameContent")).ToString());
-            Assert.AreEqual("[FL-!] fileInLeft", result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInLeft")).ToString());
-            Assert.AreEqual("[D-R!] dirInRight", result.SingleOrDefault(x => string.Equals(x.RelativePath, @"dirInRight")).ToString());
+            Assert.Equal("[DLR!] ", result.SingleOrDefault(x => string.Equals(x.RelativePath, @"")).ToString());
+            Assert.Equal("[FLR=] fileInBothSameContent", result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInBothSameContent")).ToString());
+            Assert.Equal("[FL-!] fileInLeft", result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInLeft")).ToString());
+            Assert.Equal("[D-R!] dirInRight", result.SingleOrDefault(x => string.Equals(x.RelativePath, @"dirInRight")).ToString());
 
             #endregion
 
             #region recursive, include dirs, ignore file content, using callback
             totalLength = 5 * 10000;
-            result = FileUtils.CompareDirs(leftDirPath, rightDirPath, checkFilesContent: false, progressCallback: progressCallback);
-            Assert.AreEqual(29, result.Count);
+            result = FileUtils.CompareDirs(_fileStructureFixture.leftDirPath, _fileStructureFixture.rightDirPath, checkFilesContent: false, progressCallback: progressCallback);
+            Assert.Equal(29, result.Count);
 
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"dirInBoth", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"dirInLeft", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"dirInRight", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"dirInLeftFileInRight", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"dirInLeftFileInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInLeft", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInLeftDirInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInLeftDirInRight", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInBothNotSameLength", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInBothNotSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInBothSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"dirInBoth", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"dirInLeft", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"dirInRight", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"dirInLeftFileInRight", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"dirInLeftFileInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInLeft", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInLeftDirInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInLeftDirInRight", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInBothNotSameLength", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInBothNotSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInBothSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
 
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\dirInBoth", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\dirInLeft", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\dirInRight", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\dirInLeftFileInRight", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\dirInLeftFileInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\fileInLeft", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\fileInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\fileInLeftDirInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\fileInLeftDirInRight", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\fileInBothNotSameLength", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\fileInBothNotSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\fileInBothSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\dirInBoth", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\dirInLeft", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\dirInRight", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\dirInLeftFileInRight", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\dirInLeftFileInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\fileInLeft", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\fileInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\fileInLeftDirInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\fileInLeftDirInRight", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\fileInBothNotSameLength", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\fileInBothNotSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\fileInBothSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
 
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirSame", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subDirSame\dirInBoth", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subDirSame\fileInBothSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirSame", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subDirSame\dirInBoth", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subDirSame\fileInBothSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
 
-            Assert.AreEqual(totalLength, processedLength);
+            Assert.Equal(totalLength, processedLength);
             #endregion
 
             #region recursive, exclude dirs, check file content, using callback
             totalLength = 5 * 10000;
-            result = FileUtils.CompareDirs(leftDirPath, rightDirPath, excludeDirs: true, progressCallback: progressCallback);
-            Assert.AreEqual(15, result.Count);
+            result = FileUtils.CompareDirs(_fileStructureFixture.leftDirPath, _fileStructureFixture.rightDirPath, excludeDirs: true, progressCallback: progressCallback);
+            Assert.Equal(15, result.Count);
 
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"dirInLeftFileInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInLeft", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInLeftDirInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInBothNotSameLength", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInBothNotSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInBothSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"dirInLeftFileInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInLeft", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInLeftDirInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInBothNotSameLength", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInBothNotSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInBothSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
 
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\dirInLeftFileInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\fileInLeft", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\fileInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\fileInLeftDirInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\fileInBothNotSameLength", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\fileInBothNotSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\fileInBothSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\dirInLeftFileInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\fileInLeft", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\fileInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\fileInLeftDirInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\fileInBothNotSameLength", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\fileInBothNotSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\fileInBothSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
 
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subDirSame\fileInBothSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subDirSame\fileInBothSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
 
-            Assert.AreEqual(totalLength, processedLength);
+            Assert.Equal(totalLength, processedLength);
             #endregion
 
             #region recursive, exclude dirs, check file content, using callback
             totalLength = 5 * 10000;
-            result = FileUtils.CompareDirs(leftDirPath, rightDirPath, excludeDirs: true, checkFilesContent: false, progressCallback: progressCallback);
-            Assert.AreEqual(15, result.Count);
+            result = FileUtils.CompareDirs(_fileStructureFixture.leftDirPath, _fileStructureFixture.rightDirPath, excludeDirs: true, checkFilesContent: false, progressCallback: progressCallback);
+            Assert.Equal(15, result.Count);
 
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"dirInLeftFileInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInLeft", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInLeftDirInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInBothNotSameLength", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInBothNotSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInBothSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"dirInLeftFileInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInLeft", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInLeftDirInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInBothNotSameLength", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInBothNotSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInBothSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
 
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\dirInLeftFileInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\fileInLeft", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\fileInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\fileInLeftDirInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\fileInBothNotSameLength", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\fileInBothNotSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\fileInBothSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\dirInLeftFileInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\fileInLeft", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\fileInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\fileInLeftDirInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\fileInBothNotSameLength", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\fileInBothNotSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame\fileInBothSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
 
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subDirSame\fileInBothSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subDirSame\fileInBothSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
 
-            Assert.AreEqual(totalLength, processedLength);
+            Assert.Equal(totalLength, processedLength);
             #endregion
 
             #region non-recursive, include dirs, check file content, using callback
             totalLength = 2 * 10000;
-            result = FileUtils.CompareDirs(leftDirPath, rightDirPath, recursive: false, progressCallback: progressCallback);
-            Assert.AreEqual(15, result.Count);
+            result = FileUtils.CompareDirs(_fileStructureFixture.leftDirPath, _fileStructureFixture.rightDirPath, recursive: false, progressCallback: progressCallback);
+            Assert.Equal(15, result.Count);
 
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"dirInBoth", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"dirInLeft", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"dirInRight", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"dirInLeftFileInRight", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"dirInLeftFileInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInLeft", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInLeftDirInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInLeftDirInRight", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInBothNotSameLength", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInBothNotSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInBothSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"dirInBoth", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"dirInLeft", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"dirInRight", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"dirInLeftFileInRight", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"dirInLeftFileInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInLeft", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInLeftDirInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInLeftDirInRight", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInBothNotSameLength", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInBothNotSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInBothSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
 
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
 
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirSame", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirSame", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
 
-            Assert.AreEqual(totalLength, processedLength);
+            Assert.Equal(totalLength, processedLength);
             #endregion
 
             #region non-recursive, include dirs, ignore file content, using callback
             totalLength = 2 * 10000;
-            result = FileUtils.CompareDirs(leftDirPath, rightDirPath, recursive: false, checkFilesContent: false, progressCallback: progressCallback);
-            Assert.AreEqual(15, result.Count);
+            result = FileUtils.CompareDirs(_fileStructureFixture.leftDirPath, _fileStructureFixture.rightDirPath, recursive: false, checkFilesContent: false, progressCallback: progressCallback);
+            Assert.Equal(15, result.Count);
 
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"dirInBoth", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"dirInLeft", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"dirInRight", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"dirInLeftFileInRight", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"dirInLeftFileInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInLeft", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInLeftDirInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInLeftDirInRight", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInBothNotSameLength", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInBothNotSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInBothSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"dirInBoth", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"dirInLeft", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"dirInRight", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"dirInLeftFileInRight", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"dirInLeftFileInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInLeft", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInLeftDirInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInLeftDirInRight", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInBothNotSameLength", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInBothNotSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInBothSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
 
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirNotSame", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
 
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirSame", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"subdirSame", StringComparison.InvariantCultureIgnoreCase) && x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
 
-            Assert.AreEqual(totalLength, processedLength);
+            Assert.Equal(totalLength, processedLength);
             #endregion
 
             #region non-recursive, exclude dirs, check file content, using callback
             totalLength = 2 * 10000;
-            result = FileUtils.CompareDirs(leftDirPath, rightDirPath, recursive: false, excludeDirs: true, progressCallback: progressCallback);
-            Assert.AreEqual(7, result.Count);
+            result = FileUtils.CompareDirs(_fileStructureFixture.leftDirPath, _fileStructureFixture.rightDirPath, recursive: false, excludeDirs: true, progressCallback: progressCallback);
+            Assert.Equal(7, result.Count);
 
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"dirInLeftFileInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInLeft", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInLeftDirInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInBothNotSameLength", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInBothNotSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInBothSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"dirInLeftFileInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInLeft", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInLeftDirInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInBothNotSameLength", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInBothNotSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInBothSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
 
-            Assert.AreEqual(totalLength, processedLength);
+            Assert.Equal(totalLength, processedLength);
             #endregion
 
             #region non-recursive, exclude dirs, ignore file content, using callback
             totalLength = 2 * 10000;
-            result = FileUtils.CompareDirs(leftDirPath, rightDirPath, recursive: false, excludeDirs: true, checkFilesContent: false, progressCallback: progressCallback);
-            Assert.AreEqual(7, result.Count);
+            result = FileUtils.CompareDirs(_fileStructureFixture.leftDirPath, _fileStructureFixture.rightDirPath, recursive: false, excludeDirs: true, checkFilesContent: false, progressCallback: progressCallback);
+            Assert.Equal(7, result.Count);
 
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"dirInLeftFileInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInLeft", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInLeftDirInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInBothNotSameLength", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInBothNotSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInBothSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"dirInLeftFileInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInLeft", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInLeftDirInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInBothNotSameLength", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInBothNotSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInBothSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
 
-            Assert.AreEqual(totalLength, processedLength);
+            Assert.Equal(totalLength, processedLength);
             #endregion
 
             #region non-recursive, exclude dirs, ignore file content, without callback
-            result = FileUtils.CompareDirs(leftDirPath, rightDirPath, recursive: false, excludeDirs: true, checkFilesContent: false);
-            Assert.AreEqual(7, result.Count);
+            result = FileUtils.CompareDirs(_fileStructureFixture.leftDirPath, _fileStructureFixture.rightDirPath, recursive: false, excludeDirs: true, checkFilesContent: false);
+            Assert.Equal(7, result.Count);
 
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"dirInLeftFileInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInLeft", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInLeftDirInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInBothNotSameLength", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInBothNotSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
-            Assert.IsNotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInBothSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"dirInLeftFileInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInLeft", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && !x.ExistsInLeft && x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInLeftDirInRight", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && !x.ExistsInRight && !x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInBothNotSameLength", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInBothNotSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
+            Assert.NotNull(result.SingleOrDefault(x => string.Equals(x.RelativePath, @"fileInBothSameContent", StringComparison.InvariantCultureIgnoreCase) && !x.IsDirectory && x.ExistsInLeft && x.ExistsInRight && x.IsIdentical));
             #endregion
         }
 
         /// <summary>
         ///A test for CompareDirs
         ///</summary>
-        [TestMethod()]
+        [Fact]
         public void CompareDirsTest2()
         {
-            var flat = FileUtils.CompareDirs(leftDirPath, rightDirPath);
+            var flat = FileUtils.CompareDirs(_fileStructureFixture.leftDirPath, _fileStructureFixture.rightDirPath);
 
             CompareDirResultItem root;
-            var tree = FileUtils.CompareDirs(leftDirPath, rightDirPath, out root);
+            var tree = FileUtils.CompareDirs(_fileStructureFixture.leftDirPath, _fileStructureFixture.rightDirPath, out root);
             var flatFromTree = new List<CompareDirResultItem>();
 
             Action<CompareDirResultItem> flatten = null;
@@ -433,7 +366,7 @@ namespace Karambolo.Common.Test
             };
             flatten(root);
 
-            Assert.AreEqual(flat.Count, flatFromTree.Count);
+            Assert.Equal(flat.Count, flatFromTree.Count);
             flat.All(ri1 => flatFromTree.SingleOrDefault(ri2 =>
                                 ri1.RelativePath == ri2.RelativePath &&
                                 ri1.ExistsInLeft == ri2.ExistsInLeft &&
@@ -445,7 +378,7 @@ namespace Karambolo.Common.Test
         /// <summary>
         ///A test for CompareFiles
         ///</summary>
-        [TestMethod()]
+        [Fact]
         public void CompareFilesTest()
         {
             try { FileUtils.CompareFiles(null, string.Empty); }
@@ -460,42 +393,42 @@ namespace Karambolo.Common.Test
 
             CompareProgressCallback progressCallback = (lfp, rfp, pl, tl) =>
             {
-                Assert.AreEqual(leftFilePath, lfp);
-                Assert.AreEqual(rightFilePath, rfp);
-                Assert.AreEqual(totalLength, tl);
-                Assert.IsTrue(pl >= 0 && pl <= tl);
+                Assert.Equal(leftFilePath, lfp);
+                Assert.Equal(rightFilePath, rfp);
+                Assert.Equal(totalLength, tl);
+                Assert.True(pl >= 0 && pl <= tl);
                 processedLength = pl;
             };
 
             // sizes mismatch
-            leftFilePath = Path.Combine(leftDirPath, "fileInBothNotSameLength");
-            rightFilePath = Path.Combine(rightDirPath, "fileInBothNotSameLength");
+            leftFilePath = Path.Combine(_fileStructureFixture.leftDirPath, "fileInBothNotSameLength");
+            rightFilePath = Path.Combine(_fileStructureFixture.rightDirPath, "fileInBothNotSameLength");
             totalLength = 1;
-            Assert.IsFalse(FileUtils.CompareFiles(leftFilePath, rightFilePath, progressCallback));
-            Assert.AreEqual(totalLength, processedLength);
+            Assert.False(FileUtils.CompareFiles(leftFilePath, rightFilePath, progressCallback));
+            Assert.Equal(totalLength, processedLength);
 
             // sizes match, equal to 0
-            leftFilePath = Path.Combine(leftDirPath, "fileInLeftDirInRight");
-            rightFilePath = Path.Combine(rightDirPath, "dirInLeftFileInRight");
+            leftFilePath = Path.Combine(_fileStructureFixture.leftDirPath, "fileInLeftDirInRight");
+            rightFilePath = Path.Combine(_fileStructureFixture.rightDirPath, "dirInLeftFileInRight");
             totalLength = 0;
-            Assert.IsTrue(FileUtils.CompareFiles(leftFilePath, rightFilePath, progressCallback));
-            Assert.AreEqual(totalLength, processedLength);
+            Assert.True(FileUtils.CompareFiles(leftFilePath, rightFilePath, progressCallback));
+            Assert.Equal(totalLength, processedLength);
 
             // sizes match, greater than 0, contents match
-            leftFilePath = Path.Combine(leftDirPath, "fileInBothSameContent");
-            rightFilePath = Path.Combine(rightDirPath, "fileInBothSameContent");
+            leftFilePath = Path.Combine(_fileStructureFixture.leftDirPath, "fileInBothSameContent");
+            rightFilePath = Path.Combine(_fileStructureFixture.rightDirPath, "fileInBothSameContent");
             totalLength = 10000;
-            Assert.IsTrue(FileUtils.CompareFiles(leftFilePath, rightFilePath, progressCallback));
-            Assert.AreEqual(totalLength, processedLength);
+            Assert.True(FileUtils.CompareFiles(leftFilePath, rightFilePath, progressCallback));
+            Assert.Equal(totalLength, processedLength);
             // the same without callback
-            Assert.IsTrue(FileUtils.CompareFiles(leftFilePath, rightFilePath));
+            Assert.True(FileUtils.CompareFiles(leftFilePath, rightFilePath));
 
             // sizes match, greater than 0, contents mismatch
-            leftFilePath = Path.Combine(leftDirPath, "fileInBothNotSameContent");
-            rightFilePath = Path.Combine(rightDirPath, "fileInBothNotSameContent");
+            leftFilePath = Path.Combine(_fileStructureFixture.leftDirPath, "fileInBothNotSameContent");
+            rightFilePath = Path.Combine(_fileStructureFixture.rightDirPath, "fileInBothNotSameContent");
             totalLength = 10000;
-            Assert.IsFalse(FileUtils.CompareFiles(leftFilePath, rightFilePath, progressCallback));
-            Assert.AreEqual(totalLength, processedLength);
+            Assert.False(FileUtils.CompareFiles(leftFilePath, rightFilePath, progressCallback));
+            Assert.Equal(totalLength, processedLength);
         }
     }
 }

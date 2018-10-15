@@ -1,16 +1,15 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Xunit;
 
 namespace Karambolo.Common.Test
 {
-    [TestClass()]
     public class GeneralUtilsTest
     {
-        [TestMethod]
-        public void EscapeTest1()
+        [Fact]
+        public void BitCountTest()
         {
-            Assert.AreEqual(8, GeneralUtils.BitCount((ushort)46380));
-            Assert.AreEqual(17, GeneralUtils.BitCount(3039589677u));
-            Assert.AreEqual(34, GeneralUtils.BitCount(0xB52C752CBF2C752CUL));
+            Assert.Equal(8, GeneralUtils.BitCount(46380));
+            Assert.Equal(17, GeneralUtils.BitCount(3039589677u));
+            Assert.Equal(34, GeneralUtils.BitCount(0xB52C752CBF2C752CUL));
         }
     }
 }

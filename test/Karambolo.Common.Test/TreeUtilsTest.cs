@@ -1,63 +1,11 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Collections.Generic;
+using Xunit;
 
 namespace Karambolo.Common.Test
 {
-
-
-    /// <summary>
-    ///This is a test class for ModelExtensionsTest and is intended
-    ///to contain all ModelExtensionsTest Unit Tests
-    ///</summary>
-    [TestClass()]
     public class ModelExtensionsTest
     {
-
-
-        private TestContext _testContextInstance;
-
-        /// <summary>
-        ///Gets or sets the test context which provides
-        ///information about and functionality for the current test run.
-        ///</summary>
-        public TestContext TestContext
-        {
-            get => _testContextInstance;
-            set => _testContextInstance = value;
-        }
-
-        #region Additional test attributes
-        // 
-        //You can use the following additional attributes as you write your tests:
-        //
-        //Use ClassInitialize to run code before running the first test in the class
-        //[ClassInitialize()]
-        //public static void MyClassInitialize(TestContext testContext)
-        //{
-        //}
-        //
-        //Use ClassCleanup to run code after all tests in a class have run
-        //[ClassCleanup()]
-        //public static void MyClassCleanup()
-        //{
-        //}
-        //
-        //Use TestInitialize to run code before running each test
-        //[TestInitialize()]
-        //public void MyTestInitialize()
-        //{
-        //}
-        //
-        //Use TestCleanup to run code after each test has run
-        //[TestCleanup()]
-        //public void MyTestCleanup()
-        //{
-        //}
-        //
-        #endregion
-
-
         class TreeNode<T>
         {
             public TreeNode(T id)
@@ -90,7 +38,7 @@ namespace Karambolo.Common.Test
         }
 
 
-        [TestMethod()]
+        [Fact]
         public void TraversalTest()
         {
             var tree = new TreeNode<string>("F");
@@ -105,34 +53,34 @@ namespace Karambolo.Common.Test
                         .AddChild("H");
 
             var traversal = TreeTraversal.PreOrder.Traverse(tree, t => t.Children.AsEnumerable().Reverse(), includeSelf: true);
-            Assert.AreEqual("F, B, A, D, C, E, G, I, H", string.Join(", ", traversal.Select(n => n.Id)));
+            Assert.Equal("F, B, A, D, C, E, G, I, H", string.Join(", ", traversal.Select(n => n.Id)));
 
             traversal = TreeTraversal.PreOrder.Traverse(tree, t => t.Children.AsEnumerable().Reverse(), includeSelf: false);
-            Assert.AreEqual("B, A, D, C, E, G, I, H", string.Join(", ", traversal.Select(n => n.Id)));
+            Assert.Equal("B, A, D, C, E, G, I, H", string.Join(", ", traversal.Select(n => n.Id)));
 
             traversal = TreeTraversal.PostOrder.Traverse(tree, t => t.Children.AsEnumerable().Reverse(), includeSelf: true);
-            Assert.AreEqual("A, C, E, D, B, H, I, G, F", string.Join(", ", traversal.Select(n => n.Id)));
+            Assert.Equal("A, C, E, D, B, H, I, G, F", string.Join(", ", traversal.Select(n => n.Id)));
 
             traversal = TreeTraversal.PostOrder.Traverse(tree, t => t.Children.AsEnumerable().Reverse(), includeSelf: false);
-            Assert.AreEqual("A, C, E, D, B, H, I, G", string.Join(", ", traversal.Select(n => n.Id)));
+            Assert.Equal("A, C, E, D, B, H, I, G", string.Join(", ", traversal.Select(n => n.Id)));
 
             traversal = TreeTraversal.LevelOrder.Traverse(tree, t => t.Children, includeSelf: true);
-            Assert.AreEqual("F, B, G, A, D, I, C, E, H", string.Join(", ", traversal.Select(n => n.Id)));
+            Assert.Equal("F, B, G, A, D, I, C, E, H", string.Join(", ", traversal.Select(n => n.Id)));
 
             traversal = TreeTraversal.LevelOrder.Traverse(tree, t => t.Children, includeSelf: false);
-            Assert.AreEqual("B, G, A, D, I, C, E, H", string.Join(", ", traversal.Select(n => n.Id)));
+            Assert.Equal("B, G, A, D, I, C, E, H", string.Join(", ", traversal.Select(n => n.Id)));
         }
 
         /// <summary>
         ///A test for Leaves
         ///</summary>
-        [TestMethod()]
+        [Fact]
         public void LeavesTest()
         {
             var tree = new TreeNode<int>(0);
             var result = TreeUtils.Leaves(tree, t => t.Children).ToArray();
-            Assert.AreEqual(1, result.Length);
-            Assert.IsTrue(result.Any(r => r.Id == 0));
+            Assert.Single(result);
+            Assert.Contains(result, r => r.Id == 0);
 
             tree
                 .AddChild(1)
@@ -146,24 +94,24 @@ namespace Karambolo.Common.Test
 
             result = TreeUtils.Leaves(tree, t => t.Children).ToArray();
 
-            Assert.AreEqual(5, result.Length);
-            Assert.IsTrue(result.Any(r => r.Id == 2));
-            Assert.IsTrue(result.Any(r => r.Id == 4));
-            Assert.IsTrue(result.Any(r => r.Id == 5));
-            Assert.IsTrue(result.Any(r => r.Id == 6));
-            Assert.IsTrue(result.Any(r => r.Id == 8));
+            Assert.Equal(5, result.Length);
+            Assert.Contains(result, r => r.Id == 2);
+            Assert.Contains(result, r => r.Id == 4);
+            Assert.Contains(result, r => r.Id == 5);
+            Assert.Contains(result, r => r.Id == 6);
+            Assert.Contains(result, r => r.Id == 8);
         }
 
         /// <summary>
         ///A test for EnumeratePaths
         ///</summary>
-        [TestMethod()]
+        [Fact]
         public void EnumeratePathsTest()
         {
             var tree = new TreeNode<int>(0);
             var result = TreeUtils.EnumeratePaths(tree, n => n.Children).ToArray();
-            Assert.AreEqual(1, result.Length);
-            Assert.IsTrue(result.Any(r => PathEquals(r, 0)));
+            Assert.Single(result);
+            Assert.Contains(result, r => PathEquals(r, 0));
 
             tree
                 .AddChild(1)
@@ -177,12 +125,12 @@ namespace Karambolo.Common.Test
 
             result = TreeUtils.EnumeratePaths(tree, n => n.Children).ToArray();
 
-            Assert.AreEqual(5, result.Length);
-            Assert.IsTrue(result.Any(r => PathEquals(r, 0, 1, 2)));
-            Assert.IsTrue(result.Any(r => PathEquals(r, 0, 1, 3, 4)));
-            Assert.IsTrue(result.Any(r => PathEquals(r, 0, 1, 3, 5)));
-            Assert.IsTrue(result.Any(r => PathEquals(r, 0, 6)));
-            Assert.IsTrue(result.Any(r => PathEquals(r, 0, 7, 8)));
+            Assert.Equal(5, result.Length);
+            Assert.Contains(result, r => PathEquals(r, 0, 1, 2));
+            Assert.Contains(result, r => PathEquals(r, 0, 1, 3, 4));
+            Assert.Contains(result, r => PathEquals(r, 0, 1, 3, 5));
+            Assert.Contains(result, r => PathEquals(r, 0, 6));
+            Assert.Contains(result, r => PathEquals(r, 0, 7, 8));
         }
     }
 }
