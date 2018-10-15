@@ -625,7 +625,7 @@ namespace Karambolo.Common.Collections
         public T this[int index]
         {
             get => _source[index];
-            set => _source[index] = value;
+            set => ReplaceAt(index, value);
         }
 
         public override void Clear()
@@ -685,11 +685,7 @@ namespace Karambolo.Common.Collections
 
         IList AsList()
         {
-            var result = _source as IList;
-            if (result == null)
-                throw new NotSupportedException();
-            return result;
-        
+            return _source is IList result ? result : throw new NotSupportedException();
         }
 
         int IList.Add(object value)

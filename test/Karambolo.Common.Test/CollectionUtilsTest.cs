@@ -191,7 +191,7 @@ namespace Karambolo.Common.Test
             Assert.True(new[] { 13 }.SequenceEqual(args.NewItems.Cast<int>()));
             Assert.Equal(-1, args.OldStartingIndex);
             Assert.Equal(5, args.NewStartingIndex);
-            Assert.True(new[] { 1, 5, 8, 10, 12, 13 }.SequenceEqualUnordered(observable));
+            Assert.True(new[] { 1, 5, 8, 10, 12, 13 }.SequenceEqual(observable));
 
             // multi add
             fireCount = 0;
@@ -203,7 +203,7 @@ namespace Karambolo.Common.Test
             Assert.True(new[] { 5, 14 }.SequenceEqual(args.NewItems.Cast<int>()));
             Assert.Equal(-1, args.OldStartingIndex);
             Assert.Equal(6, args.NewStartingIndex);
-            Assert.True(new[] { 1, 5, 8, 10, 12, 13, 5, 14 }.SequenceEqualUnordered(observable));
+            Assert.True(new[] { 1, 5, 8, 10, 12, 13, 5, 14 }.SequenceEqual(observable));
 
             fireCount = 0;
             observable.AddRange(Enumerable.Empty<int>());
@@ -219,7 +219,7 @@ namespace Karambolo.Common.Test
             Assert.True(new[] { 20 }.SequenceEqual(args.NewItems.Cast<int>()));
             Assert.Equal(-1, args.OldStartingIndex);
             Assert.Equal(2, args.NewStartingIndex);
-            Assert.True(new[] { 1, 5, 20, 8, 10, 12, 13, 5, 14 }.SequenceEqualUnordered(observable));
+            Assert.True(new[] { 1, 5, 20, 8, 10, 12, 13, 5, 14 }.SequenceEqual(observable));
 
             // multi insert
             fireCount = 0;
@@ -231,7 +231,7 @@ namespace Karambolo.Common.Test
             Assert.True(new[] { 5, 0 }.SequenceEqual(args.NewItems.Cast<int>()));
             Assert.Equal(-1, args.OldStartingIndex);
             Assert.Equal(2, args.NewStartingIndex);
-            Assert.True(new[] { 1, 5, 5, 0, 20, 8, 10, 12, 13, 5, 14 }.SequenceEqualUnordered(observable));
+            Assert.True(new[] { 1, 5, 5, 0, 20, 8, 10, 12, 13, 5, 14 }.SequenceEqual(observable));
 
             fireCount = 0;
             observable.InsertRange(3, Enumerable.Empty<int>());
@@ -247,7 +247,7 @@ namespace Karambolo.Common.Test
             Assert.Null(args.NewItems);
             Assert.Equal(1, args.OldStartingIndex);
             Assert.Equal(-1, args.NewStartingIndex);
-            Assert.True(new[] { 1, 5, 0, 20, 8, 10, 12, 13, 5, 14 }.SequenceEqualUnordered(observable));
+            Assert.True(new[] { 1, 5, 0, 20, 8, 10, 12, 13, 5, 14 }.SequenceEqual(observable));
 
             fireCount = 0;
             Assert.False(observable.Remove(30));
@@ -263,7 +263,7 @@ namespace Karambolo.Common.Test
             Assert.Null(args.NewItems);
             Assert.Equal(1, args.OldStartingIndex);
             Assert.Equal(-1, args.NewStartingIndex);
-            Assert.True(new[] { 1, 0, 20, 8, 10, 12, 13, 5, 14 }.SequenceEqualUnordered(observable));
+            Assert.True(new[] { 1, 0, 20, 8, 10, 12, 13, 5, 14 }.SequenceEqual(observable));
 
             // multi remove
             fireCount = 0;
@@ -275,7 +275,7 @@ namespace Karambolo.Common.Test
             Assert.Null(args.NewItems);
             Assert.Equal(-1, args.OldStartingIndex);
             Assert.Equal(-1, args.NewStartingIndex);
-            Assert.True(new[] { 0, 20, 8, 10, 12, 13, 5 }.SequenceEqualUnordered(observable));
+            Assert.True(new[] { 0, 20, 8, 10, 12, 13, 5 }.SequenceEqual(observable));
 
             fireCount = 0;
             observable.RemoveRange(new[] { 30, 31 });
@@ -295,7 +295,7 @@ namespace Karambolo.Common.Test
             Assert.Null(args.NewItems);
             Assert.Equal(5, args.OldStartingIndex);
             Assert.Equal(-1, args.NewStartingIndex);
-            Assert.True(new[] { 0, 20, 8, 10, 12 }.SequenceEqualUnordered(observable));
+            Assert.True(new[] { 0, 20, 8, 10, 12 }.SequenceEqual(observable));
 
             fireCount = 0;
             observable.RemoveRange(2, 0);
@@ -311,7 +311,7 @@ namespace Karambolo.Common.Test
             Assert.Null(args.NewItems);
             Assert.Equal(-1, args.OldStartingIndex);
             Assert.Equal(-1, args.NewStartingIndex);
-            Assert.True(new[] { 20, 10, 12 }.SequenceEqualUnordered(observable));
+            Assert.True(new[] { 20, 10, 12 }.SequenceEqual(observable));
 
             fireCount = 0;
             observable.RemoveAll(it => it < 0);
@@ -327,7 +327,7 @@ namespace Karambolo.Common.Test
             Assert.True(new[] { 20 }.SequenceEqual(args.NewItems.Cast<int>()));
             Assert.Equal(1, args.OldStartingIndex);
             Assert.Equal(1, args.NewStartingIndex);
-            Assert.True(new[] { 20, 20, 12 }.SequenceEqualUnordered(observable));
+            Assert.True(new[] { 20, 20, 12 }.SequenceEqual(observable));
 
             // replace
             fireCount = 0;
@@ -339,7 +339,7 @@ namespace Karambolo.Common.Test
             Assert.True(new[] { 10 }.SequenceEqual(args.NewItems.Cast<int>()));
             Assert.Equal(0, args.OldStartingIndex);
             Assert.Equal(0, args.NewStartingIndex);
-            Assert.True(new[] { 10, 20, 12 }.SequenceEqualUnordered(observable));
+            Assert.True(new[] { 10, 20, 12 }.SequenceEqual(observable));
 
             // move
             fireCount = 0;
@@ -351,7 +351,7 @@ namespace Karambolo.Common.Test
             Assert.True(new[] { 20 }.SequenceEqual(args.NewItems.Cast<int>()));
             Assert.Equal(1, args.OldStartingIndex);
             Assert.Equal(2, args.NewStartingIndex);
-            Assert.True(new[] { 10, 12, 20 }.SequenceEqualUnordered(observable));
+            Assert.True(new[] { 10, 12, 20 }.SequenceEqual(observable));
 
             // move by index
             fireCount = 0;
@@ -363,7 +363,7 @@ namespace Karambolo.Common.Test
             Assert.True(new[] { 20 }.SequenceEqual(args.NewItems.Cast<int>()));
             Assert.Equal(2, args.OldStartingIndex);
             Assert.Equal(0, args.NewStartingIndex);
-            Assert.True(new[] { 20, 10, 12 }.SequenceEqualUnordered(observable));
+            Assert.True(new[] { 20, 10, 12 }.SequenceEqual(observable));
 
             // non-list source
             observable = new Collection<int> { 15, 4, 3 }.AsObservable();
@@ -383,7 +383,7 @@ namespace Karambolo.Common.Test
             Assert.True(new[] { 5, 14 }.SequenceEqual(args.NewItems.Cast<int>()));
             Assert.Equal(-1, args.OldStartingIndex);
             Assert.Equal(3, args.NewStartingIndex);
-            Assert.True(new[] { 15, 4, 3, 5, 14 }.SequenceEqualUnordered(observable));
+            Assert.True(new[] { 15, 4, 3, 5, 14 }.SequenceEqual(observable));
 
             // multi insert
             fireCount = 0;
@@ -395,7 +395,7 @@ namespace Karambolo.Common.Test
             Assert.True(new[] { 6, 7 }.SequenceEqual(args.NewItems.Cast<int>()));
             Assert.Equal(-1, args.OldStartingIndex);
             Assert.Equal(1, args.NewStartingIndex);
-            Assert.True(new[] { 15, 6, 7, 4, 3, 5, 14 }.SequenceEqualUnordered(observable));
+            Assert.True(new[] { 15, 6, 7, 4, 3, 5, 14 }.SequenceEqual(observable));
 
             // multi remove by index and count
             fireCount = 0;
@@ -407,7 +407,7 @@ namespace Karambolo.Common.Test
             Assert.Null(args.NewItems);
             Assert.Equal(2, args.OldStartingIndex);
             Assert.Equal(-1, args.NewStartingIndex);
-            Assert.True(new[] { 15, 6, 5, 14 }.SequenceEqualUnordered(observable));
+            Assert.True(new[] { 15, 6, 5, 14 }.SequenceEqual(observable));
 
             // clear
             fireCount = 0;
@@ -445,6 +445,25 @@ namespace Karambolo.Common.Test
             args = null;
             observable.Clear();
             Assert.Equal(0, fireCount);
+
+            // set item
+            observable = new List<int> { 20, 10, 12 }.AsObservable(true);
+            fireCount = 0;
+            args = null;
+            observable.CollectionChanged += (s, e) =>
+            {
+                fireCount++;
+                args = e;
+            };
+
+            observable[1] = 20;
+            Assert.Equal(1, fireCount);
+            Assert.Equal(NotifyCollectionChangedAction.Replace, args.Action);
+            Assert.True(new[] { 10 }.SequenceEqual(args.OldItems.Cast<int>()));
+            Assert.True(new[] { 20 }.SequenceEqual(args.NewItems.Cast<int>()));
+            Assert.Equal(1, args.OldStartingIndex);
+            Assert.Equal(1, args.NewStartingIndex);
+            Assert.True(new[] { 20, 20, 12 }.SequenceEqual(observable));
         }
 
         [Fact]
@@ -469,7 +488,7 @@ namespace Karambolo.Common.Test
             Assert.Null(args.NewItems);
             Assert.Equal(1, args.OldStartingIndex);
             Assert.Equal(-1, args.NewStartingIndex);
-            Assert.True(new[] { "c", "def" }.SequenceEqualUnordered(observable));
+            Assert.True(new[] { "c", "def" }.SequenceEqual(observable));
         }
     }
 }
