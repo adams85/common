@@ -268,15 +268,6 @@ namespace Karambolo.Common.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Property {0} cannot be null..
-        /// </summary>
-        internal static string PropertyCannotBeNull {
-            get {
-                return ResourceManager.GetString("PropertyCannotBeNull", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to The specified range exceeds the size of the collection..
         /// </summary>
         internal static string RangeExceedsCollectionSize {

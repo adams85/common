@@ -82,8 +82,8 @@ namespace Karambolo.Common
                     }
                     else if (publicKeyTokenKey.Equals(key, StringComparison.OrdinalIgnoreCase))
                     {
-                        if (publicKeyToken == null && value.Length == publicKeyTokenLength << 1 && 
-                            ulong.TryParse(value,NumberStyles.HexNumber, CultureInfo.InvariantCulture, out ulong publicKeyTokenValue))
+                        if (publicKeyToken == null && value.Length == publicKeyTokenLength << 1 &&
+                            ulong.TryParse(value, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out ulong publicKeyTokenValue))
                             publicKeyToken = publicKeyTokenValue;
                     }
                 }
@@ -145,37 +145,18 @@ namespace Karambolo.Common
             if (Version == null && CultureInfo == null && PublicKeyToken == null)
                 return Name;
 
-            var builder = new StringBuilder(Name);
+            var sb = new StringBuilder(Name);
 
             if (Version != null)
-            {
-                builder.Append(',');
-                builder.Append(' ');
-                builder.Append(versionKey);
-                builder.Append('=');
-                builder.Append(Version.ToString());
-            }
+                sb.Append(',').Append(' ').Append(versionKey).Append('=').Append(Version.ToString());
 
             if (CultureInfo != null)
-            {
-                builder.Append(',');
-                builder.Append(' ');
-                builder.Append(cultureKey);
-                builder.Append('=');
-                builder.Append(CultureInfoToName(CultureInfo));
-            }
+                sb.Append(',').Append(' ').Append(cultureKey).Append('=').Append(CultureInfoToName(CultureInfo));
 
             if (PublicKeyToken != null)
-            {
-                builder.Append(',');
-                builder.Append(' ');
-                builder.Append(publicKeyTokenKey);
-                builder.Append('=');
-                builder.Append(PublicKeyToken.Value.ToString("x" + (publicKeyTokenLength << 1)));
-            }
+                sb.Append(',').Append(' ').Append(publicKeyTokenKey).Append('=').Append(PublicKeyToken.Value.ToString("x" + (publicKeyTokenLength << 1)));
 
-            return builder.ToString();
+            return sb.ToString();
         }
     }
-
 }

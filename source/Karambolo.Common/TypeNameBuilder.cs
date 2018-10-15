@@ -1,24 +1,267 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using Karambolo.Common.Properties;
 
 namespace Karambolo.Common
 {
-    public class TypeNameParseSettings
-    {
-        public static readonly TypeNameParseSettings Default = new TypeNameParseSettings();
-
-        public Func<string, string> TypeNameTransform { get; set; } = Identity<string>.Func;
-        public Func<string, string> AssemblyNameTransform { get; set; } = Identity<string>.Func;
-    }
-
-    public sealed class TypeNameBuilder
+    public class TypeName
     {
         enum ParserState
         {
-            BeforeBrackets,
+            BeforeTypeName,
+            InTypeName,
+            InGenericArgCount,
+            AfterTypeName,
+        }
+
+        static string GetBaseName(string input, int startIndex, int endIndex, int dotIndex, bool isNested, ref string @namespace)
+        {
+            // name is missing or ends with dot?
+            if (startIndex == endIndex || dotIndex == endIndex - 1)
+                throw new FormatException();
+
+            if (dotIndex >= 0)
+            {
+                // nested type has namespace?
+                if (isNested)
+                    throw new FormatException();
+
+                @namespace = input.Substring(startIndex, dotIndex - startIndex);
+                return input.Substring(++dotIndex, endIndex - dotIndex);
+            }
+            else
+                return input.Substring(startIndex, endIndex - startIndex);
+        }
+
+        static List<TypeNameBuilder> CreateGenericArguments(string input, int startIndex, int endIndex)
+        {
+            if (!int.TryParse(input.Substring(startIndex, endIndex - startIndex), out var count))
+                throw new FormatException();
+
+            var genericArguments = new List<TypeNameBuilder>(count);
+            for (; count > 0; count--)
+                genericArguments.Add(null);
+
+            return genericArguments;
+        }
+
+        internal static int ParseTypeName(string input, int startIndex, int endIndex, TypeName typeName, out string @namespace)
+        {
+            @namespace = null;
+            var sectionStartIndex = -1;
+            var dotIndex = -1;
+            var isNested = false;
+
+            var state = ParserState.BeforeTypeName;
+            int i;
+            for (i = startIndex; i < endIndex; i++)
+            {
+                var c = input[i];
+
+                switch (state)
+                {
+                    case ParserState.BeforeTypeName:
+                        switch (c)
+                        {
+                            case '`':
+                            case '+':
+                            case '.':
+                            case '[':
+                            case ']':
+                            case ',':
+                                throw new FormatException();
+                            default:
+                                if (!char.IsWhiteSpace(c))
+                                {
+                                    sectionStartIndex = i;
+                                    state = ParserState.InTypeName;
+                                }
+                                break;
+                        }
+                        break;
+                    case ParserState.InTypeName:
+                        switch (c)
+                        {
+                            case '[':
+                            case ',':
+                                typeName._baseName = GetBaseName(input, sectionStartIndex, i, dotIndex, isNested, ref @namespace);
+                                return i;
+                            case '.':
+                                // name starts with dot or has two consecutive dots?
+                                if (sectionStartIndex == i || dotIndex == i - 1)
+                                    throw new FormatException();
+
+                                dotIndex = i;
+                                break;
+                            case '`':
+                                typeName._baseName = GetBaseName(input, sectionStartIndex, i, dotIndex, isNested, ref @namespace);
+
+                                sectionStartIndex = i + 1;
+                                state = ParserState.InGenericArgCount;
+                                break;
+                            case '+':
+                                typeName._baseName = GetBaseName(input, sectionStartIndex, i, dotIndex, isNested, ref @namespace);
+
+                                typeName = typeName._child = new TypeName();
+                                isNested = true;
+
+                                sectionStartIndex = i + 1;
+                                dotIndex = -1;
+                                break;
+                            default:
+                                if (char.IsWhiteSpace(c))
+                                {
+                                    typeName._baseName = GetBaseName(input, sectionStartIndex, i, dotIndex, isNested, ref @namespace);
+
+                                    state = ParserState.AfterTypeName;
+                                }
+                                break;
+                        }
+                        break;
+                    case ParserState.InGenericArgCount:
+                        switch (c)
+                        {
+                            case '[':
+                            case ',':
+                                typeName._genericArguments = CreateGenericArguments(input, sectionStartIndex, i);
+                                return i;
+                            case '+':
+                                typeName._genericArguments = CreateGenericArguments(input, sectionStartIndex, i);
+
+                                typeName = typeName._child = new TypeName();
+                                isNested = true;
+
+                                sectionStartIndex = i + 1;
+                                dotIndex = -1;
+                                state = ParserState.InTypeName;
+                                break;
+                            default:
+                                if (char.IsWhiteSpace(c))
+                                {
+                                    typeName._genericArguments = CreateGenericArguments(input, sectionStartIndex, i);
+
+                                    state = ParserState.AfterTypeName;
+                                }
+                                else if (!char.IsDigit(c))
+                                    throw new FormatException();
+                                break;
+                        }
+                        break;
+                    case ParserState.AfterTypeName:
+                        switch (c)
+                        {
+                            case ',':
+                                return i;
+                            case '[':
+                                // whitespace between type name and bracket?
+                                throw new FormatException();
+                            default:
+                                if (!char.IsWhiteSpace(c))
+                                    throw new FormatException();
+                                break;
+                        }
+                        break;
+                }
+            }
+
+            switch (state)
+            {
+                case ParserState.InTypeName:
+                    typeName._baseName = GetBaseName(input, sectionStartIndex, i, dotIndex, isNested, ref @namespace);
+                    return i;
+                case ParserState.InGenericArgCount:
+                    typeName._genericArguments = CreateGenericArguments(input, sectionStartIndex, i);
+                    return i;
+                case ParserState.AfterTypeName:
+                    return i;
+                case ParserState.BeforeTypeName:
+                    throw new FormatException();
+                default:
+                    throw new InvalidOperationException();
+            }
+        }
+
+        internal static StringBuilder BuildTypeName(TypeName typeName, StringBuilder sb, int index)
+        {
+            if (typeName.IsGeneric)
+                sb.Insert(index, typeName._genericArguments.Count).Insert(index, '`');
+
+            if (!string.IsNullOrEmpty(typeName._baseName))
+                sb.Insert(index, typeName._baseName);
+            else
+                sb.Insert(index, '?');
+
+            return sb;
+        }
+
+        public TypeName() { }
+
+        public TypeName(string typeName)
+            : this(typeName, out var _) { }
+
+        public TypeName(string typeName, out string @namespace)
+        {
+            if (typeName == null)
+                throw new ArgumentNullException(nameof(typeName));
+
+            ParseTypeName(typeName, 0, typeName.Length, this, out @namespace);
+        }
+
+        internal string _baseName;
+        public string BaseName
+        {
+            get { return _baseName; }
+            set { _baseName = value; }
+        }
+
+        internal TypeName _child;
+        public TypeName Child
+        {
+            get { return _child; }
+            set { _child = value; }
+        }
+
+        public bool HasChild => _child != null;
+
+        internal IList<TypeNameBuilder> _genericArguments;
+        public IList<TypeNameBuilder> GenericArguments => _genericArguments ?? (_genericArguments = new List<TypeNameBuilder>());
+
+        public bool IsGeneric => _genericArguments != null && _genericArguments.Count > 0;
+
+        public bool IsOpenGeneric
+        {
+            get
+            {
+                if (!IsGeneric)
+                    return false;
+
+                for (int i = 0, n = _genericArguments.Count; i < n; i++)
+                    if (_genericArguments[i] == null)
+                        return true;
+
+                return false;
+            }
+        }
+
+        public string GetName()
+        {
+            if (_baseName == null)
+                return string.Empty;
+
+            return BuildTypeName(this, new StringBuilder(), 0).ToString();
+        }
+
+        public override string ToString()
+        {
+            return GetName();
+        }
+    }
+
+    public sealed class TypeNameBuilder : TypeName
+    {
+        enum ParserState
+        {
+            InBrackets,
             InGenericBracketsBeforeArg,
             InNestedBrackets,
             InGenericBracketsAfterArg,
@@ -26,243 +269,324 @@ namespace Karambolo.Common
             AfterBrackets,
         }
 
-        static void ParseCore(TypeNameBuilder builder, string input, int startIndex, int count, TypeNameParseSettings settings)
+        static void SeekNextGenericArg(ref TypeName typeName, ref int genericArgIndex)
         {
-            var bracketIndex = -1;
-            var argumentIndex = -1;
-            var counter = -1;
-            var isGeneric = false;
-            List<TypeNameBuilder> genericArguments = null;
-            List<int> arrayDimensions = null;
-            var state = ParserState.BeforeBrackets;
+            genericArgIndex++;
+            while (typeName._genericArguments == null || genericArgIndex >= typeName._genericArguments.Count)
+                if ((typeName = typeName.Child) != null)
+                    genericArgIndex = 0;
+                else
+                    return;
+        }
 
-            int i, endIndex;
-            for (i = startIndex, endIndex = startIndex + count; i < endIndex; i++)
+        static int ParseBrackets(string input, int startIndex, int endIndex, TypeNameBuilder builder)
+        {
+            TypeName typeName = builder;
+            var genericArgIndex = -1;
+            var sectionStartIndex = -1;
+            var counter = 0;
+
+            var state = ParserState.InBrackets;
+            int i;
+            for (i = startIndex; i < endIndex; i++)
             {
                 var c = input[i];
 
                 switch (state)
                 {
-                    case ParserState.BeforeBrackets:
-                        if (c == ',')
-                            goto EndOfLoop;
-                        else if (c == '`')
-                            isGeneric = true;
-                        else if (c == '[')
+                    case ParserState.InBrackets:
+                        switch (c)
                         {
-                            bracketIndex = i;
-                            counter = 0;
-                            state = isGeneric ? ParserState.InGenericBracketsBeforeArg : ParserState.InArrayBrackets;
+                            case '[':
+                                sectionStartIndex = i + 1;
+                                state = ParserState.InNestedBrackets;
+                                break;
+                            case ']':
+                                builder.ArrayDimensions.Add(counter + 1);
+                                state = ParserState.AfterBrackets;
+                                break;
+                            case ',':
+                                counter++;
+                                state = ParserState.InArrayBrackets;
+                                break;
+                            default:
+                                if (!char.IsWhiteSpace(c))
+                                    throw new FormatException();
+                                break;
                         }
-                        else if (c == ']')
-                            throw new FormatException();
                         break;
                     case ParserState.InGenericBracketsBeforeArg:
-                        if (c == '[')
+                        switch (c)
                         {
-                            argumentIndex = i + 1;
-                            state = ParserState.InNestedBrackets;
+                            case '[':
+                                sectionStartIndex = i + 1;
+                                state = ParserState.InNestedBrackets;
+                                break;
+                            default:
+                                if (!char.IsWhiteSpace(c))
+                                    throw new FormatException();
+                                break;
                         }
-                        else if (!char.IsWhiteSpace(c))
-                            throw new FormatException();
                         break;
                     case ParserState.InNestedBrackets:
-                        if (c == '[')
-                            counter++;
-                        else if (c == ']')
+                        switch (c)
                         {
-                            if (counter == 0)
-                            {
-                                var genericArgument = new TypeNameBuilder();
-                                ParseCore(genericArgument, input, argumentIndex, i - argumentIndex, settings);
+                            case '[':
+                                counter++;
+                                break;
+                            case ']':
+                                if (counter == 0)
+                                {
+                                    SeekNextGenericArg(ref typeName, ref genericArgIndex);
+                                    // too much generic argument?
+                                    if (typeName == null)
+                                        throw new FormatException();
 
-                                (genericArguments ?? (genericArguments = new List<TypeNameBuilder>())).Add(genericArgument);
-                                state = ParserState.InGenericBracketsAfterArg;
-                            }
-                            else
-                                counter--;
+                                    Parse(input, sectionStartIndex, i, typeName._genericArguments[genericArgIndex] = new TypeNameBuilder());
+
+                                    state = ParserState.InGenericBracketsAfterArg;
+                                }
+                                else
+                                    counter--;
+                                break;
                         }
-                        else if (c == '[')
-                            throw new FormatException();
                         break;
                     case ParserState.InGenericBracketsAfterArg:
-                        if (c == ']')
-                            state = ParserState.AfterBrackets;
-                        else if (c == ',')
-                            state = ParserState.InGenericBracketsBeforeArg;
-                        else if (!char.IsWhiteSpace(c))
-                            throw new FormatException();
+                        switch (c)
+                        {
+                            case ']':
+                                SeekNextGenericArg(ref typeName, ref genericArgIndex);
+                                // too few generic argument?
+                                if (typeName != null)
+                                    throw new FormatException();
+
+                                state = ParserState.AfterBrackets;
+                                break;
+                            case ',':
+                                state = ParserState.InGenericBracketsBeforeArg;
+                                break;
+                            default:
+                                if (!char.IsWhiteSpace(c))
+                                    throw new FormatException();
+                                break;
+                        }
                         break;
                     case ParserState.InArrayBrackets:
-                        if (c == ']')
+                        switch (c)
                         {
-                            (arrayDimensions ?? (arrayDimensions = new List<int>())).Add(counter + 1);
-                            state = ParserState.AfterBrackets;
+                            case ']':
+                                builder.ArrayDimensions.Add(counter + 1);
+                                state = ParserState.AfterBrackets;
+                                break;
+                            case ',':
+                                counter++;
+                                break;
+                            default:
+                                if (!char.IsWhiteSpace(c))
+                                    throw new FormatException();
+                                break;
                         }
-                        else if (c == ',')
-                            counter++;
-                        else if (!char.IsWhiteSpace(c))
-                            throw new FormatException();
                         break;
                     case ParserState.AfterBrackets:
-                        if (c == ',')
-                            goto EndOfLoop;
-                        else if (c == '[')
+                        switch (c)
                         {
-                            counter = 0;
-                            state = ParserState.InArrayBrackets;
+                            case ',':
+                                return i;
+                            case '[':
+                                counter = 0;
+                                state = ParserState.InArrayBrackets;
+                                break;
+                            default:
+                                if (!char.IsWhiteSpace(c))
+                                    throw new FormatException();
+                                break;
                         }
-                        else if (!char.IsWhiteSpace(c))
-                            throw new FormatException();
                         break;
                 }
             }
-            EndOfLoop:
 
-            bool isAssemblyQualified;
-            if (i >= endIndex)
-                isAssemblyQualified =
-                    state == ParserState.BeforeBrackets || state == ParserState.AfterBrackets ?
-                    false :
-                    throw new FormatException();
-            else
-                isAssemblyQualified = true;
-
-            var baseName =
-                bracketIndex >= 0 ?
-                input.Substring(startIndex, bracketIndex - startIndex) :
-                input.Substring(startIndex, i - startIndex);
-
-            if (bracketIndex >= 0)
+            switch (state)
             {
-                if (baseName.Length > 0 && char.IsWhiteSpace(baseName[baseName.Length - 1]))
+                case ParserState.AfterBrackets:
+                    return i;
+                case ParserState.InBrackets:
+                case ParserState.InGenericBracketsBeforeArg:
+                case ParserState.InGenericBracketsAfterArg:
+                case ParserState.InArrayBrackets:
+                case ParserState.InNestedBrackets:
                     throw new FormatException();
-
-                if (isGeneric)
-                {
-                    var index = baseName.IndexOf('`');
-                    if (!int.TryParse(baseName.Substring(index + 1), out int genericArgumentCount) || genericArgumentCount != genericArguments.Count)
-                        throw new FormatException();
-
-                    baseName = baseName.Substring(0, index);
-                    if (baseName.Length > 0 && char.IsWhiteSpace(baseName[baseName.Length - 1]))
-                        throw new FormatException();
-                }
+                default:
+                    throw new InvalidOperationException();
             }
+        }
 
-            baseName = baseName.Trim();
-            if (baseName.Length == 0)
+        static string GetAssemblyName(string input, int startIndex, int endIndex)
+        {
+            // skipping whitespaces
+            for (; startIndex < endIndex && char.IsWhiteSpace(input[startIndex]); startIndex++) { }
+            for (endIndex--; endIndex >= startIndex && char.IsWhiteSpace(input[endIndex]); endIndex--) { }
+
+            // missing assembly name?
+            if (startIndex > endIndex)
                 throw new FormatException();
 
-            string assemblyName;
-            if (isAssemblyQualified)
-            {
-                assemblyName = input.Substring(++i, endIndex - i).Trim();
-                if (assemblyName.Length == 0)
-                    throw new FormatException();
-            }
-            else
-                assemblyName = null;
+            return input.Substring(startIndex, endIndex - startIndex + 1);
+        }
 
-            builder.BaseName = settings.TypeNameTransform(baseName);
-            builder.AssemblyName = assemblyName != null ? settings.AssemblyNameTransform(assemblyName) : null;
-            builder._genericArguments = genericArguments;
-            builder._arrayDimensions = arrayDimensions;
+        static void Parse(string input, int startIndex, int endIndex, TypeNameBuilder builder)
+        {
+            startIndex = ParseTypeName(input, startIndex, endIndex, builder, out builder._namespace);
+
+            if (startIndex < endIndex)
+            {
+                if (input[startIndex] == '[')
+                    startIndex = ParseBrackets(input, startIndex + 1, endIndex, builder);
+
+                if (startIndex < endIndex && input[startIndex] == ',')
+                    builder._assemblyName = GetAssemblyName(input, startIndex + 1, endIndex);
+            }
+        }
+
+        static StringBuilder Build(TypeNameBuilder builder, StringBuilder sb, int index, bool appendAssemblyName)
+        {
+            var length = sb.Length;
+            var isNestedType = false;
+            var isClosedGenericType = false;
+            var genericIndex = -1;
+            int i, n;
+
+            TypeName typeName = builder;
+            do
+            {
+                BuildTypeName(typeName, sb, index);
+
+                if (!isNestedType)
+                {
+                    if (!string.IsNullOrEmpty(builder.Namespace))
+                        sb.Insert(index, '.').Insert(index, builder.Namespace);
+
+                    isNestedType = true;
+                }
+                else
+                    sb.Insert(index, '+');
+
+                n = sb.Length - length;
+                index += n;
+                genericIndex += n;
+                length = sb.Length;
+
+                if (typeName.IsGeneric && !typeName.IsOpenGeneric)
+                {
+                    if (genericIndex < index)
+                    {
+                        sb.Insert(genericIndex = index, '[');
+                        genericIndex++;
+                        length++;
+                    }
+
+                    for (i = 0, n = typeName._genericArguments.Count; i < n; i++)
+                    {
+                        sb.Insert(genericIndex, ']');
+                        Build(typeName._genericArguments[i], sb, genericIndex, appendAssemblyName: true);
+                        sb.Insert(genericIndex, '[');
+
+                        if (!isClosedGenericType)
+                            isClosedGenericType = true;
+                        else
+                            sb.Insert(genericIndex, ',');
+
+                        genericIndex += sb.Length - length;
+                        length = sb.Length;
+                    }
+                }
+            }
+            while ((typeName = typeName._child) != null);
+
+            if (isClosedGenericType)
+            {
+                sb.Insert(index = genericIndex, ']');
+                index++;
+                length++;
+            }
+
+            if (builder.IsArray)
+            {
+                for (i = builder._arrayDimensions.Count - 1; i >= 0; i--)
+                {
+                    sb.Insert(index, ']');
+                    n = builder._arrayDimensions[i];
+                    if (--n > 0)
+                        sb.Insert(index, new string(',', n));
+                    sb.Insert(index, '[');
+                }
+
+                index += sb.Length - length;
+            }
+
+            if (appendAssemblyName && !string.IsNullOrEmpty(builder.AssemblyName))
+                sb.Insert(index, builder.AssemblyName).Insert(index, ' ').Insert(index, ',');
+
+            return sb;
         }
 
         public TypeNameBuilder() { }
 
         public TypeNameBuilder(string typeName)
-            : this(typeName, null) { }
-
-        public TypeNameBuilder(string typeName, TypeNameParseSettings settings)
         {
             if (typeName == null)
                 throw new ArgumentNullException(nameof(typeName));
 
-            if (settings != null)
-            {
-                if (settings.AssemblyNameTransform == null)
-                    throw new ArgumentException(string.Format(Resources.PropertyCannotBeNull, nameof(settings.AssemblyNameTransform)), nameof(settings));
-
-                if (settings.TypeNameTransform == null)
-                    throw new ArgumentException(string.Format(Resources.PropertyCannotBeNull, nameof(settings.TypeNameTransform)), nameof(settings));
-            }
-            else
-                settings = TypeNameParseSettings.Default;
-
-            ParseCore(this, typeName, 0, typeName.Length, settings);
+            Parse(typeName, 0, typeName.Length, this);
         }
 
-        public string BaseName { get; set; }
-        public string AssemblyName { get; set; }
+        string _assemblyName;
+        public string AssemblyName
+        {
+            get { return _assemblyName; }
+            set { _assemblyName = value; }
+        }
 
-        IList<TypeNameBuilder> _genericArguments;
-        public IList<TypeNameBuilder> GenericArguments => _genericArguments ?? (_genericArguments = new List<TypeNameBuilder>());
-        public bool IsGeneric => _genericArguments != null && _genericArguments.Count > 0;
+        string _namespace;
+        public string Namespace
+        {
+            get { return _namespace; }
+            set { _namespace = value; }
+        }
 
         IList<int> _arrayDimensions;
         public IList<int> ArrayDimensions => _arrayDimensions ?? (_arrayDimensions = new List<int>());
         public bool IsArray => _arrayDimensions != null && _arrayDimensions.Count > 0;
 
+        public TypeNameBuilder Transform(Action<TypeNameBuilder> action)
+        {
+            action(this);
+
+            TypeName typeName = this;
+            do
+            {
+                if (typeName.IsGeneric)
+                    for (int i = 0, n = typeName._genericArguments.Count; i < n; i++)
+                        typeName._genericArguments[i].Transform(action);
+            }
+            while ((typeName = typeName._child) != null);
+
+            return this;
+        }
+
         public string GetFullName()
         {
-            if (BaseName == null)
+            if (_baseName == null)
                 return string.Empty;
 
-            var isGenericType = IsGeneric;
-            var isArrayType = IsArray;
-            if (!isGenericType && !isArrayType)
-                return BaseName;
-
-            var builder = new StringBuilder(BaseName);
-
-            if (isGenericType)
-            {
-                var n = GenericArguments.Count;
-
-                builder.Append('`');
-                builder.Append(n);
-
-                builder.Append('[');
-                for (var i = 0; i < n; i++)
-                {
-                    if (i > 0)
-                        builder.Append(',');
-                    builder.Append('[');
-                    builder.Append(GenericArguments[i].ToString());
-                    builder.Append(']');
-                }
-                builder.Append(']');
-            }
-
-            if (isArrayType)
-            {
-                var n = ArrayDimensions.Count;
-                for (var i = 0; i < n; i++)
-                {
-                    builder.Append('[');
-                    var m = ArrayDimensions[i];
-                    if (--m > 0)
-                        builder.Append(new string(',', m));
-                    builder.Append(']');
-                }
-            }
-
-            return builder.ToString();
+            return Build(this, new StringBuilder(), 0, appendAssemblyName: false).ToString();
         }
 
         public override string ToString()
         {
-            if (BaseName == null)
+            if (_baseName == null)
                 return string.Empty;
 
-            var fullName = GetFullName();
-
-            return
-                AssemblyName == null ?
-                fullName :
-                string.Concat(fullName, ", ", AssemblyName);
+            return Build(this, new StringBuilder(), 0, appendAssemblyName: true).ToString();
         }
     }
 }
