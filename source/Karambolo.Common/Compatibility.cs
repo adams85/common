@@ -43,9 +43,8 @@ namespace Karambolo.Common
 #if !NETSTANDARD1_0
             return Math.DivRem(a, b, out result);
 #else
-            var remainder = a % b;
-            result = a / b;
-            return remainder;
+            result = a % b;
+            return a / b;
 #endif
         }
 
@@ -54,9 +53,8 @@ namespace Karambolo.Common
 #if !NETSTANDARD1_0
             return Math.DivRem(a, b, out result);
 #else
-            var remainder = a % b;
-            result = a / b;
-            return remainder;
+            result = a % b;
+            return a / b;
 #endif
         }
     }
