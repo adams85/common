@@ -84,7 +84,7 @@ namespace Karambolo.Common
 
             int GetValue(ref long r, int i)
             {
-                return (int)MathCompat.DivRem(r, periods[i].Divisor, out r);
+                return (int)MathShim.DivRem(r, periods[i].Divisor, out r);
             }
 
             void AddValue(StringBuilder sb, int i, int v, TextLocalizer loc)

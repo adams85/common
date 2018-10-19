@@ -159,8 +159,8 @@
   <data name="NonZeroLowerBoundArrayNotSupported" xml:space="preserve">
     <value>Arrays with non-zero lower bounds are not supported.</value>
   </data>
-  <data name="NotFieldOrPropertyExpression" xml:space="preserve">
-    <value>Expression is not a field or property access expression.</value>
+  <data name="FieldOrPropertyAllowedOnly" xml:space="preserve">
+    <value>Only field or property members are allowed.</value>
   </data>
   <data name="RangeExceedsCollectionSize" xml:space="preserve">
     <value>The specified range exceeds the size of the collection.</value>

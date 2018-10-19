@@ -7,11 +7,6 @@ namespace Karambolo.Common
 {
     public static class UriUtils
     {
-        static IDictionary<string, object> ToDictionary(object obj)
-        {
-            return obj?.GetType().GetProperties().ToDictionary(p => p.Name, p => p.GetValue(obj, null));
-        }
-
         public static string BuildPath(params string[] parts)
         {
             return BuildUrl(parts, null, null);
@@ -19,7 +14,7 @@ namespace Karambolo.Common
 
         public static string BuildQuery(object query)
         {
-            return BuildUrl(null, ToDictionary(query), null);
+            return BuildUrl(null, ReflectionUtils.ObjectToDictionaryCached(query), null);
         }
 
         public static string BuildQuery(IDictionary<string, object> query)
@@ -29,7 +24,7 @@ namespace Karambolo.Common
 
         public static string BuildUrl(string[] parts, object query)
         {
-            return BuildUrl(parts, ToDictionary(query), null);
+            return BuildUrl(parts, ReflectionUtils.ObjectToDictionaryCached(query), null);
         }
 
         public static string BuildUrl(string[] parts, IDictionary<string, object> query)
@@ -39,7 +34,7 @@ namespace Karambolo.Common
 
         public static string BuildUrl(string[] parts, object query, string fragment)
         {
-            return BuildUrl(parts, ToDictionary(query), fragment);
+            return BuildUrl(parts, ReflectionUtils.ObjectToDictionaryCached(query), fragment);
         }
 
         public static string BuildUrl(string[] parts, IDictionary<string, object> query, string fragment)

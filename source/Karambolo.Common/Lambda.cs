@@ -30,14 +30,17 @@ namespace Karambolo.Common
             if (expression == null)
                 throw new ArgumentNullException(nameof(expression));
 
+            if ((allowedMemberTypes & ~(MemberTypes.Field | MemberTypes.Property)) != 0)
+                throw new ArgumentException(Resources.FieldOrPropertyAllowedOnly, nameof(allowedMemberTypes));
+
             var memberExpressions = new List<MemberInfo>();
             var currentExpression = expression.Body;
             MemberExpression memberExpression;
             do
             {
                 memberExpression =
-                   GetMemberExpression(currentExpression, allowedMemberTypes) ??
-                   throw new ArgumentException(Resources.InvalidExpression, nameof(expression));
+                    GetMemberExpression(currentExpression, allowedMemberTypes) ??
+                    throw new ArgumentException(Resources.InvalidExpression, nameof(expression));
 
                 memberExpressions.Add(memberExpression.Member);
             }

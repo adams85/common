@@ -22,8 +22,10 @@ namespace Karambolo.Common.Finances.Test
             var actual = Money.Parse(" €5,005.25 ", CultureInfo.InvariantCulture);
             Assert.Equal(expected, actual);
 
+#if !NETCOREAPP1_0
             actual = Money.Parse("€ 5 005,25", CultureInfo.CreateSpecificCulture("hu-HU"));
             Assert.Equal(new Money(5005.25m, "eur"), actual);
+#endif
 
             actual = Money.Parse("5005.25 EUR", CultureInfo.InvariantCulture);
             Assert.Equal(expected, actual);
@@ -92,7 +94,10 @@ namespace Karambolo.Common.Finances.Test
         [Fact]
         public void ToStringTest()
         {
+#if !NETCOREAPP1_0
             Assert.Equal("XBT25.00", new Money(25, "xbt").ToString(CultureInfo.InvariantCulture));
+#endif
+
             Assert.Equal("$25.0000", new Money(25, Currency.FromSymbol("$")).ToString("C4", CultureInfo.InvariantCulture));
             Assert.Equal("25.00", new Money(25, new Currency(null)).ToString("C2", CultureInfo.InvariantCulture));
         }

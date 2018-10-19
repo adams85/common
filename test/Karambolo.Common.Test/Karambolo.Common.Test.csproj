@@ -2,26 +2,38 @@
   <PropertyGroup>
     <AssemblyName>Karambolo.Common.Test</AssemblyName>
     <RootNamespace>Karambolo.Common.Test</RootNamespace>
-    <TargetFramework>net461</TargetFramework>
+    <TargetFrameworks>net461;netcoreapp2.0;netcoreapp1.0</TargetFrameworks>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\..\source\Karambolo.Common\Karambolo.Public.snk</AssemblyOriginatorKeyFile>
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
+    <LangVersion>7.3</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\source\Karambolo.Common\Karambolo.Common.csproj" AdditionalProperties="TargetFramework=netstandard2.0">
+    <ProjectReference Include="..\..\source\Karambolo.Common\Karambolo.Common.csproj">
       <Project>{747352fb-e6b0-4d81-8f04-0f5ab99fc96e}</Project>
       <Name>Karambolo.Common</Name>
+      <Aliases>global,common</Aliases>
     </ProjectReference>
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
+    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
     <PackageReference Include="xunit" Version="2.2.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
   </ItemGroup>
+
+  <!-- https://stackoverflow.com/questions/33460667/how-to-use-extern-alias-with-nuget -->
+  <Target Name="ChangeAliasesOfNugetRefs" BeforeTargets="FindReferenceAssembliesForReferences;ResolveReferences">
+    <ItemGroup>
+      <ReferencePath Condition="'%(FileName)' == 'System.Reflection'">
+        <Aliases>global,system</Aliases>
+      </ReferencePath>
+    </ItemGroup>
+  </Target>
 </Project>

@@ -243,7 +243,7 @@ namespace Karambolo.Common.Collections
 
         private const int defaultInitialCapacity = 0;
 
-        private static readonly bool valueTypeAllowsNull = !typeof(TValue).IsValueType() || Nullable.GetUnderlyingType(typeof(TValue)) != null;
+        private static readonly bool valueTypeAllowsNull = typeof(TValue).AllowsNull();
 
         private readonly Dictionary<TKey, TValue> _dictionary;
         private readonly List<TKey> _list;

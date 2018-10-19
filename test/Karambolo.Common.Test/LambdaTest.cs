@@ -1,7 +1,14 @@
-﻿using System;
+﻿#if NETCOREAPP1_0
+extern alias common;
+using CommonMemberTypes = common::System.Reflection.MemberTypes;
+#else
+using CommonMemberTypes = System.Reflection.MemberTypes;
+#endif
+
+using System;
 using System.Linq;
-using System.Reflection;
 using Xunit;
+using System.Reflection;
 
 namespace Karambolo.Common.Test
 {
@@ -14,7 +21,7 @@ namespace Karambolo.Common.Test
 
             Assert.Throws<ArgumentException>(() => Lambda.GetMemberPath(() => DateTime.MaxValue));
 
-            Assert.Equal("MaxValue", string.Join(".", Lambda.GetMemberPath(() => DateTime.MaxValue, MemberTypes.Field).Select(m => m.Name)));
+            Assert.Equal("MaxValue", string.Join(".", Lambda.GetMemberPath(() => DateTime.MaxValue, CommonMemberTypes.Field).Select(m => m.Name)));
 
             Assert.Equal("Date.Day", string.Join(".", Lambda.GetMemberPath((DateTime dt) => dt.Date.Day).Select(m => m.Name)));
         }

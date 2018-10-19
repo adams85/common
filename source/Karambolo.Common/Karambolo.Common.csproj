@@ -2,11 +2,12 @@
   <PropertyGroup>
     <AssemblyName>Karambolo.Common</AssemblyName>
     <RootNamespace>Karambolo.Common</RootNamespace>
-    <TargetFrameworks>net40;net45;netstandard1.0;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net45;net40;netstandard2.0;netstandard1.0</TargetFrameworks>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>Karambolo.Public.snk</AssemblyOriginatorKeyFile>
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
+    <LangVersion>7.3</LangVersion>
   </PropertyGroup>
 
   <Import Project="Properties\AssemblyInfo.props" />
@@ -38,7 +39,6 @@
     <Compile Remove="Compatibility.Net40.cs" />
     <Compile Remove="ConcurrencyUtils.cs" />
     <Compile Remove="FileUtils.NotNetstd10.cs" />
-    <Compile Remove="ReflectionUtils.cs" />
 
     <Compile Remove="Localization\**" />
     <Compile Include="Localization\Plural.cs" />

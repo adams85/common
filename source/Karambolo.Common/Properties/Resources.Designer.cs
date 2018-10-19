@@ -106,6 +106,15 @@ namespace Karambolo.Common.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Only field or property members are allowed..
+        /// </summary>
+        internal static string FieldOrPropertyAllowedOnly {
+            get {
+                return ResourceManager.GetString("FieldOrPropertyAllowedOnly", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Currencies of money values must match..
         /// </summary>
         internal static string IncompatibleCurrencies {
@@ -228,15 +237,6 @@ namespace Karambolo.Common.Properties {
         internal static string NonZeroLowerBoundArrayNotSupported {
             get {
                 return ResourceManager.GetString("NonZeroLowerBoundArrayNotSupported", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Expression is not a field or property access expression..
-        /// </summary>
-        internal static string NotFieldOrPropertyExpression {
-            get {
-                return ResourceManager.GetString("NotFieldOrPropertyExpression", resourceCulture);
             }
         }
         
