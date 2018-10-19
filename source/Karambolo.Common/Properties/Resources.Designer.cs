@@ -115,7 +115,7 @@ namespace Karambolo.Common.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Currencies of money values must match..
+        ///   Looks up a localized string similar to Currencies must match..
         /// </summary>
         internal static string IncompatibleCurrencies {
             get {
@@ -142,24 +142,6 @@ namespace Karambolo.Common.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Invalid expression..
-        /// </summary>
-        internal static string InvalidExpression {
-            get {
-                return ResourceManager.GetString("InvalidExpression", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Internal state of object is invalid..
-        /// </summary>
-        internal static string InvalidInternalState {
-            get {
-                return ResourceManager.GetString("InvalidInternalState", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Key must be of type {0}..
         /// </summary>
         internal static string InvalidKeyType {
@@ -174,6 +156,15 @@ namespace Karambolo.Common.Properties {
         internal static string InvalidPublicKeyToken {
             get {
                 return ResourceManager.GetString("InvalidPublicKeyToken", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid value..
+        /// </summary>
+        internal static string InvalidValue {
+            get {
+                return ResourceManager.GetString("InvalidValue", resourceCulture);
             }
         }
         

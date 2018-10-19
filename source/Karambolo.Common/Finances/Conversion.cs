@@ -1,4 +1,5 @@
 ﻿using System;
+using Karambolo.Common.Properties;
 
 namespace Karambolo.Common.Finances
 {
@@ -15,7 +16,7 @@ namespace Karambolo.Common.Finances
         {
             if (rate <= 0 ||
                 from == to && rate != 1m)
-                throw new ArgumentException(null, nameof(rate));
+                throw new ArgumentException(Resources.InvalidValue, nameof(rate));
 
             _from = from;
             _to = to;
@@ -39,7 +40,7 @@ namespace Karambolo.Common.Finances
         public Money Convert(Money value)
         {
             if (value.Currency != _from)
-				throw new ArgumentException(null, nameof(value));
+                throw new ArgumentException(Resources.IncompatibleCurrencies, nameof(value));
 
             return Money.ChangeCurrency(value, _to) * _rate;
         }
@@ -52,7 +53,7 @@ namespace Karambolo.Common.Finances
         public Money ConvertBack(Money value)
         {
             if (value.Currency != _to)
-                throw new ArgumentException(null, nameof(value));
+                throw new ArgumentException(Resources.IncompatibleCurrencies, nameof(value));
 
             return Money.ChangeCurrency(value, _from) / _rate;
         }

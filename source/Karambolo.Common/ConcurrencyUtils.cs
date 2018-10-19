@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Collections.Concurrent;
+using Karambolo.Common.Properties;
 
 namespace Karambolo.Common
 {
@@ -28,7 +29,7 @@ namespace Karambolo.Common
             public override IList<IEnumerator<T>> GetPartitions(int partitionCount)
             {
                 if (!(partitionCount > 0))
-                    throw new ArgumentException(null, nameof(partitionCount));
+                    throw new ArgumentException(Resources.InvalidValue, nameof(partitionCount));
 
                 var dynamicPartitioner = GetDynamicPartitions();
                 return Enumerable.Range(0, partitionCount).Select(_ => dynamicPartitioner.GetEnumerator()).ToArray();

@@ -85,17 +85,17 @@ namespace Karambolo.Common.Finances
         {
             if (part.StartsWith(numberFormat.PositiveSign))
                 return part.Remove(0, numberFormat.PositiveSign.Length);
-            
+
             if (part.StartsWith(numberFormat.NegativeSign))
                 return part.Remove(0, numberFormat.NegativeSign.Length);
-            
+
             if (part.EndsWith(numberFormat.PositiveSign))
                 return part.Remove(part.Length - numberFormat.PositiveSign.Length, numberFormat.PositiveSign.Length);
-            
+
             if (part.EndsWith(numberFormat.NegativeSign))
                 return part.Remove(part.Length - numberFormat.NegativeSign.Length, numberFormat.NegativeSign.Length);
-            
-           return part;
+
+            return part;
         }
 
         static string ExtractCurrencyString(string value, NumberFormatInfo numberFormat)
@@ -172,15 +172,15 @@ namespace Karambolo.Common.Finances
             }
 
             var numberFormat =
-                (NumberFormatInfo) formatProvider?.GetFormat(typeof(NumberFormatInfo)) ??
+                (NumberFormatInfo)formatProvider?.GetFormat(typeof(NumberFormatInfo)) ??
                 NumberFormatInfo.CurrentInfo;
 
             var currencyString = ExtractCurrencyString(value, numberFormat);
             if (!Currency.TryParse(currencyString, out Currency currency))
                 currency = Currency.None;
 
-             numberFormat = (NumberFormatInfo)numberFormat.Clone();
-             numberFormat.CurrencySymbol = currency != Currency.None ? currencyString : "¤";
+            numberFormat = (NumberFormatInfo)numberFormat.Clone();
+            numberFormat.CurrencySymbol = currency != Currency.None ? currencyString : "¤";
 
             if (decimal.TryParse(value, NumberStyles.Currency, numberFormat, out decimal amount))
             {
@@ -305,8 +305,8 @@ namespace Karambolo.Common.Finances
 
         public string ToString(string format, IFormatProvider formatProvider)
         {
-            var numberFormat = 
-                (NumberFormatInfo) formatProvider?.GetFormat(typeof(NumberFormatInfo)) ??
+            var numberFormat =
+                (NumberFormatInfo)formatProvider?.GetFormat(typeof(NumberFormatInfo)) ??
                 NumberFormatInfo.CurrentInfo;
 
             return _amount.ToString(format, CustomizeNumberFormat(numberFormat));

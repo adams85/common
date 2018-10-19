@@ -135,9 +135,6 @@
   <data name="InvalidArrayType" xml:space="preserve">
     <value>Invalid array type.</value>
   </data>
-  <data name="InvalidInternalState" xml:space="preserve">
-    <value>Internal state of object is invalid.</value>
-  </data>
   <data name="InvalidKeyType" xml:space="preserve">
     <value>Key must be of type {0}.</value>
   </data>
@@ -181,7 +178,7 @@
     <value>Error handling cannot be set in the current state of object.</value>
   </data>
   <data name="IncompatibleCurrencies" xml:space="preserve">
-    <value>Currencies of money values must match.</value>
+    <value>Currencies must match.</value>
   </data>
   <data name="UnexpectedObjectType" xml:space="preserve">
     <value>Object must be of type {0}.</value>
@@ -192,7 +189,7 @@
   <data name="InvalidPublicKeyToken" xml:space="preserve">
     <value>Invalid public key token. Size must be {0} bytes.</value>
   </data>
-  <data name="InvalidExpression" xml:space="preserve">
-    <value>Invalid expression.</value>
+  <data name="InvalidValue" xml:space="preserve">
+    <value>Invalid value.</value>
   </data>
 </root>

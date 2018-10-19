@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Collections.Concurrent;
+using Karambolo.Common.Properties;
 
 namespace Karambolo.Common.Logging
 {
@@ -21,7 +22,7 @@ namespace Karambolo.Common.Logging
                 case LoggerEventType.Verbose:
                     return TraceEventType.Verbose;
                 default:
-                    throw new ArgumentException(null, nameof(level));
+                    throw new NotSupportedException();
             }
         }
 
@@ -32,7 +33,7 @@ namespace Karambolo.Common.Logging
             if (sourceName == null)
                 throw new ArgumentNullException(nameof(sourceName));
             if (sourceName == string.Empty)
-                throw new ArgumentException(null, nameof(sourceName));
+                throw new ArgumentException(Resources.InvalidValue, nameof(sourceName));
 
             _sourceName = sourceName;
         }

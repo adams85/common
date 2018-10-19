@@ -40,7 +40,7 @@ namespace Karambolo.Common
             {
                 memberExpression =
                     GetMemberExpression(currentExpression, allowedMemberTypes) ??
-                    throw new ArgumentException(Resources.InvalidExpression, nameof(expression));
+                    throw new ArgumentException(Resources.InvalidValue, nameof(expression));
 
                 memberExpressions.Add(memberExpression.Member);
             }
@@ -67,7 +67,7 @@ namespace Karambolo.Common
 
             var member = GetMemberExpression(expression, MemberTypes.Field);
             if (member == null)
-                throw new ArgumentException(null, nameof(expression));
+                throw new ArgumentException(Resources.InvalidValue, nameof(expression));
             return (FieldInfo)member.Member;
         }
 
@@ -78,7 +78,7 @@ namespace Karambolo.Common
 
             var member = GetMemberExpression(expression, MemberTypes.Field);
             if (member == null)
-                throw new ArgumentException(null, nameof(expression));
+                throw new ArgumentException(Resources.InvalidValue, nameof(expression));
             return (FieldInfo)member.Member;
         }
 
@@ -89,7 +89,7 @@ namespace Karambolo.Common
 
             var member = GetMemberExpression(expression, MemberTypes.Property);
             if (member == null)
-                throw new ArgumentException(null, nameof(expression));
+                throw new ArgumentException(Resources.InvalidValue, nameof(expression));
             return (PropertyInfo)member.Member;
         }
 
@@ -100,7 +100,7 @@ namespace Karambolo.Common
 
             var member = GetMemberExpression(expression, MemberTypes.Property);
             if (member == null)
-                throw new ArgumentException(null, nameof(expression));
+                throw new ArgumentException(Resources.InvalidValue, nameof(expression));
             return (PropertyInfo)member.Member;
         }
 
@@ -129,7 +129,7 @@ namespace Karambolo.Common
 
             var member = GetCallExpression(expression);
             if (member == null)
-                throw new ArgumentException(null, nameof(expression));
+                throw new ArgumentException(Resources.InvalidValue, nameof(expression));
             return member.Method;
         }
 
@@ -140,7 +140,7 @@ namespace Karambolo.Common
 
             var member = GetCallExpression(expression);
             if (member == null)
-                throw new ArgumentException(null, nameof(expression));
+                throw new ArgumentException(Resources.InvalidValue, nameof(expression));
             return member.Method;
         }
 
@@ -151,7 +151,7 @@ namespace Karambolo.Common
 
             var member = GetCallExpression(expression);
             if (member == null)
-                throw new ArgumentException(null, nameof(expression));
+                throw new ArgumentException(Resources.InvalidValue, nameof(expression));
             return member.Method;
         }
 
@@ -201,7 +201,7 @@ namespace Karambolo.Common
             var method = Method(expression);
 
             if (!method.IsGenericMethod)
-                throw new ArgumentException(null, nameof(expression));
+                throw new ArgumentException(Resources.InvalidValue, nameof(expression));
 
             return method.GetGenericMethodDefinition().MakeGenericMethod(typeArgs);
         }
@@ -211,7 +211,7 @@ namespace Karambolo.Common
             var method = Method(expression);
 
             if (!method.IsGenericMethod)
-                throw new ArgumentException(null, nameof(expression));
+                throw new ArgumentException(Resources.InvalidValue, nameof(expression));
 
             return method.GetGenericMethodDefinition().MakeGenericMethod(typeArgs);
         }
@@ -221,7 +221,7 @@ namespace Karambolo.Common
             var method = Method(expression);
 
             if (!method.IsGenericMethod)
-                throw new ArgumentException(null, nameof(expression));
+                throw new ArgumentException(Resources.InvalidValue, nameof(expression));
 
             return method.GetGenericMethodDefinition().MakeGenericMethod(typeArgs);
         }

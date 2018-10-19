@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Globalization;
+using Karambolo.Common.Properties;
 
 namespace Karambolo.Common.Finances
 {
@@ -43,7 +44,7 @@ namespace Karambolo.Common.Finances
                 throw new ArgumentNullException(nameof(code));
             if (code.Length != 3 ||
                 (code = code.ToUpperInvariant()).AsEnumerable().Any(c => c < 'A' || 'Z' < c))
-                throw new ArgumentException(null, nameof(code));
+                throw new ArgumentException(Resources.InvalidValue, nameof(code));
             if (symbol == null)
                 throw new ArgumentNullException(nameof(symbol));
 
@@ -150,7 +151,7 @@ namespace Karambolo.Common.Finances
 
             var code = SymbolToCode(symbol);
             if (code == null)
-                throw new ArgumentException(null, nameof(symbol));
+                throw new ArgumentException(Resources.InvalidValue, nameof(symbol));
 
             return new Currency(code);
         }
@@ -161,7 +162,7 @@ namespace Karambolo.Common.Finances
         {
             var data = Encode(code);
             if (data == null)
-                throw new ArgumentException(null, nameof(code));
+                throw new ArgumentException(Resources.InvalidValue, nameof(code));
 
             _data = data.Value;
         }
