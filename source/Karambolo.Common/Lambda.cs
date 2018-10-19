@@ -3,18 +3,26 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
+using Karambolo.Common.Properties;
 
 namespace Karambolo.Common
 {
     public static class Lambda
     {
+        static MemberExpression GetMemberExpression(Expression expression, MemberTypes allowedMemberTypes)
+        {
+            return
+                expression is MemberExpression memberExpression && (allowedMemberTypes & memberExpression.Member.MemberType()) != 0 ?
+                memberExpression :
+                null;
+        }
+
         public static MemberExpression GetMemberExpression(LambdaExpression expression, MemberTypes allowedMemberTypes)
         {
             if (expression == null)
                 throw new ArgumentNullException(nameof(expression));
 
-            var memberExpression = expression.Body as MemberExpression;
-            return memberExpression != null && allowedMemberTypes.HasFlag(memberExpression.Member.MemberType()) ? memberExpression : null;
+            return GetMemberExpression(expression.Body, allowedMemberTypes);
         }
 
         static IEnumerable<MemberInfo> GetMemberPath(LambdaExpression expression, MemberTypes allowedMemberTypes, Func<Expression, bool> isSource)
@@ -23,17 +31,17 @@ namespace Karambolo.Common
                 throw new ArgumentNullException(nameof(expression));
 
             var memberExpressions = new List<MemberInfo>();
-            var bodyExpression = expression.Body;
+            var currentExpression = expression.Body;
             MemberExpression memberExpression;
             do
             {
-                memberExpression = bodyExpression as MemberExpression;
-                if (memberExpression == null || !allowedMemberTypes.HasFlag(memberExpression.Member.MemberType()))
-                    throw new ArgumentException(null, nameof(expression));
+                memberExpression =
+                   GetMemberExpression(currentExpression, allowedMemberTypes) ??
+                   throw new ArgumentException(Resources.InvalidExpression, nameof(expression));
 
                 memberExpressions.Add(memberExpression.Member);
             }
-            while (!isSource(bodyExpression = memberExpression.Expression));
+            while (!isSource(currentExpression = memberExpression.Expression));
 
             memberExpressions.Reverse();
             return memberExpressions;

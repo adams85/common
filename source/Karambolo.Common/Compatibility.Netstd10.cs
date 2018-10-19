@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace System.Reflection
 {
@@ -48,13 +49,18 @@ namespace Karambolo.Common
 
     static partial class ReflectionExtensions
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static PropertyInfo[] GetProperties(this Type @this)
         {
             return @this.GetTypeInfo().DeclaredProperties.ToArray();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsAssignableFrom(this Type @this, Type type)
         {
+            if (@this == null)
+                throw new NullReferenceException();
+
             if (type == null)
                 throw new ArgumentNullException(nameof(type));
 

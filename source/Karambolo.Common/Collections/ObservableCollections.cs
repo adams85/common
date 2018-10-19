@@ -346,8 +346,7 @@ namespace Karambolo.Common.Collections
 
         ICollection AsCollection()
         {
-            var result = _source as ICollection;
-            if (result == null)
+            if (!(_source is ICollection result))
                 throw new NotSupportedException();
             return result;
         }
@@ -393,8 +392,7 @@ namespace Karambolo.Common.Collections
 
             _previewers.Value.RemoveAll(p =>
             {
-                var owned = p as IOwned<TOwner>;
-                return owned != null && owned.Owner == owner;
+                return p is IOwned<TOwner> owned && owned.Owner == owner;
             });
         }
 

@@ -159,14 +159,14 @@ namespace Karambolo.Common.Collections
             throw new NotSupportedException();
         }
     }
-#endregion
+    #endregion
 
-#region Dictionaries
+    #region Dictionaries
 #if !NETSTANDARD1_0
     [System.Serializable]
 #endif
     [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(ReadOnlyDictionaryDebugView<,>))]
-    public class ReadOnlyDictionary<TKey, TValue, TDictionary> : ReadOnlyCollection<KeyValuePair<TKey, TValue>, TDictionary>, 
+    public class ReadOnlyDictionary<TKey, TValue, TDictionary> : ReadOnlyCollection<KeyValuePair<TKey, TValue>, TDictionary>,
         IDictionary<TKey, TValue>, IReadOnlyDictionary<TKey, TValue>
         where TDictionary : IDictionary<TKey, TValue>
     {
@@ -248,9 +248,9 @@ namespace Karambolo.Common.Collections
             throw new NotSupportedException();
         }
     }
-#endregion
+    #endregion
 
-#region Keyed Collections
+    #region Keyed Collections
 #if !NETSTANDARD1_0
     [System.Serializable]
 #endif
@@ -310,7 +310,7 @@ namespace Karambolo.Common.Collections
     [System.Serializable]
 #endif
     [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(KeyedCollectionDebugView<,>))]
-    public class ReadOnlyObservableKeyedCollection<TKey, TValue, TKeyedCollection> : ReadOnlyKeyedCollection<TKey, TValue, TKeyedCollection>, 
+    public class ReadOnlyObservableKeyedCollection<TKey, TValue, TKeyedCollection> : ReadOnlyKeyedCollection<TKey, TValue, TKeyedCollection>,
         IObservableKeyedCollection<TKey, TValue>
         where TKeyedCollection : IObservableKeyedCollection<TKey, TValue>
     {
@@ -393,7 +393,7 @@ namespace Karambolo.Common.Collections
             remove => _source.PropertyChanged -= value;
         }
     }
-#endregion
+    #endregion
 }
 
 

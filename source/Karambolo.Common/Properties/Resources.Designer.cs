@@ -133,6 +133,15 @@ namespace Karambolo.Common.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Invalid expression..
+        /// </summary>
+        internal static string InvalidExpression {
+            get {
+                return ResourceManager.GetString("InvalidExpression", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Internal state of object is invalid..
         /// </summary>
         internal static string InvalidInternalState {

@@ -9,6 +9,11 @@ using Karambolo.Common.Diagnostics;
 
 namespace Karambolo.Common.Collections
 {
+    /// <summary>
+    /// Represents a generic read-only collection of key/value pairs that are ordered independently of the key and value.
+    /// </summary>
+    /// <typeparam name="TKey">The type of the keys in the dictionary</typeparam>
+    /// <typeparam name="TValue">The type of the values in the dictionary</typeparam>
     public interface IReadOnlyOrderedDictionary<TKey, TValue> : IReadOnlyDictionary<TKey, TValue>
     {
         /// <summary>
@@ -65,7 +70,7 @@ namespace Karambolo.Common.Collections
         /// <exception cref="ArgumentException">An element with the same key already exists in the <see cref="IOrderedDictionary{TKey,TValue}">IOrderedDictionary&lt;TKey,TValue&gt;</see></exception>
         /// <exception cref="NotSupportedException">The <see cref="IOrderedDictionary{TKey,TValue}">IOrderedDictionary&lt;TKey,TValue&gt;</see> is read-only.<br/>
         /// -or-<br/>
-        /// The <see cref="IOrderedDictionary{TKey,TValue}">IOrderedDictionary&lt;TKey,TValue&gt;</see> has a fized size.</exception>
+        /// The <see cref="IOrderedDictionary{TKey,TValue}">IOrderedDictionary&lt;TKey,TValue&gt;</see> has a fixed size.</exception>
         new int Add(TKey key, TValue value);
 
         /// <summary>
@@ -102,70 +107,41 @@ namespace Karambolo.Common.Collections
     [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(DictionaryDebugView<,>))]
     public class OrderedDictionary<TKey, TValue> : IOrderedDictionary<TKey, TValue>, IOrderedDictionary
     {
-        // TODO: version checking
         struct DictionaryEnumerator : IDictionaryEnumerator
         {
-            readonly OrderedDictionary<TKey, TValue> _owner;
-            int _index;
+            readonly Dictionary<TKey, TValue> _dictionary;
+            IEnumerator<TKey> _listEnumerator;
 
             public DictionaryEnumerator(OrderedDictionary<TKey, TValue> owner)
             {
-                _owner = owner;
-                _index = -1;
+                _dictionary = owner._dictionary;
+                _listEnumerator = owner._list.GetEnumerator();
             }
 
-            void EnsureIndexInRange()
-            {
-                if (_index < 0 || _index >= _owner._list.Count)
-                    throw new InvalidOperationException();
-            }
-
-            public object Current
-            {
-                get
-                {
-                    EnsureIndexInRange();
-                    return Entry;
-                }
-            }
+            public object Current => Entry;
 
             public DictionaryEntry Entry
             {
                 get
                 {
-                    EnsureIndexInRange();
-                    var key = _owner._list[_index];
-                    return new DictionaryEntry(key, _owner._dictionary[key]);
+                    var key = _listEnumerator.Current;
+                    return new DictionaryEntry(key, _dictionary[key]);
                 }
             }
 
             public bool MoveNext()
             {
-                return ++_index < _owner._list.Count;
+                return _listEnumerator.MoveNext();
             }
 
             public void Reset()
             {
-                _index = -1;
+                _listEnumerator.Reset();
             }
 
-            public object Key
-            {
-                get
-                {
-                    EnsureIndexInRange();
-                    return _owner._list[_index];
-                }
-            }
+            public object Key => _listEnumerator.Current;
 
-            public object Value
-            {
-                get
-                {
-                    EnsureIndexInRange();
-                    return _owner._dictionary[_owner._list[_index]];
-                }
-            }
+            public object Value => _dictionary[_listEnumerator.Current];
         }
 
         class ValueCollection : ICollection<TValue>, ICollection
@@ -217,9 +193,8 @@ namespace Karambolo.Common.Collections
 
             public IEnumerator<TValue> GetEnumerator()
             {
-                var count = _owner._list.Count;
-                for (var i = 0; i < count; i++)
-                    yield return _owner._dictionary[_owner._list[i]];
+                foreach (var key in _owner._list)
+                    yield return _owner._dictionary[key];
             }
 
             IEnumerator IEnumerable.GetEnumerator()
@@ -242,12 +217,11 @@ namespace Karambolo.Common.Collections
 
                 if (array is TValue[] array2)
                 {
-                    this.CopyTo(array2, index);
+                    CopyTo(array2, index);
                     return;
                 }
 
-                var array3 = array as object[];
-                if (array3 == null)
+                if (!(array is object[] array3))
                     throw new ArgumentException(Resources.InvalidArrayType, nameof(array));
 
                 var count = _owner._list.Count;
@@ -269,9 +243,7 @@ namespace Karambolo.Common.Collections
 
         private const int defaultInitialCapacity = 0;
 
-        private static readonly string keyTypeName = typeof(TKey).FullName;
-        private static readonly string valueTypeName = typeof(TValue).FullName;
-        private static readonly bool valueTypeAllowsNull = !typeof(ValueType).IsAssignableFrom(typeof(TValue)) || Nullable.GetUnderlyingType(typeof(TValue)) != null;
+        private static readonly bool valueTypeAllowsNull = !typeof(TValue).IsValueType() || Nullable.GetUnderlyingType(typeof(TValue)) != null;
 
         private readonly Dictionary<TKey, TValue> _dictionary;
         private readonly List<TKey> _list;
@@ -357,8 +329,9 @@ namespace Karambolo.Common.Collections
         {
             if (key == null)
                 throw new ArgumentNullException(nameof(key));
+
             if (!(key is TKey))
-                throw new ArgumentException(string.Format(Resources.InvalidKeyType, keyTypeName), nameof(key));
+                throw new ArgumentException(string.Format(Resources.InvalidKeyType, typeof(TKey).FullName), nameof(key));
 
             return (TKey)key;
         }
@@ -381,7 +354,7 @@ namespace Karambolo.Common.Collections
             }
 
             if (!(value is TValue))
-                throw new ArgumentException(string.Format(Resources.InvalidValueType, valueTypeName), nameof(value));
+                throw new ArgumentException(string.Format(Resources.InvalidValueType, typeof(TValue).FullName), nameof(value));
 
             return (TValue)value;
         }
@@ -403,12 +376,8 @@ namespace Karambolo.Common.Collections
 
         public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
         {
-            var count = _list.Count;
-            for (var i = 0; i < count; i++)
-            {
-                var key = _list[i];
+            foreach (var key in _list)
                 yield return new KeyValuePair<TKey, TValue>(key, _dictionary[key]);
-            }
         }
 
         /// <summary>
@@ -466,9 +435,8 @@ namespace Karambolo.Common.Collections
                 throw new ArgumentOutOfRangeException(nameof(index), Resources.IndexOutOfRange);
 
             var key = _list[index];
-            if (!_dictionary.Remove(key))
-                throw new InvalidOperationException(Resources.InvalidInternalState);
             _list.RemoveAt(index);
+            _dictionary.Remove(key);
         }
 
         /// <summary>
@@ -488,9 +456,8 @@ namespace Karambolo.Common.Collections
                     throw new ArgumentOutOfRangeException(nameof(index), Resources.IndexOutOfRange);
 
                 var key = _list[index];
-
+                _list[index] = key; // forcing the list to update its internal version
                 _dictionary[key] = value;
-                _list[index] = key;
             }
         }
 
@@ -647,11 +614,8 @@ namespace Karambolo.Common.Collections
             var comparer = _dictionary.Comparer;
             var count = _list.Count;
             for (var index = 0; index < count; index++)
-            {
-                var next = _list[index];
-                if (comparer.Equals(next, key))
+                if (comparer.Equals(_list[index], key))
                     return index;
-            }
 
             return -1;
         }
@@ -663,18 +627,14 @@ namespace Karambolo.Common.Collections
         /// <returns><see langword="true"/> if the key was found and the corresponding element was removed; otherwise, <see langword="false"/></returns>
         public bool Remove(TKey key)
         {
-            if (key == null)
-                throw new ArgumentNullException(nameof(key));
-
             var index = IndexOfKey(key);
-            if (index >= 0)
-            {
-                if (!_dictionary.Remove(key))
-                    throw new InvalidOperationException(Resources.InvalidInternalState);
-                _list.RemoveAt(index);
-                return true;
-            }
-            return false;
+
+            if (index < 0)
+                return false;
+
+            _list.RemoveAt(index);
+            _dictionary.Remove(key);
+            return true;
         }
 
         /// <summary>
@@ -703,10 +663,13 @@ namespace Karambolo.Common.Collections
             get => _dictionary[key];
             set
             {
-                var keyAlreadyExists = _dictionary.ContainsKey(key);
-                _dictionary[key] = value;
-                if (!keyAlreadyExists)
-                    _list.Add(key);
+                if (_dictionary.ContainsKey(key))
+                {
+                    _list[0] = _list[0]; // forcing the list to update its internal version
+                    _dictionary[key] = value;
+                }
+                else
+                    Add(key, value);
             }
         }
 
@@ -872,7 +835,7 @@ namespace Karambolo.Common.Collections
         /// <returns><see langword="true"/> if the key and value represented by <paramref name="keyValuePair"/> is successfully found and removed; otherwise, <see langword="false"/>. This method returns <see langword="false"/> if <paramref name="keyValuePair"/> is not found in the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see>.</returns>
         bool ICollection<KeyValuePair<TKey, TValue>>.Remove(KeyValuePair<TKey, TValue> item)
         {
-            return Remove(item.Key);
+            return ((ICollection<KeyValuePair<TKey, TValue>>)_dictionary).Contains(item) ? Remove(item.Key) : false;
         }
     }
 }

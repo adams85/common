@@ -192,4 +192,7 @@
   <data name="InvalidPublicKeyToken" xml:space="preserve">
     <value>Invalid public key token. Size must be {0} bytes.</value>
   </data>
+  <data name="InvalidExpression" xml:space="preserve">
+    <value>Invalid expression.</value>
+  </data>
 </root>

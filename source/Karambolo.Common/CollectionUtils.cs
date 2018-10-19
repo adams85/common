@@ -283,9 +283,8 @@ namespace Karambolo.Common
 
         public static IObservableList<T> AsObservable<T>(this IList<T> source, bool treatClearAsRemove = false)
         {
-            var list = source as List<T>;
             return
-                list != null ?
+                source is List<T> list ?
                 (IObservableList<T>)new ObservableListClassDecorator<T, List<T>>(list, treatClearAsRemove) :
                 new ObservableListDecorator<T, IList<T>>(source, treatClearAsRemove);
         }

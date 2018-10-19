@@ -5,12 +5,27 @@ namespace Karambolo.Common
 {
     static partial class ReflectionExtensions
     {
+#if !NET40
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+#endif
         public static Assembly Assembly(this Type @this)
         {
 #if !NETSTANDARD1_0
             return @this.Assembly;
 #else
             return @this.GetTypeInfo().Assembly;
+#endif
+        }
+
+#if !NET40
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+#endif
+        public static bool IsValueType(this Type @this)
+        {
+#if !NETSTANDARD1_0
+            return @this.IsValueType;
+#else
+            return @this.GetTypeInfo().IsValueType;
 #endif
         }
 
