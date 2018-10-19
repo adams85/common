@@ -102,7 +102,7 @@ namespace Karambolo.Common
                             case '+':
                                 typeName._baseName = GetBaseName(input, sectionStartIndex, i, dotIndex, isNested, ref @namespace);
 
-                                typeName = typeName._child = new TypeName();
+                                typeName = typeName._nested = new TypeName();
                                 isNested = true;
 
                                 sectionStartIndex = i + 1;
@@ -128,7 +128,7 @@ namespace Karambolo.Common
                             case '+':
                                 typeName._genericArguments = CreateGenericArguments(input, sectionStartIndex, i);
 
-                                typeName = typeName._child = new TypeName();
+                                typeName = typeName._nested = new TypeName();
                                 isNested = true;
 
                                 sectionStartIndex = i + 1;
@@ -214,14 +214,14 @@ namespace Karambolo.Common
             set { _baseName = value; }
         }
 
-        internal TypeName _child;
-        public TypeName Child
+        internal TypeName _nested;
+        public TypeName Nested
         {
-            get { return _child; }
-            set { _child = value; }
+            get { return _nested; }
+            set { _nested = value; }
         }
 
-        public bool HasChild => _child != null;
+        public bool HasNested => _nested != null;
 
         internal IList<TypeNameBuilder> _genericArguments;
         public IList<TypeNameBuilder> GenericArguments => _genericArguments ?? (_genericArguments = new List<TypeNameBuilder>());
@@ -273,7 +273,7 @@ namespace Karambolo.Common
         {
             genericArgIndex++;
             while (typeName._genericArguments == null || genericArgIndex >= typeName._genericArguments.Count)
-                if ((typeName = typeName.Child) != null)
+                if ((typeName = typeName.Nested) != null)
                     genericArgIndex = 0;
                 else
                     return;
@@ -500,7 +500,7 @@ namespace Karambolo.Common
                     }
                 }
             }
-            while ((typeName = typeName._child) != null);
+            while ((typeName = typeName._nested) != null);
 
             if (isClosedGenericType)
             {
@@ -523,8 +523,8 @@ namespace Karambolo.Common
                 index += sb.Length - length;
             }
 
-            if (appendAssemblyName && !string.IsNullOrEmpty(builder.AssemblyName))
-                sb.Insert(index, builder.AssemblyName).Insert(index, ' ').Insert(index, ',');
+            if (appendAssemblyName && !string.IsNullOrEmpty(builder._assemblyName))
+                sb.Insert(index, builder._assemblyName).Insert(index, ' ').Insert(index, ',');
 
             return sb;
         }
@@ -568,7 +568,7 @@ namespace Karambolo.Common
                     for (int i = 0, n = typeName._genericArguments.Count; i < n; i++)
                         typeName._genericArguments[i].Transform(action);
             }
-            while ((typeName = typeName._child) != null);
+            while ((typeName = typeName._nested) != null);
 
             return this;
         }

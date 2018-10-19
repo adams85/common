@@ -14,8 +14,8 @@ namespace Karambolo.Common.Test
 
             var typeName = new TypeName("System.String");
             Assert.Equal("String", typeName.BaseName);
-            Assert.False(typeName.HasChild);
-            Assert.Null(typeName.Child);
+            Assert.False(typeName.HasNested);
+            Assert.Null(typeName.Nested);
             Assert.False(typeName.IsGeneric);
             Assert.False(typeName.IsOpenGeneric);
             Assert.Equal(0, typeName.GenericArguments.Count);
@@ -23,8 +23,8 @@ namespace Karambolo.Common.Test
             var builder = new TypeNameBuilder("System.String");
             Assert.Equal("System", builder.Namespace);
             Assert.Equal("String", builder.BaseName);
-            Assert.False(builder.HasChild);
-            Assert.Null(builder.Child);
+            Assert.False(builder.HasNested);
+            Assert.Null(builder.Nested);
             Assert.Null(builder.AssemblyName);
             Assert.False(builder.IsGeneric);
             Assert.False(builder.IsOpenGeneric);
@@ -52,18 +52,18 @@ namespace Karambolo.Common.Test
             Assert.Equal(0, builder.ArrayDimensions.Count);
 
             Assert.Equal("X", builder.BaseName);
-            Assert.True(builder.HasChild);
+            Assert.True(builder.HasNested);
             Assert.False(builder.IsGeneric);
             Assert.False(builder.IsOpenGeneric);
             Assert.Equal(0, builder.GenericArguments.Count);
 
-            Assert.Equal("Y", builder.Child.BaseName);
-            Assert.False(builder.Child.HasChild);
-            Assert.False(builder.Child.IsGeneric);
-            Assert.False(builder.Child.IsOpenGeneric);
-            Assert.Equal(0, builder.Child.GenericArguments.Count);
+            Assert.Equal("Y", builder.Nested.BaseName);
+            Assert.False(builder.Nested.HasNested);
+            Assert.False(builder.Nested.IsGeneric);
+            Assert.False(builder.Nested.IsOpenGeneric);
+            Assert.Equal(0, builder.Nested.GenericArguments.Count);
 
-            Assert.Null(builder.Child.Child);
+            Assert.Null(builder.Nested.Nested);
 
             builder = new TypeNameBuilder(" X+Y+Z ");
             Assert.Null(builder.AssemblyName);
@@ -76,17 +76,17 @@ namespace Karambolo.Common.Test
             Assert.False(builder.IsOpenGeneric);
             Assert.Equal(0, builder.GenericArguments.Count);
 
-            Assert.Equal("Y", builder.Child.BaseName);
-            Assert.False(builder.Child.IsGeneric);
-            Assert.False(builder.Child.IsOpenGeneric);
-            Assert.Equal(0, builder.Child.GenericArguments.Count);
+            Assert.Equal("Y", builder.Nested.BaseName);
+            Assert.False(builder.Nested.IsGeneric);
+            Assert.False(builder.Nested.IsOpenGeneric);
+            Assert.Equal(0, builder.Nested.GenericArguments.Count);
 
-            Assert.Equal("Z", builder.Child.Child.BaseName);
-            Assert.False(builder.Child.Child.IsGeneric);
-            Assert.False(builder.Child.Child.IsOpenGeneric);
-            Assert.Equal(0, builder.Child.Child.GenericArguments.Count);
+            Assert.Equal("Z", builder.Nested.Nested.BaseName);
+            Assert.False(builder.Nested.Nested.IsGeneric);
+            Assert.False(builder.Nested.Nested.IsOpenGeneric);
+            Assert.Equal(0, builder.Nested.Nested.GenericArguments.Count);
 
-            Assert.Null(builder.Child.Child.Child);
+            Assert.Null(builder.Nested.Nested.Nested);
 
             Assert.Throws<FormatException>(() => new TypeNameBuilder("+X"));
             Assert.Throws<FormatException>(() => new TypeNameBuilder("X+"));
@@ -212,14 +212,14 @@ namespace Karambolo.Common.Test
             Assert.False(builder2.IsGeneric);
             Assert.False(builder2.IsOpenGeneric);
             Assert.Equal(0, builder2.GenericArguments.Count);
-            Assert.Null(builder2.Child);
+            Assert.Null(builder2.Nested);
 
-            Assert.Equal("Y", builder.Child.BaseName);
-            Assert.True(builder.Child.IsGeneric);
-            Assert.False(builder.Child.IsOpenGeneric);
-            Assert.Equal(2, builder.Child.GenericArguments.Count);
+            Assert.Equal("Y", builder.Nested.BaseName);
+            Assert.True(builder.Nested.IsGeneric);
+            Assert.False(builder.Nested.IsOpenGeneric);
+            Assert.Equal(2, builder.Nested.GenericArguments.Count);
 
-            builder2 = builder.Child.GenericArguments[0];
+            builder2 = builder.Nested.GenericArguments[0];
             Assert.Null(builder2.AssemblyName);
             Assert.Null(builder2.Namespace);
             Assert.False(builder2.IsArray);
@@ -228,9 +228,9 @@ namespace Karambolo.Common.Test
             Assert.False(builder2.IsGeneric);
             Assert.False(builder2.IsOpenGeneric);
             Assert.Equal(0, builder2.GenericArguments.Count);
-            Assert.Null(builder2.Child);
+            Assert.Null(builder2.Nested);
 
-            builder2 = builder.Child.GenericArguments[1];
+            builder2 = builder.Nested.GenericArguments[1];
             Assert.Null(builder2.AssemblyName);
             Assert.Null(builder2.Namespace);
             Assert.False(builder2.IsArray);
@@ -239,9 +239,9 @@ namespace Karambolo.Common.Test
             Assert.False(builder2.IsGeneric);
             Assert.False(builder2.IsOpenGeneric);
             Assert.Equal(0, builder2.GenericArguments.Count);
-            Assert.Null(builder2.Child);
+            Assert.Null(builder2.Nested);
 
-            Assert.Null(builder.Child.Child);
+            Assert.Null(builder.Nested.Nested);
 
             Assert.Throws<FormatException>(() => new TypeNameBuilder("X`1+Y`1[[A]]"));
             Assert.Throws<FormatException>(() => new TypeNameBuilder("X`1+Y`1[[A],[B],[C]]"));
@@ -316,14 +316,14 @@ namespace Karambolo.Common.Test
             Assert.False(builder2.IsGeneric);
             Assert.False(builder2.IsOpenGeneric);
             Assert.Equal(0, builder2.GenericArguments.Count);
-            Assert.Null(builder2.Child);
+            Assert.Null(builder2.Nested);
 
-            Assert.Equal("Y", builder.Child.BaseName);
-            Assert.True(builder.Child.IsGeneric);
-            Assert.False(builder.Child.IsOpenGeneric);
-            Assert.Equal(2, builder.Child.GenericArguments.Count);
+            Assert.Equal("Y", builder.Nested.BaseName);
+            Assert.True(builder.Nested.IsGeneric);
+            Assert.False(builder.Nested.IsOpenGeneric);
+            Assert.Equal(2, builder.Nested.GenericArguments.Count);
 
-            builder2 = builder.Child.GenericArguments[0];
+            builder2 = builder.Nested.GenericArguments[0];
             Assert.Null(builder2.AssemblyName);
             Assert.Null(builder2.Namespace);
             Assert.False(builder2.IsArray);
@@ -332,9 +332,9 @@ namespace Karambolo.Common.Test
             Assert.False(builder2.IsGeneric);
             Assert.False(builder2.IsOpenGeneric);
             Assert.Equal(0, builder2.GenericArguments.Count);
-            Assert.Null(builder2.Child);
+            Assert.Null(builder2.Nested);
 
-            builder2 = builder.Child.GenericArguments[1];
+            builder2 = builder.Nested.GenericArguments[1];
             Assert.Null(builder2.AssemblyName);
             Assert.Null(builder2.Namespace);
             Assert.False(builder2.IsArray);
@@ -343,9 +343,9 @@ namespace Karambolo.Common.Test
             Assert.False(builder2.IsGeneric);
             Assert.False(builder2.IsOpenGeneric);
             Assert.Equal(0, builder2.GenericArguments.Count);
-            Assert.Null(builder2.Child);
+            Assert.Null(builder2.Nested);
 
-            Assert.Null(builder.Child.Child);
+            Assert.Null(builder.Nested.Nested);
 
             builder = new TypeNameBuilder("X+Y`16[ ]");
             Assert.Null(builder.AssemblyName);
@@ -359,13 +359,13 @@ namespace Karambolo.Common.Test
             Assert.False(builder.IsOpenGeneric);
             Assert.Equal(0, builder.GenericArguments.Count);
 
-            Assert.Equal("Y", builder.Child.BaseName);
-            Assert.True(builder.Child.IsGeneric);
-            Assert.True(builder.Child.IsOpenGeneric);
-            Assert.Equal(16, builder.Child.GenericArguments.Count);
-            Assert.True(builder.Child.GenericArguments.All(arg => arg == null));
+            Assert.Equal("Y", builder.Nested.BaseName);
+            Assert.True(builder.Nested.IsGeneric);
+            Assert.True(builder.Nested.IsOpenGeneric);
+            Assert.Equal(16, builder.Nested.GenericArguments.Count);
+            Assert.True(builder.Nested.GenericArguments.All(arg => arg == null));
 
-            Assert.Null(builder.Child.Child);
+            Assert.Null(builder.Nested.Nested);
 
             Assert.Throws<FormatException>(() => new TypeNameBuilder("X`1+Y`2[, ,][[A[]], [B], [C]]"));
             Assert.Throws<FormatException>(() => new TypeNameBuilder("X+Y`16[[]]"));
@@ -467,12 +467,12 @@ namespace Karambolo.Common.Test
             Assert.False(builder3.IsArray);
             Assert.Equal(0, builder3.ArrayDimensions.Count);
 
-            Assert.Equal("Enumerator", builder.Child.BaseName);
-            Assert.False(builder.Child.IsGeneric);
-            Assert.False(builder.Child.IsOpenGeneric);
-            Assert.Equal(0, builder.Child.GenericArguments.Count);
+            Assert.Equal("Enumerator", builder.Nested.BaseName);
+            Assert.False(builder.Nested.IsGeneric);
+            Assert.False(builder.Nested.IsOpenGeneric);
+            Assert.Equal(0, builder.Nested.GenericArguments.Count);
 
-            Assert.Null(builder.Child.Child);
+            Assert.Null(builder.Nested.Nested);
 
             #endregion
         }
@@ -553,7 +553,7 @@ namespace Karambolo.Common.Test
             builder = new TypeNameBuilder
             {
                 BaseName = "X",
-                Child = new TypeName { BaseName = "Y" },
+                Nested = new TypeName { BaseName = "Y" },
                 Namespace = "NS"
             };
             Assert.Equal("NS.X+Y", builder.ToString());
@@ -561,7 +561,7 @@ namespace Karambolo.Common.Test
             builder.ArrayDimensions.Add(1);
             Assert.Equal("NS.X+Y[]", builder.ToString());
 
-            builder.Child.GenericArguments.Add(new TypeNameBuilder { BaseName = "T" });
+            builder.Nested.GenericArguments.Add(new TypeNameBuilder { BaseName = "T" });
             Assert.Equal("NS.X+Y`1[[T]][]", builder.ToString());
 
             #endregion
@@ -593,7 +593,7 @@ namespace Karambolo.Common.Test
                         }
                     },
                 },
-                Child = new TypeName { BaseName = "Enumerator" }
+                Nested = new TypeName { BaseName = "Enumerator" }
             };
             Assert.Equal("System.Collections.Generic.Dictionary`2+Enumerator[[System.Int32, mscorlib],[System.Collections.Generic.List`1[[System.String[][,], mscorlib]], mscorlib]], mscorlib", builder.ToString());
 
