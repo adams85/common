@@ -350,7 +350,7 @@ namespace Karambolo.Common.Collections
                 if (!valueTypeAllowsNull)
                     throw new ArgumentNullException(nameof(value));
 
-                return default(TValue);
+                return default;
             }
 
             if (!(value is TValue))

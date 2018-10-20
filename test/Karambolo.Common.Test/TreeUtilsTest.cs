@@ -4,7 +4,7 @@ using Xunit;
 
 namespace Karambolo.Common.Test
 {
-    public class ModelExtensionsTest
+    public class TreeUtilsTest
     {
         class TreeNode<T>
         {
@@ -37,6 +37,85 @@ namespace Karambolo.Common.Test
             return ids.SequenceEqual(path.Select(n => n.Id));
         }
 
+        [Fact]
+        public void LevelTest()
+        {
+            var tree = new TreeNode<string>("F");
+            tree
+                .AddChild("B")
+                    .AddChild("A").Parent
+                    .AddChild("D")
+                        .AddChild("C").Parent
+                        .AddChild("E").Parent.Parent.Parent
+                .AddChild("G")
+                    .AddChild("I")
+                        .AddChild("H");
+
+            Assert.Equal(0, TreeUtils.Level(tree, n => n.Parent));
+            Assert.Equal(2, TreeUtils.Level(tree.Children[0].Children[0], n => n.Parent));
+        }
+
+        [Fact]
+        public void RootTest()
+        {
+            var tree = new TreeNode<string>("F");
+            tree
+                .AddChild("B")
+                    .AddChild("A").Parent
+                    .AddChild("D")
+                        .AddChild("C").Parent
+                        .AddChild("E").Parent.Parent.Parent
+                .AddChild("G")
+                    .AddChild("I")
+                        .AddChild("H");
+
+            Assert.Equal(tree, TreeUtils.Root(tree, n => n.Parent));
+            Assert.Equal(tree, TreeUtils.Root(tree.Children[0].Children[0], n => n.Parent));
+        }
+
+        [Fact]
+        public void AncestorsTest()
+        {
+            var tree = new TreeNode<string>("F");
+            tree
+                .AddChild("B")
+                    .AddChild("A").Parent
+                    .AddChild("D")
+                        .AddChild("C").Parent
+                        .AddChild("E").Parent.Parent.Parent
+                .AddChild("G")
+                    .AddChild("I")
+                        .AddChild("H");
+
+            Assert.Equal(new[] { tree }, TreeUtils.Ancestors(tree, n => n.Parent, includeSelf: true));
+            Assert.Equal(new TreeNode<string>[] { }, TreeUtils.Ancestors(tree, n => n.Parent, includeSelf: false));
+            Assert.Equal(new[] { tree.Children[0].Children[0], tree.Children[0], tree }, TreeUtils.Ancestors(tree.Children[0].Children[0], n => n.Parent, includeSelf: true));
+            Assert.Equal(new[] { tree.Children[0], tree }, TreeUtils.Ancestors(tree.Children[0].Children[0], n => n.Parent, includeSelf: false));
+        }
+
+        [Fact]
+        public void DescendantsTest()
+        {
+            var tree = new TreeNode<string>("F");
+            tree
+                .AddChild("B")
+                    .AddChild("A").Parent
+                    .AddChild("D")
+                        .AddChild("C").Parent
+                        .AddChild("E").Parent.Parent.Parent
+                .AddChild("G")
+                    .AddChild("I")
+                        .AddChild("H");
+
+            var descendants = TreeUtils.Descendants(tree, n => n.Children.AsEnumerable().Reverse(), includeSelf: true);
+            Assert.Equal("F, B, A, D, C, E, G, I, H", string.Join(", ", descendants.Select(n => n.Id)));
+
+            descendants = TreeUtils.Descendants(tree, n => n.Children.AsEnumerable().Reverse(), includeSelf: false);
+            Assert.Equal("B, A, D, C, E, G, I, H", string.Join(", ", descendants.Select(n => n.Id)));
+
+            descendants = TreeUtils.Descendants(tree, n => n.Children.AsEnumerable().Reverse(), traversal: TreeTraversal.PostOrder);
+            Assert.Equal("A, C, E, D, B, H, I, G", string.Join(", ", descendants.Select(n => n.Id)));
+        }
 
         [Fact]
         public void TraversalTest()

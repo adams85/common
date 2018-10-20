@@ -139,7 +139,7 @@ namespace Karambolo.Common.Collections
                     }
             }
 
-            value = default(TValue);
+            value = default;
             return false;
         }
 

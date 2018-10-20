@@ -162,68 +162,68 @@ namespace Karambolo.Common.Collections.Test
             var array = new KeyValuePair<int, string>[dic.Count + 2];
             dicIntf.CopyTo(array, 1);
             Assert.Equal(new[] {
-                default(KeyValuePair<int, string>),
+                default,
                 new KeyValuePair<int, string>(3, "three"),
                 new KeyValuePair<int, string>(2, "two"),
                 new KeyValuePair<int, string>(1, "one"),
                 new KeyValuePair<int, string>(4, "four"),
-                default(KeyValuePair<int, string>),
+                default,
             }, array);
 
             var array2 = new string[dic.Count + 2];
             dicIntf.Values.CopyTo(array2, 1);
             Assert.Equal(new[] {
-                default(string),
+                default,
                  "three",
                 "two",
                 "one",
                 "four",
-                default(string)
+                default
             }, array2);
 
             array = new KeyValuePair<int, string>[dic.Count + 2];
             dicNonGeneric.CopyTo(array, 1);
             Assert.Equal(new[] {
-                default(KeyValuePair<int, string>),
+                default,
                 new KeyValuePair<int, string>(3, "three"),
                 new KeyValuePair<int, string>(2, "two"),
                 new KeyValuePair<int, string>(1, "one"),
                 new KeyValuePair<int, string>(4, "four"),
-                default(KeyValuePair<int, string>),
+                default,
             }, array);
 
             var array3 = new DictionaryEntry[dic.Count + 2];
             dicNonGeneric.CopyTo(array3, 1);
             Assert.Equal(new[] {
-                default(DictionaryEntry),
+                default,
                 new DictionaryEntry(3, "three"),
                 new DictionaryEntry(2, "two"),
                 new DictionaryEntry(1, "one"),
                 new DictionaryEntry(4, "four"),
-                default(DictionaryEntry),
+                default,
             }, array3);
 
             var array4 = new object[dic.Count + 2];
             dicNonGeneric.CopyTo(array4, 1);
             Assert.Equal(new object[] {
-                default(object),
+                default,
                 new KeyValuePair<int, string>(3, "three"),
                 new KeyValuePair<int, string>(2, "two"),
                 new KeyValuePair<int, string>(1, "one"),
                 new KeyValuePair<int, string>(4, "four"),
-                default(object),
+                default,
             }, array4);
 
 
             var array5 = new string[dic.Count + 2];
             ((ICollection)dic.Values).CopyTo(array5, 1);
             Assert.Equal(new[] {
-                default(string),
+                default,
                 "three",
                 "two",
                 "one",
                 "four",
-                default(string),
+                default,
             }, array5);
 
             array4 = new object[dic.Count];

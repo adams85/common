@@ -131,7 +131,7 @@ namespace Karambolo.Common.Finances
             var code = SymbolToCode(value) ?? value;
             if (Encode(code) == null)
             {
-                result = default(Currency);
+                result = default;
                 return false;
             }
 

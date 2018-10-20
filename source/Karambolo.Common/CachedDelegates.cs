@@ -46,11 +46,11 @@ namespace Karambolo.Common
 
     public static class Default<T>
     {
-        public static readonly Func<T> Func = () => default(T);
+        public static readonly Func<T> Func = () => default;
     }
 
     public static class Default<T1, T2>
     {
-        public static readonly Func<T1, T2> Func = arg => default(T2);
+        public static readonly Func<T1, T2> Func = arg => default;
     }
 }

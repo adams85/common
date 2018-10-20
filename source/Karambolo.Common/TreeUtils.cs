@@ -119,9 +119,11 @@ namespace Karambolo.Common
             if (parentSelector == null)
                 throw new ArgumentNullException(nameof(parentSelector));
 
+            var comparer = EqualityComparer<T>.Default;
+
             var level = 0;
             T parent;
-            while (!Equals(parent = parentSelector(node), default(T)))
+            while (!comparer.Equals(parent = parentSelector(node), default))
             {
                 node = parent;
                 level++;
@@ -137,8 +139,10 @@ namespace Karambolo.Common
             if (parentSelector == null)
                 throw new ArgumentNullException(nameof(parentSelector));
 
+            var comparer = EqualityComparer<T>.Default;
+
             T parent;
-            while (!Equals(parent = parentSelector(node), default(T)))
+            while (!comparer.Equals(parent = parentSelector(node), default))
                 node = parent;
 
             return node;
@@ -151,10 +155,12 @@ namespace Karambolo.Common
             if (parentSelector == null)
                 throw new ArgumentNullException(nameof(parentSelector));
 
+            var comparer = EqualityComparer<T>.Default;
+
             if (includeSelf)
                 yield return node;
 
-            while (!Equals(node = parentSelector(node), default(T)))
+            while (!comparer.Equals(node = parentSelector(node), default))
                 yield return node;
         }
 
@@ -175,10 +181,10 @@ namespace Karambolo.Common
             if (childrenSelector == null)
                 throw new ArgumentNullException(nameof(childrenSelector));
 
-            var nodeWithChildren = Tuple.Create(node, childrenSelector(node));
-            foreach (var nwc in TreeTraversal.PreOrder.Traverse(nodeWithChildren, n => n.Item2.Select(cn => Tuple.Create(cn, childrenSelector(cn))), includeSelf: true))
-                if (!nwc.Item2.Any())
-                    yield return nwc.Item1;
+            var nodeWithChildren = new KeyValuePair<T, IEnumerable<T>>(node, childrenSelector(node));
+            foreach (var nwc in TreeTraversal.PreOrder.Traverse(nodeWithChildren, n => n.Value.Select(cn => new KeyValuePair<T, IEnumerable<T>>(cn, childrenSelector(cn))), includeSelf: true))
+                if (!nwc.Value.Any())
+                    yield return nwc.Key;
         }
 
         public static IEnumerable<IEnumerable<T>> EnumeratePaths<T>(T node, Func<T, IEnumerable<T>> childrenSelector)
@@ -187,17 +193,17 @@ namespace Karambolo.Common
                 throw new ArgumentNullException(nameof(node));
 
             var paths = Enumerable.Empty<IEnumerable<T>>();
-            var nodeWithPath = Tuple.Create(node, Enumerable.Empty<T>());
+            var nodeWithPath = new KeyValuePair<T, IEnumerable<T>>(node, Enumerable.Empty<T>());
             foreach (var _ in TreeTraversal.PreOrder.Traverse(nodeWithPath, n =>
             {
-                var path = n.Item2.WithTail(n.Item1);
-                var children = childrenSelector(n.Item1);
+                var path = n.Value.WithTail(n.Key);
+                var children = childrenSelector(n.Key);
                 if (!children.Any())
                 {
                     paths = paths.WithTail(path);
-                    return Enumerable.Empty<Tuple<T, IEnumerable<T>>>();
+                    return Enumerable.Empty<KeyValuePair<T, IEnumerable<T>>>();
                 }
-                return children.Select(c => Tuple.Create(c, path));
+                return children.Select(c => new KeyValuePair<T, IEnumerable<T>>(c, path));
             })) { }
 
             return paths;

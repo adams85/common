@@ -167,7 +167,7 @@ namespace Karambolo.Common.Finances
         {
             if (value == null)
             {
-                result = default(Money);
+                result = default;
                 return false;
             }
 
@@ -189,7 +189,7 @@ namespace Karambolo.Common.Finances
             }
             else
             {
-                result = default(Money);
+                result = default;
                 return false;
             }
         }

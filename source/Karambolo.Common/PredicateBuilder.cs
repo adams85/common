@@ -10,7 +10,7 @@ namespace Karambolo.Common
 
         public ParameterReplacerVisitor(ParameterExpression param)
         {
-            _expression = _param = param;            
+            _expression = _param = param;
         }
 
         public ParameterReplacerVisitor(LambdaExpression lambda)
@@ -32,12 +32,12 @@ namespace Karambolo.Common
 
     public class PredicateBuilder<T>
     {
-        public static PredicateBuilder<T> True() 
+        public static PredicateBuilder<T> True()
         {
             return new PredicateBuilder<T>(true);
         }
 
-        public static PredicateBuilder<T> False() 
+        public static PredicateBuilder<T> False()
         {
             return new PredicateBuilder<T>(false);
         }
