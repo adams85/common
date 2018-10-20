@@ -1,16 +1,15 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="12.0" DefaultTargets="Make">
   <PropertyGroup>
     <Git>git.exe</Git>
-    <VsTest>vstest.console.exe</VsTest>
+    <DotNet>dotnet.exe</DotNet>
     <SolutionPath>$(MSBuildProjectDirectory)\..\source</SolutionPath>
-    <Solution>$(SolutionPath)\Karambolo.Common.sln</Solution>
     <TestSolutionPath>$(MSBuildProjectDirectory)\..\test</TestSolutionPath>
-    <TestSolution>$(TestSolutionPath)\Karambolo.Common.Test.sln</TestSolution>
+    <Solution>$(SolutionPath)\Karambolo.Common.sln</Solution>
     <VersionPropsPath>$(SolutionPath)\Karambolo.Common\Properties\AssemblyInfo.props</VersionPropsPath>
   </PropertyGroup>
 
   <ItemGroup>
-    <TestProject Include="$(TestSolutionPath)\Karambolo.Common.Test\bin\Release\Karambolo.Common.Test.dll" />
+    <TestProject Include="$(TestSolutionPath)\Karambolo.Common.Test\Karambolo.Common.Test.csproj" />
   </ItemGroup>
 
   <Target Name="GetVersion" Condition="$(TagVersion) == '' Or $(Revision) == ''">
@@ -44,34 +43,28 @@
     </Exec>
   </Target>
 
-  <Target Name="Build" DependsOnTargets="GetVersion">
+  <Target Name="RunTests">
+    <Exec Command="&quot;$(DotNet)&quot; test &quot;%(TestProject.Identity)&quot;" />
+  </Target>
+
+  <Target Name="Make" DependsOnTargets="RunTests;GetVersion">
     <!-- setting version -->
     <UpdateVersion TagVersion="$(TagVersion)" Revision="$(Revision)" VersionPropsPath="$(VersionPropsPath)" />
 
-    <!-- build -->
+    <!-- create nuget package -->
     <MSBuild Projects="$(Solution)" Targets="Restore;Rebuild;Pack" Properties="Configuration=Release;Platform=Any CPU" />
 
-    <OnError ExecuteTargets="Cleanup" />
-  </Target>
-
-  <Target Name="RunTests" DependsOnTargets="Build">
-    <!-- build -->
-    <MSBuild Projects="$(TestSolution)" Properties="Configuration=Release;Platform=Any CPU" />
-
-    <!-- run tests -->
-    <Exec Command="&quot;$(VsTest)&quot; &quot;%(TestProject.Identity)&quot;" />
-  </Target>
-
-  <Target Name="Make" DependsOnTargets="RunTests">
     <!-- copy over package-->
     <ItemGroup>
       <Package Include="$(SolutionPath)\**\bin\Release\*.nupkg" />
     </ItemGroup>
 
     <Move SourceFiles="@(Package)" DestinationFolder="$(MSBuildProjectDirectory)" />
+
+    <OnError ExecuteTargets="Cleanup" />
   </Target>
 
-  <Target Name="Cleanup" AfterTargets="Build">
+  <Target Name="Cleanup" AfterTargets="Make">
     <RestoreVersion VersionPropsPath="$(VersionPropsPath)" />
   </Target>
 
