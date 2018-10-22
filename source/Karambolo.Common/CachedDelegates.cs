@@ -9,17 +9,22 @@ namespace Karambolo.Common
 
     public static class Noop<T>
     {
-        public static readonly Action<T> Action = arg => { };
-    }
-
-    public static class Noop<T1, T2>
-    {
-        public static readonly Action<T1, T2> Action = (arg1, arg2) => { };
+        public static readonly Action<T> Action = _ => { };
     }
 
     public static class Identity<T>
     {
         public static readonly Func<T, T> Func = arg => arg;
+    }
+
+    public static class DefaultMap<T>
+    {
+        public static readonly Func<T, T> Func = _ => default;
+    }
+
+    public static class Default<T>
+    {
+        public static readonly Func<T> Func = () => default;
     }
 
     public static class False
@@ -29,8 +34,8 @@ namespace Karambolo.Common
 
     public static class False<T>
     {
-        public static readonly Func<T, bool> Func = arg => false;
-        public static readonly Predicate<T> Predicate = arg => false;
+        public static readonly Func<T, bool> Func = _ => false;
+        public static readonly Predicate<T> Predicate = new Predicate<T>(Func);
     }
 
     public static class True
@@ -40,17 +45,7 @@ namespace Karambolo.Common
 
     public static class True<T>
     {
-        public static readonly Func<T, bool> Func = arg => true;
-        public static readonly Predicate<T> Predicate = arg => true;
-    }
-
-    public static class Default<T>
-    {
-        public static readonly Func<T> Func = () => default;
-    }
-
-    public static class Default<T1, T2>
-    {
-        public static readonly Func<T1, T2> Func = arg => default;
+        public static readonly Func<T, bool> Func = _ => true;
+        public static readonly Predicate<T> Predicate = new Predicate<T>(Func);
     }
 }
