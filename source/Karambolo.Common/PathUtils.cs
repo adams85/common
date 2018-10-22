@@ -1,11 +1,10 @@
-﻿using System.Linq;
-using System.Text;
+﻿using System;
 using System.IO;
-using System;
+using System.Linq;
 
 namespace Karambolo.Common
 {
-    public static partial class FileUtils
+    public static class PathUtils
     {
         static readonly char[] illegalFileNameChars = Path.GetInvalidFileNameChars().Concat(Path.GetInvalidPathChars()).ToArray();
 

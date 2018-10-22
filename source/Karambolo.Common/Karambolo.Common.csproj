@@ -37,8 +37,6 @@
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.0'">
     <Compile Remove="Compatibility.Net40.cs" />
-    <Compile Remove="ConcurrencyUtils.cs" />
-    <Compile Remove="FileUtils.NotNetstd10.cs" />
 
     <Compile Remove="Localization\**" />
     <Compile Include="Localization\Plural.cs" />
