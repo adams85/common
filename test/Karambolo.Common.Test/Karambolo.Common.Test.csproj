@@ -14,7 +14,6 @@
     <ProjectReference Include="..\..\source\Karambolo.Common\Karambolo.Common.csproj">
       <Project>{747352fb-e6b0-4d81-8f04-0f5ab99fc96e}</Project>
       <Name>Karambolo.Common</Name>
-      <Aliases>global,common</Aliases>
     </ProjectReference>
   </ItemGroup>
 
@@ -27,13 +26,4 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
   </ItemGroup>
-
-  <!-- https://stackoverflow.com/questions/33460667/how-to-use-extern-alias-with-nuget -->
-  <Target Name="ChangeAliasesOfNugetRefs" BeforeTargets="FindReferenceAssembliesForReferences;ResolveReferences">
-    <ItemGroup>
-      <ReferencePath Condition="'%(FileName)' == 'System.Reflection'">
-        <Aliases>global,system</Aliases>
-      </ReferencePath>
-    </ItemGroup>
-  </Target>
 </Project>

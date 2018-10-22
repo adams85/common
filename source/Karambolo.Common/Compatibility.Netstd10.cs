@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
-namespace System.Reflection
+namespace Karambolo.Common
 {
     [Flags]
     public enum BindingFlags
@@ -38,10 +39,7 @@ namespace System.Reflection
         NestedType = 128,
         All = 191
     }
-}
 
-namespace Karambolo.Common
-{
     static partial class StringShim
     {
         public static IEnumerable<char> AsEnumerable(this string source)
@@ -136,10 +134,7 @@ namespace Karambolo.Common
             return setMethod != null && setMethod.IsPublic ? setMethod : null;
         }
     }
-}
 
-namespace System.Collections.Specialized
-{
     public interface IOrderedDictionary : IDictionary, ICollection, IEnumerable
     {
         object this[int index] { get; set; }

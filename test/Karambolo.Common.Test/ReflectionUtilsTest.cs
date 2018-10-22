@@ -1,8 +1,6 @@
 ﻿#if NETCOREAPP1_0
-extern alias system;
-extern alias common;
-using SystemBindingFlags = system::System.Reflection.BindingFlags;
-using CommonMemberTypes = common::System.Reflection.MemberTypes;
+using SystemBindingFlags = System.Reflection.BindingFlags;
+using CommonMemberTypes = Karambolo.Common.MemberTypes;
 #else
 using SystemBindingFlags = System.Reflection.BindingFlags;
 using CommonMemberTypes = System.Reflection.MemberTypes;

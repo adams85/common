@@ -1,6 +1,5 @@
 ﻿#if NETCOREAPP1_0
-extern alias common;
-using CommonMemberTypes = common::System.Reflection.MemberTypes;
+using CommonMemberTypes = Karambolo.Common.MemberTypes;
 #else
 using CommonMemberTypes = System.Reflection.MemberTypes;
 #endif
