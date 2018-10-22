@@ -196,11 +196,11 @@ namespace Karambolo.Common
             var nodeWithPath = new KeyValuePair<T, IEnumerable<T>>(node, Enumerable.Empty<T>());
             foreach (var _ in TreeTraversal.PreOrder.Traverse(nodeWithPath, n =>
             {
-                var path = n.Value.WithTail(n.Key);
+                var path = n.Value.Append(n.Key);
                 var children = childrenSelector(n.Key);
                 if (!children.Any())
                 {
-                    paths = paths.WithTail(path);
+                    paths = paths.Append(path);
                     return Enumerable.Empty<KeyValuePair<T, IEnumerable<T>>>();
                 }
                 return children.Select(c => new KeyValuePair<T, IEnumerable<T>>(c, path));
