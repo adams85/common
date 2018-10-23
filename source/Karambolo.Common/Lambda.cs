@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using Karambolo.Common.Properties;
+using Karambolo.Common.Internal;
 
 namespace Karambolo.Common
 {
@@ -50,17 +51,27 @@ namespace Karambolo.Common
             return memberExpressions;
         }
 
-        public static IEnumerable<MemberInfo> GetMemberPath<TOut>(this Expression<Func<TOut>> expression, MemberTypes allowedMemberTypes = MemberTypes.Property)
+        public static IEnumerable<MemberInfo> GetMemberPath<TMember>(this Expression<Func<TMember>> expression, MemberTypes allowedMemberTypes = MemberTypes.Property)
         {
             return GetMemberPath(expression, allowedMemberTypes, expr => expr == null);
         }
 
-        public static IEnumerable<MemberInfo> GetMemberPath<T, TOut>(this Expression<Func<T, TOut>> expression, MemberTypes allowedMemberTypes = MemberTypes.Property)
+        public static IEnumerable<MemberInfo> GetMemberPath<TSource, TMember>(this Expression<Func<TSource, TMember>> expression, MemberTypes allowedMemberTypes = MemberTypes.Property)
         {
             return GetMemberPath(expression, allowedMemberTypes, expr => expr is ParameterExpression);
         }
 
-        public static FieldInfo Field<TOut>(this Expression<Func<TOut>> expression)
+        public static string MemberPath<TProperty>(Expression<Func<TProperty>> expression, MemberTypes allowedMemberTypes = MemberTypes.Property)
+        {
+            return string.Join(".", GetMemberPath(expression, allowedMemberTypes).Select(m => m.Name));
+        }
+
+        public static string MemberPath<TSource, TProperty>(Expression<Func<TSource, TProperty>> expression, MemberTypes allowedMemberTypes = MemberTypes.Property)
+        {
+            return string.Join(".", GetMemberPath(expression, allowedMemberTypes).Select(m => m.Name));
+        }
+
+        public static FieldInfo Field<TField>(this Expression<Func<TField>> expression)
         {
             if (expression == null)
                 throw new NullReferenceException();
@@ -68,10 +79,11 @@ namespace Karambolo.Common
             var member = GetMemberExpression(expression, MemberTypes.Field);
             if (member == null)
                 throw new ArgumentException(Resources.InvalidValue, nameof(expression));
+
             return (FieldInfo)member.Member;
         }
 
-        public static FieldInfo Field<T, TOut>(this Expression<Func<T, TOut>> expression)
+        public static FieldInfo Field<TContainer, TField>(this Expression<Func<TContainer, TField>> expression)
         {
             if (expression == null)
                 throw new NullReferenceException();
@@ -79,10 +91,11 @@ namespace Karambolo.Common
             var member = GetMemberExpression(expression, MemberTypes.Field);
             if (member == null)
                 throw new ArgumentException(Resources.InvalidValue, nameof(expression));
+
             return (FieldInfo)member.Member;
         }
 
-        public static PropertyInfo Property<TOut>(this Expression<Func<TOut>> expression)
+        public static PropertyInfo Property<TProperty>(this Expression<Func<TProperty>> expression)
         {
             if (expression == null)
                 throw new NullReferenceException();
@@ -90,10 +103,11 @@ namespace Karambolo.Common
             var member = GetMemberExpression(expression, MemberTypes.Property);
             if (member == null)
                 throw new ArgumentException(Resources.InvalidValue, nameof(expression));
+
             return (PropertyInfo)member.Member;
         }
 
-        public static PropertyInfo Property<T, TOut>(this Expression<Func<T, TOut>> expression)
+        public static PropertyInfo Property<TContainer, TProperty>(this Expression<Func<TContainer, TProperty>> expression)
         {
             if (expression == null)
                 throw new NullReferenceException();
@@ -101,17 +115,8 @@ namespace Karambolo.Common
             var member = GetMemberExpression(expression, MemberTypes.Property);
             if (member == null)
                 throw new ArgumentException(Resources.InvalidValue, nameof(expression));
+
             return (PropertyInfo)member.Member;
-        }
-
-        public static string PropertyPath<TOut>(Expression<Func<TOut>> expression)
-        {
-            return string.Join(".", Lambda.GetMemberPath(expression).Select(m => m.Name));
-        }
-
-        public static string PropertyPath<T, TOut>(Expression<Func<T, TOut>> expression)
-        {
-            return string.Join(".", Lambda.GetMemberPath(expression).Select(m => m.Name));
         }
 
         public static MethodCallExpression GetCallExpression(LambdaExpression expression)
@@ -130,10 +135,11 @@ namespace Karambolo.Common
             var member = GetCallExpression(expression);
             if (member == null)
                 throw new ArgumentException(Resources.InvalidValue, nameof(expression));
+
             return member.Method;
         }
 
-        public static MethodInfo Method<T>(this Expression<Action<T>> expression)
+        public static MethodInfo Method<TContainer>(this Expression<Action<TContainer>> expression)
         {
             if (expression == null)
                 throw new NullReferenceException();
@@ -141,29 +147,50 @@ namespace Karambolo.Common
             var member = GetCallExpression(expression);
             if (member == null)
                 throw new ArgumentException(Resources.InvalidValue, nameof(expression));
+
             return member.Method;
         }
 
-        public static MethodInfo Method<T, TArg>(this Expression<Action<T, TArg>> expression)
+        public static MethodInfo MakeGenericMethod(this MethodCallExpression expression, params Type[] typeArgs)
         {
-            if (expression == null)
-                throw new NullReferenceException();
+            var method = expression.Method;
 
-            var member = GetCallExpression(expression);
-            if (member == null)
-                throw new ArgumentException(Resources.InvalidValue, nameof(expression));
-            return member.Method;
+            return method.GetGenericMethodDefinition().MakeGenericMethod(typeArgs);
         }
 
-        public static Expression<Func<TIn, TResult>> Substitute<TIn, T, TResult>(this Expression<Func<T, TResult>> expression, Expression<Func<TIn, T>> target)
+        public static MethodInfo MakeGenericMethod(this Expression<Action> expression, params Type[] typeArgs)
+        {
+            var method = Method(expression);
+
+            return method.GetGenericMethodDefinition().MakeGenericMethod(typeArgs);
+        }
+
+        public static MethodInfo MakeGenericMethod<TContainer>(this Expression<Action<TContainer>> expression, params Type[] typeArgs)
+        {
+            var method = Method(expression);
+
+            return method.GetGenericMethodDefinition().MakeGenericMethod(typeArgs);
+        }
+
+        public static Expression<Func<T, TResult>> Chain<T, TIntermediate, TResult>(this Expression<Func<T, TIntermediate>> expression, Expression<Func<TIntermediate, TResult>> otherExpression)
         {
             if (expression == null)
                 throw new NullReferenceException();
-            if (target == null)
-                throw new ArgumentNullException(nameof(target));
+            if (otherExpression == null)
+                throw new ArgumentNullException(nameof(otherExpression));
 
-            var paramReplacer = new ParameterReplacerVisitor(target);
-            return (Expression<Func<TIn, TResult>>)paramReplacer.Visit(expression);
+            var paramReplacer = new ParameterReplacerVisitor(expression);
+            return (Expression<Func<T, TResult>>)paramReplacer.Visit(otherExpression);
+        }
+
+        public static Func<T, TResult> Chain<T, TIntermediate, TResult>(this Func<T, TIntermediate> func, Func<TIntermediate, TResult> otherFunc)
+        {
+            if (func == null)
+                throw new NullReferenceException();
+            if (otherFunc == null)
+                throw new ArgumentNullException(nameof(otherFunc));
+
+            return arg => otherFunc(func(arg));
         }
 
         public static Action Chain(this Action action, Action otherAction)
@@ -185,46 +212,5 @@ namespace Karambolo.Common
 
             return arg => { action(arg); otherAction(arg); };
         }
-
-        public static Action<TArg1, TArg2> Chain<TArg1, TArg2>(this Action<TArg1, TArg2> action, Action<TArg1, TArg2> otherAction)
-        {
-            if (action == null)
-                throw new NullReferenceException();
-            if (otherAction == null)
-                throw new ArgumentNullException(nameof(otherAction));
-
-            return (arg1, arg2) => { action(arg1, arg2); otherAction(arg1, arg2); };
-        }
-
-        public static MethodInfo MakeGenericMethod(this Expression<Action> expression, params Type[] typeArgs)
-        {
-            var method = Method(expression);
-
-            if (!method.IsGenericMethod)
-                throw new ArgumentException(Resources.InvalidValue, nameof(expression));
-
-            return method.GetGenericMethodDefinition().MakeGenericMethod(typeArgs);
-        }
-
-        public static MethodInfo MakeGenericMethod<T>(this Expression<Action<T>> expression, params Type[] typeArgs)
-        {
-            var method = Method(expression);
-
-            if (!method.IsGenericMethod)
-                throw new ArgumentException(Resources.InvalidValue, nameof(expression));
-
-            return method.GetGenericMethodDefinition().MakeGenericMethod(typeArgs);
-        }
-
-        public static MethodInfo MakeGenericMethod<T, TArg>(this Expression<Action<T, TArg>> expression, params Type[] typeArgs)
-        {
-            var method = Method(expression);
-
-            if (!method.IsGenericMethod)
-                throw new ArgumentException(Resources.InvalidValue, nameof(expression));
-
-            return method.GetGenericMethodDefinition().MakeGenericMethod(typeArgs);
-        }
     }
 }
-
