@@ -3,7 +3,7 @@ using Xunit;
 
 namespace Karambolo.Common.Test
 {
-    public class BitUtilsTest
+    public class BinaryUtilsTest
     {
         [Fact]
         public void BitCountTest()

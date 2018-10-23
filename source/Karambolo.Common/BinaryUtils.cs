@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Karambolo.Common
 {
-    public static class BitUtils
+    public static class BinaryUtils
     {
         #region Fast BitCounter
         /// <summary>
