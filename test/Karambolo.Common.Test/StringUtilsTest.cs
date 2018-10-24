@@ -7,6 +7,100 @@ namespace Karambolo.Common.Test
     public class StringUtilsTest
     {
         [Fact]
+        public void ToHexStringTest()
+        {
+            byte[] bytes = { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef };
+            Assert.Equal("0123456789abcdef", StringUtils.ToHexString(bytes));
+            Assert.Equal("0123456789ABCDEF", StringUtils.ToHexString(bytes, upperCase: true));
+        }
+
+        [Fact]
+        public void FromHexStringTest()
+        {
+            byte[] bytes = { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef };
+            Assert.Equal(bytes, StringUtils.FromHexString("0123456789abcdef"));
+            Assert.Equal(bytes, StringUtils.FromHexString("0123456789ABCDEF"));
+            Assert.Equal(bytes, StringUtils.FromHexString("0123456789aBCDeF"));
+
+            Assert.Throws<FormatException>(() => StringUtils.FromHexString("0123456789abcde"));
+            Assert.Throws<FormatException>(() => StringUtils.FromHexString("0123456789abcdeg"));
+            Assert.Throws<FormatException>(() => StringUtils.FromHexString("0123456789abcd-f"));
+        }
+
+        [Fact]
+        public void FindIndexTest()
+        {
+            var text = "From the stars we came, to the stars we rise.";
+
+            Assert.Equal(4, text.FindIndex(char.IsWhiteSpace));
+
+            Assert.Equal(4, text.FindIndex(char.IsWhiteSpace, 4));
+            Assert.Equal(8, text.FindIndex(char.IsWhiteSpace, 5));
+            Assert.Equal(-1, text.FindIndex(char.IsWhiteSpace, text.Length - 2));
+
+            Assert.Equal(4, text.FindIndex(char.IsWhiteSpace, 3, 2));
+            Assert.Equal(-1, text.FindIndex(char.IsWhiteSpace, 3, 1));
+            Assert.Equal(-1, text.FindIndex(char.IsWhiteSpace, 4, 0));
+
+            Assert.Equal(0, text.FindIndex(True<char>.Func));
+            Assert.Equal(text.Length - 1, text.FindIndex(True<char>.Func, text.Length -1));
+            Assert.Equal(-1, text.FindIndex(char.IsWhiteSpace, 0, 0));
+            Assert.Equal(-1, text.FindIndex(char.IsWhiteSpace, text.Length, 0));
+
+            Assert.Throws<ArgumentOutOfRangeException>(() => text.FindIndex(char.IsWhiteSpace, -1));
+            Assert.Throws<ArgumentOutOfRangeException>(() => text.FindIndex(char.IsWhiteSpace, text.Length + 1));
+            Assert.Throws<ArgumentOutOfRangeException>(() => text.FindIndex(char.IsWhiteSpace, text.Length, -1));
+            Assert.Throws<ArgumentOutOfRangeException>(() => text.FindIndex(char.IsWhiteSpace, text.Length, 1));
+        }
+
+        [Fact]
+        public void FindLastIndexTest()
+        {
+            var text = "From the stars we came, to the stars we rise.";
+
+            Assert.Equal(39, text.FindLastIndex(char.IsWhiteSpace));
+
+            Assert.Equal(39, text.FindLastIndex(char.IsWhiteSpace, 39));
+            Assert.Equal(36, text.FindLastIndex(char.IsWhiteSpace, 38));
+            Assert.Equal(-1, text.FindLastIndex(char.IsWhiteSpace, 2));
+
+            Assert.Equal(39, text.FindLastIndex(char.IsWhiteSpace, 40, 2));
+            Assert.Equal(-1, text.FindLastIndex(char.IsWhiteSpace, 40, 1));
+            Assert.Equal(-1, text.FindLastIndex(char.IsWhiteSpace, 39, 0));
+
+            Assert.Equal(text.Length - 1, text.FindLastIndex(True<char>.Func));
+            Assert.Equal(0, text.FindLastIndex(True<char>.Func, 0));
+            Assert.Equal(-1, text.FindLastIndex(char.IsWhiteSpace, text.Length - 1, 0));
+            Assert.Equal(-1, text.FindLastIndex(char.IsWhiteSpace, -1, 0));
+
+            Assert.Throws<ArgumentOutOfRangeException>(() => text.FindLastIndex(char.IsWhiteSpace, -2));
+            Assert.Throws<ArgumentOutOfRangeException>(() => text.FindLastIndex(char.IsWhiteSpace, text.Length));
+            Assert.Throws<ArgumentOutOfRangeException>(() => text.FindLastIndex(char.IsWhiteSpace, -1, -1));
+            Assert.Throws<ArgumentOutOfRangeException>(() => text.FindLastIndex(char.IsWhiteSpace, -1, 1));
+        }
+
+        [Fact]
+        public void SplitTest()
+        {
+            var text = "From the stars we came, to the stars we rise.";
+            Assert.True(new[] { "From the stars we came", " to the stars we rise", "" }.SequenceEqual(text.Split(char.IsPunctuation)));
+
+            text = "From the stars we came, to the stars we rise???";
+            Assert.True(new[] { "From the stars we came", " to the stars we rise", "", "", "" }.SequenceEqual(text.Split(char.IsPunctuation)));
+
+            text = "From the stars we came, to the stars we rise???";
+            Assert.True(new[] { "From the stars we came", " to the stars we rise" }.SequenceEqual(text.Split(char.IsPunctuation, StringSplitOptions.RemoveEmptyEntries)));
+        }
+
+        [Fact]
+        public void TruncateTest()
+        {
+            var text = "From the stars we came, to the stars we rise.";
+            Assert.Equal("", text.Truncate(0));
+            Assert.Equal("From", text.Truncate(4));
+        }
+
+        [Fact]
         public void EscapeTest()
         {
             var text = "This is a quotation: 'blablabla\"!";
@@ -24,31 +118,72 @@ namespace Karambolo.Common.Test
         public void IndexOfEscapedTest()
         {
             var text = "This is a quotation: \\\"blablabla\"";
-            var result = text.IndexOfEscaped('\\', '"');
-            Assert.Equal(text.Length - 1, result);
+            Assert.Equal(text.Length - 1, text.IndexOfEscaped('\\', '"'));
 
             text = "This is a quotation: \\\"blablabla\\\"";
-            result = text.IndexOfEscaped('\\', '"');
-            Assert.Equal(-1, result);
+            Assert.Equal(-1, text.IndexOfEscaped('\\', '"'));
 
-            result = text.IndexOfEscaped('\\', '"', text.Length - 1);
-            Assert.Equal(text.Length - 1, result);
+            Assert.Equal(text.Length - 1, text.IndexOfEscaped('\\', '"', text.Length - 1));
+            Assert.Equal(-1, text.IndexOfEscaped('\\', '"', text.Length - 2));
 
-            result = text.IndexOfEscaped('\\', '"', text.Length);
-            Assert.Equal(-1, result);
+            Assert.Equal(-1, text.IndexOfEscaped('\\', '"', text.Length));
+
+            text = "This is a quotation: \"\"blablabla\"";
+            Assert.Equal(text.Length - 1, text.IndexOfEscaped('"', '"'));
         }
 
         [Fact]
-        public void SplitTest()
+        public void LastIndexOfEscapedTest()
         {
-            var text = "From the stars we came, to the stars we rise.";
-            Assert.True(new[] { "From the stars we came", " to the stars we rise", "" }.SequenceEqual(text.Split(char.IsPunctuation)));
+            var text = "\"blablabla\\\" is a quotation.";
+            Assert.Equal(0, text.LastIndexOfEscaped('\\', '"'));
 
-            text = "From the stars we came, to the stars we rise???";
-            Assert.True(new[] { "From the stars we came", " to the stars we rise", "", "", "" }.SequenceEqual(text.Split(char.IsPunctuation)));
+            text = "\\\"blablabla\\\" is a quotation.";
+            Assert.Equal(-1, text.LastIndexOfEscaped('\\', '"'));
 
-            text = "From the stars we came, to the stars we rise???";
-            Assert.True(new[] { "From the stars we came", " to the stars we rise" }.SequenceEqual(text.Split(char.IsPunctuation, StringSplitOptions.RemoveEmptyEntries)));
+            Assert.Equal(12, text.LastIndexOfEscaped('\\', '"', text.Length - 1, 17));
+            Assert.Equal(-1, text.LastIndexOfEscaped('\\', '"', text.Length - 1, 18));
+
+            Assert.Equal(-1, text.LastIndexOfEscaped('\\', '"', text.Length - 1));
         }
+
+
+        [Fact]
+        public void SplitEscapedTest()
+        {
+            Assert.Equal(new[] { "" }, string.Empty.SplitEscaped(';', ';', StringSplitOptions.None));
+            Assert.Equal(new string[] { }, string.Empty.SplitEscaped(';', ';', StringSplitOptions.RemoveEmptyEntries));
+
+            var text = "item1;item;;2;;;item3;item4;;;";
+            Assert.Equal(new[] { "item1", "item;2;", "item3", "item4;", "" }, text.SplitEscaped(';', ';', StringSplitOptions.None));
+            Assert.Equal(new[] { "item1", "item;2;", "item3", "item4;" }, text.SplitEscaped(';', ';', StringSplitOptions.RemoveEmptyEntries));
+
+            text = "item1;item!;2;;!;item3;item4!;;";
+            Assert.Equal(new[] { "item1", "item;2", "", ";item3", "item4;", "" }, text.SplitEscaped('!', ';', StringSplitOptions.None));
+            Assert.Equal(new[] { "item1", "item;2", ";item3", "item4;" }, text.SplitEscaped('!', ';', StringSplitOptions.RemoveEmptyEntries));
+        }
+
+        [Fact]
+        public void JoinEscapedTest()
+        {
+            Assert.Equal(new[] { "" }, string.Empty.SplitEscaped(';', ';', StringSplitOptions.None));
+            Assert.Equal(new string[] { }, string.Empty.SplitEscaped(';', ';', StringSplitOptions.RemoveEmptyEntries));
+
+            var parts = new[] { "item1", "item;2", "", ";item3", "item4;", "" };
+            Assert.Equal("item1;item!;2;;!;item3;item4!;;", StringUtils.JoinEscaped('!', ';', parts));
+
+            parts = new[] { "item1", "item;2", ";item3", "item4;"};
+            Assert.Equal("item1;item!;2;!;item3;item4!;", StringUtils.JoinEscaped('!', ';', parts));
+        }
+
+#if !NETCOREAPP1_0
+        [Fact]
+        public void RemoveDiacriticsTest()
+        {
+            Assert.Equal("", "".RemoveDiacritics());
+            Assert.Equal("arvizturo tukorfurogep", "árvíztűrő tükörfúrógép".RemoveDiacritics());
+            Assert.Equal("ARVIZTURO TUKORFUROGEP", "ÁRVÍZTŰRŐ TÜKÖRFÚRÓGÉP".RemoveDiacritics());
+        }
+#endif
     }
 }

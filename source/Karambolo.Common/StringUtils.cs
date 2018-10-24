@@ -8,12 +8,12 @@ namespace Karambolo.Common
 {
     public static class StringUtils
     {
-        const string hexDigitLookup = "0123456789ABCDEF";
-
-        public static string ByteArrayToHexString(byte[] value)
+        public static string ToHexString(byte[] value, bool upperCase = false)
         {
             if (value == null)
                 throw new ArgumentNullException(nameof(value));
+
+            var digitLookup = !upperCase ? "0123456789abcdef" : "0123456789ABCDEF";
 
             var byteCount = value.Length;
             var result = new char[byteCount << 1];
@@ -21,14 +21,14 @@ namespace Karambolo.Common
             for (var i = 0; i < byteCount; i++)
             {
                 var @byte = value[i];
-                result[index++] = hexDigitLookup[@byte >> 4];
-                result[index++] = hexDigitLookup[@byte & 0xF];
+                result[index++] = digitLookup[@byte >> 4];
+                result[index++] = digitLookup[@byte & 0xF];
             }
 
             return new string(result);
         }
 
-        public static byte[] HexStringToByteArray(string value)
+        public static byte[] FromHexString(string value)
         {
             if (value == null)
                 throw new ArgumentNullException(nameof(value));
@@ -36,22 +36,32 @@ namespace Karambolo.Common
             if ((value.Length & 1) != 0)
                 throw new FormatException();
 
-            value = value.ToUpperInvariant();
             var byteCount = value.Length >> 1;
             var result = new byte[byteCount];
             var index = 0;
             for (var i = 0; i < byteCount; i++)
             {
-                var hi = hexDigitLookup.IndexOf(value[index++]);
-                if (hi < 0)
+                int hi, lo;
+                if ((hi = GetDigitValue(value[index++])) < 0 ||
+                    (lo = GetDigitValue(value[index++])) < 0)
                     throw new FormatException();
-                var lo = hexDigitLookup.IndexOf(value[index++]);
-                if (lo < 0)
-                    throw new FormatException();
+
                 result[i] = (byte)(hi << 4 | lo);
             }
 
             return result;
+
+            int GetDigitValue(char digit)
+            {
+                if ('0' <= digit && digit <= '9')
+                    return digit - 0x30;
+                else if ('a' <= digit && digit <= 'f')
+                    return digit - 0x57;
+                else if ('A' <= digit && digit <= 'F')
+                    return digit - 0x37;
+                else
+                    return -1;
+            }
         }
 
         public static int FindIndex(this string @this, Func<char, bool> match)
@@ -138,6 +148,11 @@ namespace Karambolo.Common
                 yield return section;
         }
 
+        public static string Truncate(this string @this, int length)
+        {
+            return @this.Length <= length ? @this : @this.Substring(0, length);
+        }
+
         /// <summary>
         /// Escapes special characters specified by array <paramref name="specialChars"/> of a string using character <paramref name="escapeChar"/>.
         /// </summary>
@@ -212,13 +227,17 @@ namespace Karambolo.Common
             if (count < 0 || length < endIndex)
                 throw new ArgumentOutOfRangeException(nameof(count));
 
-            Func<int, bool> isEscaped = escapeChar == value ? IsEscaped : True<int>.Func;
+            Func<string, int, int, char, bool> isEscaped;
+            if (escapeChar == value)
+                isEscaped = (s, i, endIdx, val) => IsEscaped(s, i, endIdx, val);
+            else
+                isEscaped = (s, i, endIdx, val) => true;
 
             for (; startIndex < endIndex; startIndex++)
             {
                 var c = @this[startIndex];
 
-                if (c == escapeChar && isEscaped(startIndex))
+                if (c == escapeChar && isEscaped(@this, startIndex, endIndex, value))
                     startIndex++;
                 else if (c == value)
                     return startIndex;
@@ -226,9 +245,9 @@ namespace Karambolo.Common
 
             return -1;
 
-            bool IsEscaped(int i)
+            bool IsEscaped(string s, int i, int endIdx, char val)
             {
-                return i < endIndex - 1 && @this[i + 1] == value;
+                return i < endIdx - 1 && s[i + 1] == val;
             }
         }
 
@@ -259,7 +278,7 @@ namespace Karambolo.Common
                 var c = @this[startIndex];
 
                 if (c == value)
-                    if (IsEscaped(startIndex))
+                    if (IsEscaped(@this, startIndex, endIndex, escapeChar))
                         startIndex--;
                     else
                         return startIndex;
@@ -267,11 +286,11 @@ namespace Karambolo.Common
 
             return -1;
 
-            bool IsEscaped(int i)
+            bool IsEscaped(string s, int i, int endIdx, char escChar)
             {
                 bool result = false;
-                for (i--; i > endIndex; i--)
-                    if (@this[i] == escapeChar)
+                for (i--; i > endIdx; i--)
+                    if (s[i] == escChar)
                         result = !result;
                     else
                         break;
@@ -307,11 +326,6 @@ namespace Karambolo.Common
         public static string JoinEscaped(char escapeChar, char separatorChar, IEnumerable<string> values)
         {
             return string.Join(separatorChar.ToString(), values.Select(v => v.Escape(escapeChar, separatorChar)));
-        }
-
-        public static string Truncate(this string @this, int length)
-        {
-            return @this.Length <= length ? @this : @this.Substring(0, length);
         }
 
 #if !NETSTANDARD1_0
