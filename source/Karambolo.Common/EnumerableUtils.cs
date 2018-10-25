@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Karambolo.Common
 {
-    public static class EnumerableUtils
+    public static partial class EnumerableUtils
     {
         public static IEnumerable<TResult> Return<TResult>(TResult element)
         {
