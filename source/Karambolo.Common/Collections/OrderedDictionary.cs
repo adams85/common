@@ -60,20 +60,6 @@ namespace Karambolo.Common.Collections
         new TValue this[int index] { get; set; }
 
         /// <summary>
-        /// Adds an entry with the specified key and value into the <see cref="IOrderedDictionary{TKey,TValue}">IOrderedDictionary&lt;TKey,TValue&gt;</see> collection with the lowest available index.
-        /// </summary>
-        /// <param name="key">The key of the entry to add.</param>
-        /// <param name="value">The value of the entry to add.</param>
-        /// <returns>The index of the newly added entry</returns>
-        /// <remarks>
-        /// <para>You can also use the <see cref="P:System.Collections.Generic.IDictionary{TKey,TValue}.Item(TKey)"/> property to add new elements by setting the value of a key that does not exist in the <see cref="IOrderedDictionary{TKey,TValue}">IOrderedDictionary&lt;TKey,TValue&gt;</see> collection; however, if the specified key already exists in the <see cref="IOrderedDictionary{TKey,TValue}">IOrderedDictionary&lt;TKey,TValue&gt;</see>, setting the <see cref="P:Item(TKey)"/> property overwrites the old value. In contrast, the <see cref="M:Add"/> method does not modify existing elements.</para></remarks>
-        /// <exception cref="ArgumentException">An element with the same key already exists in the <see cref="IOrderedDictionary{TKey,TValue}">IOrderedDictionary&lt;TKey,TValue&gt;</see></exception>
-        /// <exception cref="NotSupportedException">The <see cref="IOrderedDictionary{TKey,TValue}">IOrderedDictionary&lt;TKey,TValue&gt;</see> is read-only.<br/>
-        /// -or-<br/>
-        /// The <see cref="IOrderedDictionary{TKey,TValue}">IOrderedDictionary&lt;TKey,TValue&gt;</see> has a fixed size.</exception>
-        new int Add(TKey key, TValue value);
-
-        /// <summary>
         /// Inserts a new entry into the <see cref="IOrderedDictionary{TKey,TValue}">IOrderedDictionary&lt;TKey,TValue&gt;</see> collection with the specified key and value at the specified index.
         /// </summary>
         /// <param name="index">The zero-based index at which the element should be inserted.</param>
@@ -87,6 +73,15 @@ namespace Karambolo.Common.Collections
         /// -or-<br/>
         /// The <see cref="IOrderedDictionary{TKey,TValue}">IOrderedDictionary&lt;TKey,TValue&gt;</see> has a fized size.</exception>
         void Insert(int index, TKey key, TValue value);
+
+        /// <summary>
+        /// Removes the entry at the specified index from the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see> collection.
+        /// </summary>
+        /// <param name="index">The zero-based index of the entry to remove.</param>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is less than 0.<br/>
+        /// -or-<br/>
+        /// index is equal to or greater than <see cref="Count"/>.</exception>
+        void RemoveAt(int index);
 
         new int Count { get; }
         new ICollection<TKey> Keys { get; }
@@ -486,26 +481,10 @@ namespace Karambolo.Common.Collections
         /// <para>You can also use the <see cref="P:OrderedDictionary{TKey,TValue}.Item(TKey)"/> property to add new elements by setting the value of a key that does not exist in the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see> collection; however, if the specified key already exists in the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see>, setting the <see cref="P:OrderedDictionary{TKey,TValue}.Item(TKey)"/> property overwrites the old value. In contrast, the <see cref="M:Add"/> method does not modify existing elements.</para></remarks>
         /// <exception cref="ArgumentNullException"><paramref name="key"/> is <null/></exception>
         /// <exception cref="ArgumentException">An element with the same key already exists in the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see></exception>
-        void IDictionary<TKey, TValue>.Add(TKey key, TValue value)
-        {
-            Add(key, value);
-        }
-
-        /// <summary>
-        /// Adds an entry with the specified key and value into the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see> collection with the lowest available index.
-        /// </summary>
-        /// <param name="key">The key of the entry to add.</param>
-        /// <param name="value">The value of the entry to add. This value can be <null/>.</param>
-        /// <returns>The index of the newly added entry</returns>
-        /// <remarks>A key cannot be <null/>, but a value can be.
-        /// <para>You can also use the <see cref="P:OrderedDictionary{TKey,TValue}.Item(TKey)"/> property to add new elements by setting the value of a key that does not exist in the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see> collection; however, if the specified key already exists in the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see>, setting the <see cref="P:OrderedDictionary{TKey,TValue}.Item(TKey)"/> property overwrites the old value. In contrast, the <see cref="M:Add"/> method does not modify existing elements.</para></remarks>
-        /// <exception cref="ArgumentNullException"><paramref name="key"/> is <null/></exception>
-        /// <exception cref="ArgumentException">An element with the same key already exists in the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see></exception>
-        public int Add(TKey key, TValue value)
+        public void Add(TKey key, TValue value)
         {
             _dictionary.Add(key, value);
             _list.Add(key);
-            return Count - 1;
         }
 
         /// <summary>
