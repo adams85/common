@@ -1,4 +1,7 @@
-﻿namespace System.Collections.Generic
+﻿using System.Collections;
+using System.Collections.Generic;
+
+namespace Karambolo.Common.Collections
 {
     public interface IReadOnlyCollection<out T> : IEnumerable<T>, IEnumerable
     {
