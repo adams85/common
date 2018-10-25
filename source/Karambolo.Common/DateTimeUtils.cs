@@ -82,16 +82,16 @@ namespace Karambolo.Common
 
             return localizer(total > 0 ? futureFormat : pastFormat, builder.ToString());
 
-            int GetValue(ref long r, int i)
+            int GetValue(ref long rem, int i)
             {
-                return (int)MathShim.DivRem(r, periods[i].Divisor, out r);
+                return (int)MathShim.DivRem(rem, periods[i].Divisor, out rem);
             }
 
-            void AddValue(StringBuilder sb, int i, int v, TextLocalizer loc)
+            void AddValue(StringBuilder sb, int i, int val, TextLocalizer loc)
             {
-                sb.Append(v);
+                sb.Append(val);
                 sb.Append(' ');
-                sb.Append(loc(periods[i].SingularName, Plural.From(periods[i].PluralName, v)));
+                sb.Append(loc(periods[i].SingularName, Plural.From(periods[i].PluralName, val)));
             }
         }
     }
