@@ -180,7 +180,7 @@ namespace Karambolo.Common.Finances
 
         public override bool Equals(object obj)
         {
-            return obj is Currency && Equals((Currency)obj);
+            return obj is Currency currency && Equals(currency);
         }
 
         public override string ToString()

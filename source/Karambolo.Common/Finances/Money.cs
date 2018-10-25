@@ -258,7 +258,7 @@ namespace Karambolo.Common.Finances
 
         public override bool Equals(object obj)
         {
-            return obj is Money && Equals((Money)obj);
+            return obj is Money money && Equals(money);
         }
 
         NumberFormatInfo CustomizeNumberFormat(NumberFormatInfo numberFormat)
