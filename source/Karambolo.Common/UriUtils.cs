@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -54,11 +55,13 @@ namespace Karambolo.Common
                     part = parts[i];
                     if (!string.IsNullOrEmpty(part))
                     {
+                        var endIndex = part.Length - 1;
                         if (part[0] == '/')
-                            part = part.Substring(1);
+                            builder.Append(part, 1, endIndex);
+                        else
+                            builder.Append(part);
 
-                        builder.Append(part);
-                        delimiter = part.Length > 0 && part[part.Length - 1] != '/' ? "/" : null;
+                        delimiter = endIndex > 0 && part[endIndex] != '/' ? "/" : null;
                     }
                     else
                         delimiter = null;
@@ -69,14 +72,18 @@ namespace Karambolo.Common
             {
                 var separator = '?';
                 foreach (var queryPart in query)
-                {
-                    builder.Append(separator);
-                    separator = '&';
+                    foreach (var value in 
+                        queryPart.Value is string || !(queryPart.Value is IEnumerable enumerable) ?
+                        EnumerableUtils.Return(queryPart.Value) : 
+                        enumerable.Cast<object>())
+                    {
+                        builder.Append(separator);
+                        separator = '&';
 
-                    builder.Append(queryPart.Key);
-                    builder.Append('=');
-                    builder.Append(queryPart.Value != null ? Uri.EscapeDataString(queryPart.Value.ToString()) : string.Empty);
-                }
+                        builder.Append(queryPart.Key);
+                        builder.Append('=');
+                        builder.Append(value != null ? Uri.EscapeDataString(value.ToString()) : string.Empty);
+                    }
             }
 
             if (!string.IsNullOrEmpty(fragment))
