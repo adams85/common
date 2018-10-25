@@ -2,7 +2,7 @@
 
 namespace Karambolo.Common.Localization
 {
-    public struct TextContext
+    public readonly struct TextContext
     {
         public static TextContext From(string id)
         {

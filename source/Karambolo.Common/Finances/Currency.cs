@@ -9,7 +9,7 @@ namespace Karambolo.Common.Finances
 #if !NETSTANDARD1_0
     [System.Serializable]
 #endif
-    public struct Currency : IEquatable<Currency>
+    public readonly struct Currency : IEquatable<Currency>
     {
         class Metadata
         {

@@ -8,9 +8,9 @@ namespace Karambolo.Common.Finances
 {
 #if !NETSTANDARD1_0
     [System.Serializable]
-    public struct Money : IEquatable<Money>, IComparable<Money>, IFormattable, IConvertible, IComparable
+    public readonly struct Money : IEquatable<Money>, IComparable<Money>, IFormattable, IConvertible, IComparable
 #else
-    public struct Money : IEquatable<Money>, IComparable<Money>, IFormattable, IComparable
+    public readonly struct Money : IEquatable<Money>, IComparable<Money>, IFormattable, IComparable
 #endif
     {
         public static readonly Money Zero = new Money(0);

@@ -2,7 +2,7 @@
 
 namespace Karambolo.Common.Localization
 {
-    public struct Plural : IFormattable
+    public readonly struct Plural : IFormattable
     {
         public static Plural From(string id, int count)
         {
