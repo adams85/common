@@ -210,7 +210,7 @@ namespace Karambolo.Common.Test
             var virtualProperty = type.GetProperty(nameof(TestClass.VirtualProperty));
             var derivedVirtualProperty = derivedType.GetProperty(nameof(DerivedTestClass.VirtualProperty));
 
-        #region non-inherited on type
+            #region non-inherited on type
 
             Assert.Equal(
                 new[] { new NonInheritedAttribute(1), new NonInheritedAttribute(2) },
@@ -232,9 +232,9 @@ namespace Karambolo.Common.Test
                 derivedType.GetAttributes<NonInheritedAttribute>(inherit: true).OrderBy(attr => attr.Id),
                 ProjectionEqualityComparer.Create<NonInheritedAttribute, int>(attr => attr.Id));
 
-        #endregion
+            #endregion
 
-        #region non-inherited on member (static property)
+            #region non-inherited on member (static property)
 
             Assert.Equal(
                 new[] { new NonInheritedAttribute(0) },
@@ -256,9 +256,9 @@ namespace Karambolo.Common.Test
                 derivedProperty.GetAttributes<NonInheritedAttribute>(inherit: true).OrderBy(attr => attr.Id),
                 ProjectionEqualityComparer.Create<NonInheritedAttribute, int>(attr => attr.Id));
 
-        #endregion
+            #endregion
 
-        #region non-inherited on member (virtual property)
+            #region non-inherited on member (virtual property)
 
             Assert.Equal(
                 new[] { new NonInheritedAttribute(0) },
@@ -280,9 +280,9 @@ namespace Karambolo.Common.Test
                 derivedVirtualProperty.GetAttributes<NonInheritedAttribute>(inherit: true).OrderBy(attr => attr.Id),
                 ProjectionEqualityComparer.Create<NonInheritedAttribute, int>(attr => attr.Id));
 
-        #endregion
+            #endregion
 
-        #region inherited on type
+            #region inherited on type
 
             Assert.Equal(
                 new[] { new InheritedAttribute(1), new InheritedAttribute(2) },
@@ -304,9 +304,9 @@ namespace Karambolo.Common.Test
                 derivedType.GetAttributes<InheritedAttribute>(inherit: true).OrderBy(attr => attr.Id),
                 ProjectionEqualityComparer.Create<InheritedAttribute, int>(attr => attr.Id));
 
-        #endregion
+            #endregion
 
-        #region inherited on member (static property)
+            #region inherited on member (static property)
 
             Assert.Equal(
                 new[] { new InheritedAttribute(0) },
@@ -328,9 +328,9 @@ namespace Karambolo.Common.Test
                 derivedProperty.GetAttributes<InheritedAttribute>(inherit: true).OrderBy(attr => attr.Id),
                 ProjectionEqualityComparer.Create<InheritedAttribute, int>(attr => attr.Id));
 
-        #endregion
+            #endregion
 
-        #region inherited on member (virtual property)
+            #region inherited on member (virtual property)
 
             Assert.Equal(
                 new[] { new InheritedAttribute(0) },
@@ -352,7 +352,7 @@ namespace Karambolo.Common.Test
                 derivedVirtualProperty.GetAttributes<InheritedAttribute>(inherit: true).OrderBy(attr => attr.Id),
                 ProjectionEqualityComparer.Create<InheritedAttribute, int>(attr => attr.Id));
 
-        #endregion
+            #endregion
         }
 
         [Fact]
@@ -367,59 +367,59 @@ namespace Karambolo.Common.Test
             var virtualProperty = type.GetProperty(nameof(TestClass.VirtualProperty));
             var derivedVirtualProperty = derivedType.GetProperty(nameof(DerivedTestClass.VirtualProperty));
 
-        #region non-inherited on type
+            #region non-inherited on type
 
             Assert.True(type.HasAttribute<NonInheritedAttribute>(inherit: false));
             Assert.True(type.HasAttribute<NonInheritedAttribute>(inherit: true));
             Assert.False(derivedType.HasAttribute<NonInheritedAttribute>(inherit: false));
             Assert.False(derivedType.HasAttribute<NonInheritedAttribute>(inherit: true));
 
-        #endregion
+            #endregion
 
-        #region non-inherited on member (static property)
+            #region non-inherited on member (static property)
 
             Assert.True(property.HasAttribute<NonInheritedAttribute>(inherit: false));
             Assert.True(property.HasAttribute<NonInheritedAttribute>(inherit: true));
             Assert.True(derivedProperty.HasAttribute<NonInheritedAttribute>(inherit: false));
             Assert.True(derivedProperty.HasAttribute<NonInheritedAttribute>(inherit: true));
 
-        #endregion
+            #endregion
 
-        #region non-inherited on member (virtual property)
+            #region non-inherited on member (virtual property)
 
             Assert.True(virtualProperty.HasAttribute<NonInheritedAttribute>(inherit: false));
             Assert.True(virtualProperty.HasAttribute<NonInheritedAttribute>(inherit: true));
             Assert.False(derivedVirtualProperty.HasAttribute<NonInheritedAttribute>(inherit: false));
             Assert.False(derivedVirtualProperty.HasAttribute<NonInheritedAttribute>(inherit: true));
 
-        #endregion
+            #endregion
 
-        #region inherited on type
+            #region inherited on type
 
             Assert.True(type.HasAttribute<InheritedAttribute>(inherit: false));
             Assert.True(type.HasAttribute<InheritedAttribute>(inherit: true));
             Assert.False(derivedType.HasAttribute<InheritedAttribute>(inherit: false));
             Assert.True(derivedType.HasAttribute<InheritedAttribute>(inherit: true));
 
-        #endregion
+            #endregion
 
-        #region inherited on member (static property)
+            #region inherited on member (static property)
 
             Assert.True(property.HasAttribute<InheritedAttribute>(inherit: false));
             Assert.True(property.HasAttribute<InheritedAttribute>(inherit: true));
             Assert.True(derivedProperty.HasAttribute<InheritedAttribute>(inherit: false));
             Assert.True(derivedProperty.HasAttribute<InheritedAttribute>(inherit: true));
 
-        #endregion
+            #endregion
 
-        #region inherited on member (virtual property)
+            #region inherited on member (virtual property)
 
             Assert.True(virtualProperty.HasAttribute<InheritedAttribute>(inherit: false));
             Assert.True(virtualProperty.HasAttribute<InheritedAttribute>(inherit: true));
             Assert.False(derivedVirtualProperty.HasAttribute<InheritedAttribute>(inherit: false));
             Assert.True(derivedVirtualProperty.HasAttribute<InheritedAttribute>(inherit: true));
 
-        #endregion
+            #endregion
         }
 #endif
 
@@ -518,7 +518,6 @@ namespace Karambolo.Common.Test
             Assert.Equal(obj.VirtualProperty, dic[nameof(DerivedTestClass.VirtualProperty)]);
             Assert.Equal(obj.ReadOnlyProperty, dic[nameof(DerivedTestClass.ReadOnlyProperty)]);
             Assert.Equal(obj.ShadowedPublicMember, dic[nameof(DerivedTestClass.ShadowedPublicMember)]);
-            Assert.Equal(1, ReflectionUtils.memberDescriptorCache.Count);
 
             #endregion
 
@@ -533,7 +532,6 @@ namespace Karambolo.Common.Test
             Assert.Equal(2, dic.Count);
             Assert.Equal(obj.Property, dic[nameof(DerivedTestClass.Property)]);
             Assert.Equal(obj.VirtualProperty, dic[nameof(DerivedTestClass.VirtualProperty)]);
-            Assert.Equal(1, ReflectionUtils.memberDescriptorCache.Count);
 
             #endregion
 

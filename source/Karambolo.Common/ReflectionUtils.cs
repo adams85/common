@@ -38,9 +38,9 @@ namespace Karambolo.Common
         }
 
 #if !NETSTANDARD1_0
-        internal static System.Collections.Concurrent.ConcurrentDictionary<Type, MemberDescriptor[]> memberDescriptorCache;
+        static System.Collections.Concurrent.ConcurrentDictionary<Type, MemberDescriptor[]> memberDescriptorCache;
 #else
-        internal static Dictionary<Type, MemberDescriptor[]> memberDescriptorCache;
+        static Dictionary<Type, MemberDescriptor[]> memberDescriptorCache;
 #endif
 
         public static bool AllowsNull(this Type type)
