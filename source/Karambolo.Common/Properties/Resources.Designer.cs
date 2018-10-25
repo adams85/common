@@ -79,33 +79,6 @@ namespace Karambolo.Common.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Cannot change collection during a CollectionChanged event..
-        /// </summary>
-        internal static string ChangeDuringCollectionChangedEventNotSupported {
-            get {
-                return ResourceManager.GetString("ChangeDuringCollectionChangedEventNotSupported", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Serializing delegates targeting an object instance is not supported..
-        /// </summary>
-        internal static string DelegateSerializationNotSupported {
-            get {
-                return ResourceManager.GetString("DelegateSerializationNotSupported", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Error handling cannot be set in the current state of object..
-        /// </summary>
-        internal static string ErrorHandlingCannotSet {
-            get {
-                return ResourceManager.GetString("ErrorHandlingCannotSet", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Only field or property members are allowed..
         /// </summary>
         internal static string FieldOrPropertyAllowedOnly {
@@ -178,42 +151,6 @@ namespace Karambolo.Common.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Count of items to be replaced and items to replace with must be equal..
-        /// </summary>
-        internal static string ItemsToReplacedCountMismatch {
-            get {
-                return ResourceManager.GetString("ItemsToReplacedCountMismatch", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Item to be moved is not present in the collection..
-        /// </summary>
-        internal static string ItemToMovedNotFound {
-            get {
-                return ResourceManager.GetString("ItemToMovedNotFound", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Item to replace is already present in the collection..
-        /// </summary>
-        internal static string ItemToReplaceCannotAdded {
-            get {
-                return ResourceManager.GetString("ItemToReplaceCannotAdded", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Item to be replaced cannot be removed or is not present in the collection..
-        /// </summary>
-        internal static string ItemToReplacedCannotRemoved {
-            get {
-                return ResourceManager.GetString("ItemToReplacedCannotRemoved", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Multi-dimensional arrays are not supported..
         /// </summary>
         internal static string MultiDimArrayNotSupported {
@@ -246,33 +183,6 @@ namespace Karambolo.Common.Properties {
         internal static string NotInterfaceType {
             get {
                 return ResourceManager.GetString("NotInterfaceType", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Parallel reset sections are not supported..
-        /// </summary>
-        internal static string ParallelResetSectionsNotSupported {
-            get {
-                return ResourceManager.GetString("ParallelResetSectionsNotSupported", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Populating destination object is failed because the existing value is not compatible with the source object. See exception data for details..
-        /// </summary>
-        internal static string PopulatingObjectFailed {
-            get {
-                return ResourceManager.GetString("PopulatingObjectFailed", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The specified range exceeds the size of the collection..
-        /// </summary>
-        internal static string RangeExceedsCollectionSize {
-            get {
-                return ResourceManager.GetString("RangeExceedsCollectionSize", resourceCulture);
             }
         }
         

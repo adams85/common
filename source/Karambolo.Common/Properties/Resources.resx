@@ -123,12 +123,6 @@
   <data name="CapacityOutOfRange" xml:space="preserve">
     <value>Capacity must be non-negative.</value>
   </data>
-  <data name="ChangeDuringCollectionChangedEventNotSupported" xml:space="preserve">
-    <value>Cannot change collection during a CollectionChanged event.</value>
-  </data>
-  <data name="DelegateSerializationNotSupported" xml:space="preserve">
-    <value>Serializing delegates targeting an object instance is not supported.</value>
-  </data>
   <data name="IndexOutOfRange" xml:space="preserve">
     <value>Index must be non-negative and less than the size of the collection.</value>
   </data>
@@ -141,15 +135,6 @@
   <data name="InvalidValueType" xml:space="preserve">
     <value>Value must be of type {0}.</value>
   </data>
-  <data name="ItemsToReplacedCountMismatch" xml:space="preserve">
-    <value>Count of items to be replaced and items to replace with must be equal.</value>
-  </data>
-  <data name="ItemToMovedNotFound" xml:space="preserve">
-    <value>Item to be moved is not present in the collection.</value>
-  </data>
-  <data name="ItemToReplacedCannotRemoved" xml:space="preserve">
-    <value>Item to be replaced cannot be removed or is not present in the collection.</value>
-  </data>
   <data name="MultiDimArrayNotSupported" xml:space="preserve">
     <value>Multi-dimensional arrays are not supported.</value>
   </data>
@@ -159,23 +144,8 @@
   <data name="FieldOrPropertyAllowedOnly" xml:space="preserve">
     <value>Only field or property members are allowed.</value>
   </data>
-  <data name="RangeExceedsCollectionSize" xml:space="preserve">
-    <value>The specified range exceeds the size of the collection.</value>
-  </data>
-  <data name="ItemToReplaceCannotAdded" xml:space="preserve">
-    <value>Item to replace is already present in the collection.</value>
-  </data>
-  <data name="ParallelResetSectionsNotSupported" xml:space="preserve">
-    <value>Parallel reset sections are not supported.</value>
-  </data>
   <data name="NotGenericInterfaceType" xml:space="preserve">
     <value>Type is not an open generic interface.</value>
-  </data>
-  <data name="PopulatingObjectFailed" xml:space="preserve">
-    <value>Populating destination object is failed because the existing value is not compatible with the source object. See exception data for details.</value>
-  </data>
-  <data name="ErrorHandlingCannotSet" xml:space="preserve">
-    <value>Error handling cannot be set in the current state of object.</value>
   </data>
   <data name="IncompatibleCurrencies" xml:space="preserve">
     <value>Currencies must match.</value>
