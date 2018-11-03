@@ -33,3 +33,12 @@ namespace System.Collections.ObjectModel
         public ReadOnlyDictionary(IDictionary<TKey, TValue> source) : base(source) { }
     }
 }
+
+namespace System.Reflection
+{
+    public enum AssemblyContentType
+    {
+        Default = 0,
+        WindowsRuntime = 1
+    }
+}
