@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 
-namespace Karambolo.Common.Collections
+namespace Karambolo.Common
 {
     public interface IReadOnlyCollection<out T> : IEnumerable<T>, IEnumerable
     {
@@ -20,5 +20,11 @@ namespace Karambolo.Common.Collections
         TValue this[TKey key] { get; }
         bool ContainsKey(TKey key);
         bool TryGetValue(TKey key, out TValue value);
+    }
+
+    public enum AssemblyContentType
+    {
+        Default = 0,
+        WindowsRuntime = 1
     }
 }

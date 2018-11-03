@@ -40,6 +40,16 @@ namespace Karambolo.Common
         All = 191
     }
 
+    public enum ProcessorArchitecture
+    {
+        None = 0,
+        MSIL = 1,
+        X86 = 2,
+        IA64 = 3,
+        Amd64 = 4,
+        Arm = 5
+    }
+
     static partial class StringShim
     {
         public static IEnumerable<char> AsEnumerable(this string source)
@@ -134,10 +144,7 @@ namespace Karambolo.Common
             return setMethod != null && setMethod.IsPublic ? setMethod : null;
         }
     }
-}
 
-namespace Karambolo.Common.Collections
-{
     public interface IOrderedDictionary : IDictionary, ICollection, IEnumerable
     {
         object this[int index] { get; set; }
