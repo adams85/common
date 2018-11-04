@@ -466,6 +466,11 @@ namespace Karambolo.Common.Collections
             _source.Insert(index, key, _convertToSource(value));
         }
 
+        public void RemoveAt(int index)
+        {
+            _source.RemoveAt(index);
+        }
+
         public TDest this[int index]
         {
             get => _convertToDest(_source[index]);

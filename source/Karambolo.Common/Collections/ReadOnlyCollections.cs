@@ -243,6 +243,11 @@ namespace Karambolo.Common.Collections
             throw new NotSupportedException();
         }
 
+        public void RemoveAt(int index)
+        {
+            throw new NotSupportedException();
+        }
+
         int IOrderedDictionary<TKey, TValue>.Add(TKey key, TValue value)
         {
             throw new NotSupportedException();

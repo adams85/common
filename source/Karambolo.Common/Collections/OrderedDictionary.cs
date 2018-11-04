@@ -88,6 +88,15 @@ namespace Karambolo.Common.Collections
         /// The <see cref="IOrderedDictionary{TKey,TValue}">IOrderedDictionary&lt;TKey,TValue&gt;</see> has a fized size.</exception>
         void Insert(int index, TKey key, TValue value);
 
+        /// <summary>
+        /// Removes the entry at the specified index from the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see> collection.
+        /// </summary>
+        /// <param name="index">The zero-based index of the entry to remove.</param>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is less than 0.<br/>
+        /// -or-<br/>
+        /// index is equal to or greater than <see cref="Count"/>.</exception>
+        void RemoveAt(int index);
+
         new int Count { get; }
         new ICollection<TKey> Keys { get; }
         new ICollection<TValue> Values { get; }
