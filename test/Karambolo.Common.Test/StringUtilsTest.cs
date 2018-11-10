@@ -112,6 +112,10 @@ namespace Karambolo.Common
 
             text = "This is a quotation: !blablabla!\"!!";
             Assert.Throws<FormatException>(() => text.Unescape('!', '\'', '"'));
+
+            text = "This text is not escaped.";
+            Assert.Same(text, text.Escape('\\', '"'));
+            Assert.Same(text, text.Unescape('\\', '"'));
         }
 
         [Fact]

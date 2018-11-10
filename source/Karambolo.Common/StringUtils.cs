@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
-using System.Globalization;
 
 namespace Karambolo.Common
 {
@@ -183,17 +183,38 @@ namespace Karambolo.Common
             if (@string == null)
                 throw new ArgumentNullException(nameof(@string));
 
-            if (@string.Length == 0)
+            var length = @string.Length;
+            if (length == 0)
                 return string.Empty;
 
-            var result = new StringBuilder();
-            for (var index = 0; index < @string.Length; index++)
+            StringBuilder result = null;
+            char c;
+            var index = 0;
+            for (; index < length; index++)
             {
-                var c = @string[index];
+                c = @string[index];
+
+                if (c == escapeChar || specialChars.Contains(c))
+                {
+                    result = new StringBuilder(@string, 0, index++, length + 1);
+                    result.Append(escapeChar).Append(c);
+                    break;
+                }
+            }
+
+            if (result == null)
+                return @string;
+
+            for (; index < length; index++)
+            {
+                c = @string[index];
+
                 if (c == escapeChar || specialChars.Contains(c))
                     result.Append(escapeChar);
+
                 result.Append(c);
             }
+
             return result.ToString();
         }
 
@@ -205,24 +226,47 @@ namespace Karambolo.Common
             if (@string == null)
                 throw new ArgumentNullException(nameof(@string));
 
-            if (@string.Length == 0)
+            var length = @string.Length;
+            if (length == 0)
                 return string.Empty;
 
-            var result = new StringBuilder();
-            for (var index = 0; index < @string.Length; index++)
+            StringBuilder result = null;
+            char c, cn;
+            var index = 0;
+            for (; index < length; index++)
             {
-                var c = @string[index];
+                c = @string[index];
+
+                if (@string[index] == escapeChar)
+                {
+                    if (++index >= @string.Length || !((cn = @string[index]) == escapeChar || specialChars.Contains(cn)))
+                        throw new FormatException();
+
+                    result = new StringBuilder(@string, 0, index++ - 1, length - 1);
+                    result.Append(cn);
+                    break;
+                }
+                else if (specialChars.Contains(c))
+                    throw new FormatException();
+            }
+
+            if (result == null)
+                return @string;
+
+            for (; index < length; index++)
+            {
+                c = @string[index];
                 if (c == escapeChar)
                 {
-                    var cn = index + 1 < @string.Length ? (char?)@string[index + 1] : null;
-                    if (cn == null || !(cn == escapeChar || specialChars.Contains(cn.Value)))
+                    if (++index >= @string.Length || !((cn = @string[index]) == escapeChar || specialChars.Contains(cn)))
                         throw new FormatException();
+
                     result.Append(cn);
-                    index++;
                     continue;
                 }
                 else if (specialChars.Contains(c))
                     throw new FormatException();
+
                 result.Append(c);
             }
             return result.ToString();
