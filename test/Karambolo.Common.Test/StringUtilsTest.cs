@@ -34,23 +34,23 @@ namespace Karambolo.Common
 
             Assert.Equal(4, text.FindIndex(char.IsWhiteSpace));
 
-            Assert.Equal(4, text.FindIndex(char.IsWhiteSpace, 4));
-            Assert.Equal(8, text.FindIndex(char.IsWhiteSpace, 5));
-            Assert.Equal(-1, text.FindIndex(char.IsWhiteSpace, text.Length - 2));
+            Assert.Equal(4, text.FindIndex(4, char.IsWhiteSpace));
+            Assert.Equal(8, text.FindIndex(5, char.IsWhiteSpace));
+            Assert.Equal(-1, text.FindIndex(text.Length - 2, char.IsWhiteSpace));
 
-            Assert.Equal(4, text.FindIndex(char.IsWhiteSpace, 3, 2));
-            Assert.Equal(-1, text.FindIndex(char.IsWhiteSpace, 3, 1));
-            Assert.Equal(-1, text.FindIndex(char.IsWhiteSpace, 4, 0));
+            Assert.Equal(4, text.FindIndex(3, 2, char.IsWhiteSpace));
+            Assert.Equal(-1, text.FindIndex(3, 1, char.IsWhiteSpace));
+            Assert.Equal(-1, text.FindIndex(4, 0, char.IsWhiteSpace));
 
-            Assert.Equal(0, text.FindIndex(True<char>.Func));
-            Assert.Equal(text.Length - 1, text.FindIndex(True<char>.Func, text.Length -1));
-            Assert.Equal(-1, text.FindIndex(char.IsWhiteSpace, 0, 0));
-            Assert.Equal(-1, text.FindIndex(char.IsWhiteSpace, text.Length, 0));
+            Assert.Equal(0, text.FindIndex(True<char>.Predicate));
+            Assert.Equal(text.Length - 1, text.FindIndex(text.Length - 1, True<char>.Predicate));
+            Assert.Equal(-1, text.FindIndex(0, 0, char.IsWhiteSpace));
+            Assert.Equal(-1, text.FindIndex(text.Length, 0, char.IsWhiteSpace));
 
-            Assert.Throws<ArgumentOutOfRangeException>(() => text.FindIndex(char.IsWhiteSpace, -1));
-            Assert.Throws<ArgumentOutOfRangeException>(() => text.FindIndex(char.IsWhiteSpace, text.Length + 1));
-            Assert.Throws<ArgumentOutOfRangeException>(() => text.FindIndex(char.IsWhiteSpace, text.Length, -1));
-            Assert.Throws<ArgumentOutOfRangeException>(() => text.FindIndex(char.IsWhiteSpace, text.Length, 1));
+            Assert.Throws<ArgumentOutOfRangeException>(() => text.FindIndex(-1, char.IsWhiteSpace));
+            Assert.Throws<ArgumentOutOfRangeException>(() => text.FindIndex(text.Length + 1, char.IsWhiteSpace));
+            Assert.Throws<ArgumentOutOfRangeException>(() => text.FindIndex(text.Length, -1, char.IsWhiteSpace));
+            Assert.Throws<ArgumentOutOfRangeException>(() => text.FindIndex(text.Length, 1, char.IsWhiteSpace));
         }
 
         [Fact]
@@ -60,23 +60,23 @@ namespace Karambolo.Common
 
             Assert.Equal(39, text.FindLastIndex(char.IsWhiteSpace));
 
-            Assert.Equal(39, text.FindLastIndex(char.IsWhiteSpace, 39));
-            Assert.Equal(36, text.FindLastIndex(char.IsWhiteSpace, 38));
-            Assert.Equal(-1, text.FindLastIndex(char.IsWhiteSpace, 2));
+            Assert.Equal(39, text.FindLastIndex(39, char.IsWhiteSpace));
+            Assert.Equal(36, text.FindLastIndex(38, char.IsWhiteSpace));
+            Assert.Equal(-1, text.FindLastIndex(2, char.IsWhiteSpace));
 
-            Assert.Equal(39, text.FindLastIndex(char.IsWhiteSpace, 40, 2));
-            Assert.Equal(-1, text.FindLastIndex(char.IsWhiteSpace, 40, 1));
-            Assert.Equal(-1, text.FindLastIndex(char.IsWhiteSpace, 39, 0));
+            Assert.Equal(39, text.FindLastIndex(40, 2, char.IsWhiteSpace));
+            Assert.Equal(-1, text.FindLastIndex(40, 1, char.IsWhiteSpace));
+            Assert.Equal(-1, text.FindLastIndex(39, 0, char.IsWhiteSpace));
 
-            Assert.Equal(text.Length - 1, text.FindLastIndex(True<char>.Func));
-            Assert.Equal(0, text.FindLastIndex(True<char>.Func, 0));
-            Assert.Equal(-1, text.FindLastIndex(char.IsWhiteSpace, text.Length - 1, 0));
-            Assert.Equal(-1, text.FindLastIndex(char.IsWhiteSpace, -1, 0));
+            Assert.Equal(text.Length - 1, text.FindLastIndex(True<char>.Predicate));
+            Assert.Equal(0, text.FindLastIndex(0, True<char>.Predicate));
+            Assert.Equal(-1, text.FindLastIndex(text.Length - 1, 0, char.IsWhiteSpace));
+            Assert.Equal(-1, text.FindLastIndex(-1, 0, char.IsWhiteSpace));
 
-            Assert.Throws<ArgumentOutOfRangeException>(() => text.FindLastIndex(char.IsWhiteSpace, -2));
-            Assert.Throws<ArgumentOutOfRangeException>(() => text.FindLastIndex(char.IsWhiteSpace, text.Length));
-            Assert.Throws<ArgumentOutOfRangeException>(() => text.FindLastIndex(char.IsWhiteSpace, -1, -1));
-            Assert.Throws<ArgumentOutOfRangeException>(() => text.FindLastIndex(char.IsWhiteSpace, -1, 1));
+            Assert.Throws<ArgumentOutOfRangeException>(() => text.FindLastIndex(-2, char.IsWhiteSpace));
+            Assert.Throws<ArgumentOutOfRangeException>(() => text.FindLastIndex(text.Length, char.IsWhiteSpace));
+            Assert.Throws<ArgumentOutOfRangeException>(() => text.FindLastIndex(-1, -1, char.IsWhiteSpace));
+            Assert.Throws<ArgumentOutOfRangeException>(() => text.FindLastIndex(-1, 1, char.IsWhiteSpace));
         }
 
         [Fact]

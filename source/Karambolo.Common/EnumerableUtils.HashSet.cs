@@ -8,7 +8,7 @@ namespace Karambolo.Common
         public static HashSet<T> ToHashSet<T>(this IEnumerable<T> source, IEqualityComparer<T> comparer)
         {
             if (source == null)
-                throw new NullReferenceException();
+                throw new ArgumentNullException(nameof(source));
 
             return new HashSet<T>(source, comparer);
         }

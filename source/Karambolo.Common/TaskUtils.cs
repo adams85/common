@@ -61,6 +61,9 @@ namespace Karambolo.Common
 #if !NETSTANDARD1_0
         public static Task WaitForExitAsync(this Process process)
         {
+            if (process == null)
+                throw new ArgumentNullException(nameof(process));
+
             var tcs = new TaskCompletionSource<object>();
 
             EventHandler exitedHandler = null;
@@ -94,7 +97,7 @@ namespace Karambolo.Common
         public static Task WithTimeout(this Task task, TimeSpan timeout)
         {
             if (task == null)
-                throw new NullReferenceException();
+                throw new ArgumentNullException(nameof(task));
 
             return WithTimeoutAsync(task, timeout);
         }
@@ -118,7 +121,7 @@ namespace Karambolo.Common
         public static Task<TResult> WithTimeout<TResult>(this Task<TResult> task, TimeSpan timeout)
         {
             if (task == null)
-                throw new NullReferenceException();
+                throw new ArgumentNullException(nameof(task));
 
             return WithTimeoutAsync(task, timeout);
         }
@@ -169,7 +172,7 @@ namespace Karambolo.Common
         public static Task AsCancelable(this Task task, CancellationToken cancellationToken)
         {
             if (task == null)
-                throw new NullReferenceException();
+                throw new ArgumentNullException(nameof(task));
 
             if (!cancellationToken.CanBeCanceled)
                 return task;
@@ -189,7 +192,7 @@ namespace Karambolo.Common
         public static Task<TResult> AsCancelable<TResult>(this Task<TResult> task, CancellationToken cancellationToken)
         {
             if (task == null)
-                throw new NullReferenceException();
+                throw new ArgumentNullException(nameof(task));
 
             if (!cancellationToken.CanBeCanceled)
                 return task;
@@ -204,38 +207,56 @@ namespace Karambolo.Common
 
         public static async void FireAndForget(this Task task, Action<Exception> exceptionHandler)
         {
+            if (task == null)
+                throw new ArgumentNullException(nameof(task));
+
             try { await task.ConfigureAwait(false); }
-            catch (Exception ex) { exceptionHandler(ex); }
+            catch (Exception ex) { exceptionHandler?.Invoke(ex); }
         }
 
         public static void WaitAndUnwrap(this Task task)
         {
+            if (task == null)
+                throw new ArgumentNullException(nameof(task));
+
             task.GetAwaiter().GetResult();
         }
 
         public static TResult WaitAndUnwrap<TResult>(this Task<TResult> task)
         {
+            if (task == null)
+                throw new ArgumentNullException(nameof(task));
+
             return task.GetAwaiter().GetResult();
         }
 #else
         public static void FireAndForget(this Task task, Action<Exception> exceptionHandler)
         {
-            task.ContinueWith(t => exceptionHandler(t.Exception), TaskContinuationOptions.OnlyOnFaulted);
+            if (task == null)
+                throw new ArgumentNullException(nameof(task));
+
+            task.ContinueWith(t => exceptionHandler?.Invoke(t.Exception), TaskContinuationOptions.OnlyOnFaulted);
         }
 
         static TResult WaitAndUnwrap<TResult>(this Task<TResult> task)
         {
+            if (task == null)
+                throw new ArgumentNullException(nameof(task));
+
             return task.Result;
         }
 #endif
 
         public static void FireAndForget(this Task task)
         {
-            task.FireAndForget(Noop<Exception>.Action);
+            task.FireAndForget(null);
         }
 
         public static IAsyncResult BeginExecuteTask(this Task task, AsyncCallback callback, object state)
         {
+            if (task == null)
+                throw new ArgumentNullException(nameof(task));
+
             var tcs = new TaskCompletionSource<Task>(state);
 
             task.ContinueWith(t =>
@@ -255,6 +276,9 @@ namespace Karambolo.Common
 
         public static Task EndExecuteTask(this IAsyncResult asyncResult)
         {
+            if (asyncResult == null)
+                throw new ArgumentNullException(nameof(asyncResult));
+
             return ((Task<Task>)asyncResult).WaitAndUnwrap();
         }
     }

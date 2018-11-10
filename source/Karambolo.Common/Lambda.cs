@@ -73,9 +73,6 @@ namespace Karambolo.Common
 
         public static FieldInfo Field<TField>(this Expression<Func<TField>> expression)
         {
-            if (expression == null)
-                throw new NullReferenceException();
-
             var member = GetMemberExpression(expression, MemberTypes.Field);
             if (member == null)
                 throw new ArgumentException(Resources.InvalidValue, nameof(expression));
@@ -85,9 +82,6 @@ namespace Karambolo.Common
 
         public static FieldInfo Field<TContainer, TField>(this Expression<Func<TContainer, TField>> expression)
         {
-            if (expression == null)
-                throw new NullReferenceException();
-
             var member = GetMemberExpression(expression, MemberTypes.Field);
             if (member == null)
                 throw new ArgumentException(Resources.InvalidValue, nameof(expression));
@@ -97,9 +91,6 @@ namespace Karambolo.Common
 
         public static PropertyInfo Property<TProperty>(this Expression<Func<TProperty>> expression)
         {
-            if (expression == null)
-                throw new NullReferenceException();
-
             var member = GetMemberExpression(expression, MemberTypes.Property);
             if (member == null)
                 throw new ArgumentException(Resources.InvalidValue, nameof(expression));
@@ -109,9 +100,6 @@ namespace Karambolo.Common
 
         public static PropertyInfo Property<TContainer, TProperty>(this Expression<Func<TContainer, TProperty>> expression)
         {
-            if (expression == null)
-                throw new NullReferenceException();
-
             var member = GetMemberExpression(expression, MemberTypes.Property);
             if (member == null)
                 throw new ArgumentException(Resources.InvalidValue, nameof(expression));
@@ -129,9 +117,6 @@ namespace Karambolo.Common
 
         public static MethodInfo Method(this Expression<Action> expression)
         {
-            if (expression == null)
-                throw new NullReferenceException();
-
             var member = GetCallExpression(expression);
             if (member == null)
                 throw new ArgumentException(Resources.InvalidValue, nameof(expression));
@@ -141,9 +126,6 @@ namespace Karambolo.Common
 
         public static MethodInfo Method<TContainer>(this Expression<Action<TContainer>> expression)
         {
-            if (expression == null)
-                throw new NullReferenceException();
-
             var member = GetCallExpression(expression);
             if (member == null)
                 throw new ArgumentException(Resources.InvalidValue, nameof(expression));
@@ -153,6 +135,9 @@ namespace Karambolo.Common
 
         public static MethodInfo MakeGenericMethod(this MethodCallExpression expression, params Type[] typeArgs)
         {
+            if (expression == null)
+                throw new ArgumentNullException(nameof(expression));
+
             var method = expression.Method;
 
             return method.GetGenericMethodDefinition().MakeGenericMethod(typeArgs);
@@ -175,7 +160,8 @@ namespace Karambolo.Common
         public static Expression<Func<T, TResult>> Chain<T, TIntermediate, TResult>(this Expression<Func<T, TIntermediate>> expression, Expression<Func<TIntermediate, TResult>> otherExpression)
         {
             if (expression == null)
-                throw new NullReferenceException();
+                throw new ArgumentNullException(nameof(expression));
+
             if (otherExpression == null)
                 throw new ArgumentNullException(nameof(otherExpression));
 
@@ -186,7 +172,8 @@ namespace Karambolo.Common
         public static Func<T, TResult> Chain<T, TIntermediate, TResult>(this Func<T, TIntermediate> func, Func<TIntermediate, TResult> otherFunc)
         {
             if (func == null)
-                throw new NullReferenceException();
+                throw new ArgumentNullException(nameof(func));
+
             if (otherFunc == null)
                 throw new ArgumentNullException(nameof(otherFunc));
 
@@ -196,7 +183,8 @@ namespace Karambolo.Common
         public static Action Chain(this Action action, Action otherAction)
         {
             if (action == null)
-                throw new NullReferenceException();
+                throw new ArgumentNullException(nameof(action));
+
             if (otherAction == null)
                 throw new ArgumentNullException(nameof(otherAction));
 
@@ -206,7 +194,8 @@ namespace Karambolo.Common
         public static Action<TArg> Chain<TArg>(this Action<TArg> action, Action<TArg> otherAction)
         {
             if (action == null)
-                throw new NullReferenceException();
+                throw new ArgumentNullException(nameof(action));
+
             if (otherAction == null)
                 throw new ArgumentNullException(nameof(otherAction));
 

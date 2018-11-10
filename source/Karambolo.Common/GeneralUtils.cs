@@ -20,6 +20,9 @@ namespace Karambolo.Common
 #endif
         public static void Swap<T>(this IList<T> list, int index1, int index2)
         {
+            // checking list argument for null is omitted intentionally because of performance considerations:
+            // this method can often be used in tight loops
+
             var temp = list[index1];
             list[index1] = list[index2];
             list[index2] = temp;

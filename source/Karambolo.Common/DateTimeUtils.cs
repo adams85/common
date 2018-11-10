@@ -35,28 +35,31 @@ namespace Karambolo.Common
             new PeriodDescriptor("second", "seconds", 1),
         };
 
-        public static string ToTimeReference(this TimeSpan @this)
+        public static string ToTimeReference(this TimeSpan timeSpan)
         {
-            return @this.ToTimeReference(2);
+            return timeSpan.ToTimeReference(2);
         }
 
-        public static string ToTimeReference(this TimeSpan @this, int precision)
+        public static string ToTimeReference(this TimeSpan timeSpan, int precision)
         {
-            return @this.ToTimeReference(precision, DefaultTextLocalizer.Instance);
+            return timeSpan.ToTimeReference(precision, DefaultTextLocalizer.Instance);
         }
 
-        public static string ToTimeReference(this TimeSpan @this, int precision, TextLocalizer localizer)
+        public static string ToTimeReference(this TimeSpan timeSpan, int precision, TextLocalizer localizer)
         {
-            return @this.ToTimeReference(precision, DefaultPastFormat, DefaultNowText, DefaultFutureFormat, localizer);
+            return timeSpan.ToTimeReference(precision, DefaultPastFormat, DefaultNowText, DefaultFutureFormat, localizer);
         }
 
-        public static string ToTimeReference(this TimeSpan @this, int precision, string pastFormat, string nowText, string futureFormat, TextLocalizer localizer)
+        public static string ToTimeReference(this TimeSpan timeSpan, int precision, string pastFormat, string nowText, string futureFormat, TextLocalizer localizer)
         {
+            if (localizer == null)
+                throw new ArgumentNullException(nameof(localizer));
+
             var periodCount = periods.Length;
             if (precision < 1 || periodCount < precision)
                 throw new ArgumentOutOfRangeException(nameof(precision));
 
-            var total = @this.Ticks / TimeSpan.TicksPerSecond;
+            var total = timeSpan.Ticks / TimeSpan.TicksPerSecond;
             if (total == 0)
                 return localizer(nowText);
 

@@ -37,96 +37,96 @@ namespace Karambolo.Common
 #if !NET40
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 #endif
-        public static Assembly Assembly(this Type @this)
+        public static Assembly Assembly(this Type type)
         {
 #if !NETSTANDARD1_0
-            return @this.Assembly;
+            return type.Assembly;
 #else
-            return @this.GetTypeInfo().Assembly;
+            return type.GetTypeInfo().Assembly;
 #endif
         }
 
 #if !NET40
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 #endif
-        public static bool IsValueType(this Type @this)
+        public static bool IsValueType(this Type type)
         {
 #if !NETSTANDARD1_0
-            return @this.IsValueType;
+            return type.IsValueType;
 #else
-            return @this.GetTypeInfo().IsValueType;
+            return type.GetTypeInfo().IsValueType;
 #endif
         }
 
 #if !NET40
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 #endif
-        public static bool IsClass(this Type @this)
+        public static bool IsClass(this Type type)
         {
 #if !NETSTANDARD1_0
-            return @this.IsClass;
+            return type.IsClass;
 #else
-            return @this.GetTypeInfo().IsClass;
+            return type.GetTypeInfo().IsClass;
 #endif
         }
 
 #if !NET40
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 #endif
-        public static bool IsInterface(this Type @this)
+        public static bool IsInterface(this Type type)
         {
 #if !NETSTANDARD1_0
-            return @this.IsInterface;
+            return type.IsInterface;
 #else
-            return @this.GetTypeInfo().IsInterface;
+            return type.GetTypeInfo().IsInterface;
 #endif
         }
 
 #if !NET40
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 #endif
-        public static bool IsGenericType(this Type @this)
+        public static bool IsGenericType(this Type type)
         {
 #if !NETSTANDARD1_0
-            return @this.IsGenericType;
+            return type.IsGenericType;
 #else
-            return @this.GetTypeInfo().IsGenericType;
+            return type.GetTypeInfo().IsGenericType;
 #endif
         }
 
 #if !NET40
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 #endif
-        public static bool IsGenericTypeDefinition(this Type @this)
+        public static bool IsGenericTypeDefinition(this Type type)
         {
 #if !NETSTANDARD1_0
-            return @this.IsGenericTypeDefinition;
+            return type.IsGenericTypeDefinition;
 #else
-            return @this.GetTypeInfo().IsGenericTypeDefinition;
+            return type.GetTypeInfo().IsGenericTypeDefinition;
 #endif
         }
 
 #if !NET40
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 #endif
-        public static Type BaseType(this Type @this)
+        public static Type BaseType(this Type type)
         {
 #if !NETSTANDARD1_0
-            return @this.BaseType;
+            return type.BaseType;
 #else
-            return @this.GetTypeInfo().BaseType;
+            return type.GetTypeInfo().BaseType;
 #endif
         }
 
-        public static MemberTypes MemberType(this MemberInfo @this)
+        public static MemberTypes MemberType(this MemberInfo member)
         {
 #if !NETSTANDARD1_0
-            return @this.MemberType;
+            return member.MemberType;
 #else
-            if (@this == null)
+            if (member == null)
                 throw new NullReferenceException();
 
-            switch (@this)
+            switch (member)
             {
                 case ConstructorInfo ci: return MemberTypes.Constructor;
                 case EventInfo ei: return MemberTypes.Event;

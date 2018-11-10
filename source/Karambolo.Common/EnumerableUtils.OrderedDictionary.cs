@@ -10,7 +10,7 @@ namespace Karambolo.Common
             Func<T, TKey> keySelector, Func<T, TElement> elementSelector, IEqualityComparer<TKey> comparer)
         {
             if (source == null)
-                throw new NullReferenceException();
+                throw new ArgumentNullException(nameof(source));
 
             var result = new OrderedDictionary<TKey, TElement>(comparer);
             foreach (var item in source)

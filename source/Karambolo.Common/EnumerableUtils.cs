@@ -21,7 +21,7 @@ namespace Karambolo.Common
         public static IEnumerable<TSource> Prepend<TSource>(this IEnumerable<TSource> source, TSource element)
         {
             if (source == null)
-                throw new NullReferenceException();
+                throw new ArgumentNullException(nameof(source));
 
             yield return element;
 
@@ -32,7 +32,7 @@ namespace Karambolo.Common
         public static IEnumerable<TSource> Append<TSource>(this IEnumerable<TSource> source, TSource element)
         {
             if (source == null)
-                throw new NullReferenceException();
+                throw new ArgumentNullException(nameof(source));
 
             foreach (var e in source)
                 yield return e;
@@ -49,7 +49,8 @@ namespace Karambolo.Common
         public static bool SequenceEqualUnordered<TSource>(this IEnumerable<TSource> source, IEnumerable<TSource> second, IEqualityComparer<TSource> comparer)
         {
             if (source == null)
-                throw new NullReferenceException();
+                throw new ArgumentNullException(nameof(source));
+
             if (second == null)
                 throw new ArgumentNullException(nameof(second));
 
@@ -73,6 +74,9 @@ namespace Karambolo.Common
 
         public static IEnumerable<TSource> SkipLast<TSource>(this IEnumerable<TSource> source)
         {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+
             using (var enumerator = source.GetEnumerator())
                 if (enumerator.MoveNext())
                     for (var item = enumerator.Current; enumerator.MoveNext(); item = enumerator.Current)
@@ -81,6 +85,9 @@ namespace Karambolo.Common
 
         public static IEnumerable<TSource> TakeLast<TSource>(this IEnumerable<TSource> source)
         {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+
             using (var enumerator = source.GetEnumerator())
                 if (enumerator.MoveNext())
                 {

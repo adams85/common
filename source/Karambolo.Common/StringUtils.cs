@@ -64,78 +64,97 @@ namespace Karambolo.Common
             }
         }
 
-        public static int FindIndex(this string @this, Func<char, bool> match)
+        public static int FindIndex(this string @string, Predicate<char> match)
         {
-            return @this.FindIndex(match, 0, @this.Length);
+            if (@string == null)
+                throw new ArgumentNullException(nameof(@string));
+
+            return @string.FindIndex(0, @string.Length, match);
         }
 
-        public static int FindIndex(this string @this, Func<char, bool> match, int startIndex)
+        public static int FindIndex(this string @string, int startIndex, Predicate<char> match)
         {
-            return @this.FindIndex(match, startIndex, @this.Length - startIndex);
+            if (@string == null)
+                throw new ArgumentNullException(nameof(@string));
+
+            return @string.FindIndex(startIndex, @string.Length - startIndex, match);
         }
 
-        public static int FindIndex(this string @this, Func<char, bool> match, int startIndex, int count)
+        public static int FindIndex(this string @string, int startIndex, int count, Predicate<char> match)
         {
-            var length = @this.Length;
-            var endIndex = startIndex + count;
+            if (@string == null)
+                throw new ArgumentNullException(nameof(@string));
 
+            var length = @string.Length;
             if (startIndex < 0 || length < startIndex)
                 throw new ArgumentOutOfRangeException(nameof(startIndex));
 
+            var endIndex = startIndex + count;
             if (count < 0 || length < endIndex)
                 throw new ArgumentOutOfRangeException(nameof(count));
 
+            if (match == null)
+                throw new ArgumentNullException(nameof(match));
+
             for (; startIndex < endIndex; startIndex++)
-                if (match(@this[startIndex]))
+                if (match(@string[startIndex]))
                     return startIndex;
 
             return -1;
         }
 
-        public static int FindLastIndex(this string @this, Func<char, bool> match)
+        public static int FindLastIndex(this string @string, Predicate<char> match)
         {
-            var length = @this.Length;
-            return @this.FindLastIndex(match, length - 1, length);
+            if (@string == null)
+                throw new ArgumentNullException(nameof(@string));
+
+            var length = @string.Length;
+            return @string.FindLastIndex(length - 1, length, match);
         }
 
-        public static int FindLastIndex(this string @this, Func<char, bool> match, int startIndex)
+        public static int FindLastIndex(this string @string, int startIndex, Predicate<char> match)
         {
-            return @this.FindLastIndex(match, startIndex, startIndex + 1);
+            return @string.FindLastIndex(startIndex, startIndex + 1, match);
         }
 
-        public static int FindLastIndex(this string @this, Func<char, bool> match, int startIndex, int count)
+        public static int FindLastIndex(this string @string, int startIndex, int count, Predicate<char> match)
         {
-            var length = @this.Length;
-            var endIndex = startIndex - count;
+            if (@string == null)
+                throw new ArgumentNullException(nameof(@string));
 
+            var length = @string.Length;
             if (startIndex < -1 || length <= startIndex)
                 throw new ArgumentOutOfRangeException(nameof(startIndex));
 
+            var endIndex = startIndex - count;
             if (count < 0 || endIndex < -1)
                 throw new ArgumentOutOfRangeException(nameof(count));
 
+            if (match == null)
+                throw new ArgumentNullException(nameof(match));
+
             for (; startIndex > endIndex; startIndex--)
-                if (match(@this[startIndex]))
+                if (match(@string[startIndex]))
                     return startIndex;
 
             return -1;
         }
 
-        public static IEnumerable<string> Split(this string @this, Func<char, bool> match, StringSplitOptions options = StringSplitOptions.None)
+        public static IEnumerable<string> Split(this string @string, Predicate<char> match, StringSplitOptions options = StringSplitOptions.None)
         {
-            if (@this == null)
-                throw new NullReferenceException();
+            if (@string == null)
+                throw new ArgumentNullException(nameof(@string));
 
             if (match == null)
                 throw new ArgumentNullException(nameof(match));
 
             string section;
             var startIndex = 0;
-            for (var index = 0; index < @this.Length; index++)
+            for (var index = 0; index < @string.Length; index++)
             {
-                if (match(@this[index]))
+                if (match(@string[index]))
                 {
-                    section = @this.Substring(startIndex, index - startIndex);
+                    section = @string.Substring(startIndex, index - startIndex);
                     if (options != StringSplitOptions.RemoveEmptyEntries || section.Length > 0)
                         yield return section;
 
@@ -143,31 +162,34 @@ namespace Karambolo.Common
                 }
             }
 
-            section = @this.Substring(startIndex);
+            section = @string.Substring(startIndex);
             if (options != StringSplitOptions.RemoveEmptyEntries || section.Length > 0)
                 yield return section;
         }
 
-        public static string Truncate(this string @this, int length)
+        public static string Truncate(this string @string, int length)
         {
-            return @this.Length <= length ? @this : @this.Substring(0, length);
+            if (@string == null)
+                throw new ArgumentNullException(nameof(@string));
+
+            return @string.Length <= length ? @string : @string.Substring(0, length);
         }
 
         /// <summary>
         /// Escapes special characters specified by array <paramref name="specialChars"/> of a string using character <paramref name="escapeChar"/>.
         /// </summary>
-        public static string Escape(this string @this, char escapeChar, params char[] specialChars)
+        public static string Escape(this string @string, char escapeChar, params char[] specialChars)
         {
-            if (@this == null)
-                throw new NullReferenceException();
+            if (@string == null)
+                throw new ArgumentNullException(nameof(@string));
 
-            if (@this.Length == 0)
+            if (@string.Length == 0)
                 return string.Empty;
 
             var result = new StringBuilder();
-            for (var index = 0; index < @this.Length; index++)
+            for (var index = 0; index < @string.Length; index++)
             {
-                var c = @this[index];
+                var c = @string[index];
                 if (c == escapeChar || specialChars.Contains(c))
                     result.Append(escapeChar);
                 result.Append(c);
@@ -178,21 +200,21 @@ namespace Karambolo.Common
         /// <summary>
         /// Inverse operation of <see cref="Escape"/>.
         /// </summary>
-        public static string Unescape(this string @this, char escapeChar, params char[] specialChars)
+        public static string Unescape(this string @string, char escapeChar, params char[] specialChars)
         {
-            if (@this == null)
-                throw new NullReferenceException();
+            if (@string == null)
+                throw new ArgumentNullException(nameof(@string));
 
-            if (@this.Length == 0)
+            if (@string.Length == 0)
                 return string.Empty;
 
             var result = new StringBuilder();
-            for (var index = 0; index < @this.Length; index++)
+            for (var index = 0; index < @string.Length; index++)
             {
-                var c = @this[index];
+                var c = @string[index];
                 if (c == escapeChar)
                 {
-                    var cn = index + 1 < @this.Length ? (char?)@this[index + 1] : null;
+                    var cn = index + 1 < @string.Length ? (char?)@string[index + 1] : null;
                     if (cn == null || !(cn == escapeChar || specialChars.Contains(cn.Value)))
                         throw new FormatException();
                     result.Append(cn);
@@ -206,24 +228,32 @@ namespace Karambolo.Common
             return result.ToString();
         }
 
-        public static int IndexOfEscaped(this string @this, char escapeChar, char value)
+        public static int IndexOfEscaped(this string @string, char escapeChar, char value)
         {
-            return @this.IndexOfEscaped(escapeChar, value, 0, @this.Length);
+            if (@string == null)
+                throw new ArgumentNullException(nameof(@string));
+
+            return @string.IndexOfEscaped(escapeChar, value, 0, @string.Length);
         }
 
-        public static int IndexOfEscaped(this string @this, char escapeChar, char value, int startIndex)
+        public static int IndexOfEscaped(this string @string, char escapeChar, char value, int startIndex)
         {
-            return @this.IndexOfEscaped(escapeChar, value, startIndex, @this.Length - startIndex);
+            if (@string == null)
+                throw new ArgumentNullException(nameof(@string));
+
+            return @string.IndexOfEscaped(escapeChar, value, startIndex, @string.Length - startIndex);
         }
 
-        public static int IndexOfEscaped(this string @this, char escapeChar, char value, int startIndex, int count)
+        public static int IndexOfEscaped(this string @string, char escapeChar, char value, int startIndex, int count)
         {
-            var length = @this.Length;
-            var endIndex = startIndex + count;
+            if (@string == null)
+                throw new ArgumentNullException(nameof(@string));
 
+            var length = @string.Length;
             if (startIndex < 0 || length < startIndex)
                 throw new ArgumentOutOfRangeException(nameof(startIndex));
 
+            var endIndex = startIndex + count;
             if (count < 0 || length < endIndex)
                 throw new ArgumentOutOfRangeException(nameof(count));
 
@@ -235,9 +265,9 @@ namespace Karambolo.Common
 
             for (; startIndex < endIndex; startIndex++)
             {
-                var c = @this[startIndex];
+                var c = @string[startIndex];
 
-                if (c == escapeChar && isEscaped(@this, startIndex, endIndex, value))
+                if (c == escapeChar && isEscaped(@string, startIndex, endIndex, value))
                     startIndex++;
                 else if (c == value)
                     return startIndex;
@@ -251,34 +281,39 @@ namespace Karambolo.Common
             }
         }
 
-        public static int LastIndexOfEscaped(this string @this, char escapeChar, char value)
+        public static int LastIndexOfEscaped(this string @string, char escapeChar, char value)
         {
-            var length = @this.Length;
-            return @this.LastIndexOfEscaped(escapeChar, value, length - 1, length);
+            if (@string == null)
+                throw new ArgumentNullException(nameof(@string));
+
+            var length = @string.Length;
+            return @string.LastIndexOfEscaped(escapeChar, value, length - 1, length);
         }
 
-        public static int LastIndexOfEscaped(this string @this, char escapeChar, char value, int startIndex)
+        public static int LastIndexOfEscaped(this string @string, char escapeChar, char value, int startIndex)
         {
-            return @this.LastIndexOfEscaped(escapeChar, value, startIndex, startIndex + 1);
+            return @string.LastIndexOfEscaped(escapeChar, value, startIndex, startIndex + 1);
         }
 
-        public static int LastIndexOfEscaped(this string @this, char escapeChar, char value, int startIndex, int count)
+        public static int LastIndexOfEscaped(this string @string, char escapeChar, char value, int startIndex, int count)
         {
-            var length = @this.Length;
-            var endIndex = startIndex - count;
+            if (@string == null)
+                throw new ArgumentNullException(nameof(@string));
 
+            var length = @string.Length;
             if (startIndex < -1 || length <= startIndex)
                 throw new ArgumentOutOfRangeException(nameof(startIndex));
 
+            var endIndex = startIndex - count;
             if (count < 0 || endIndex < -1)
                 throw new ArgumentOutOfRangeException(nameof(count));
 
             for (; startIndex > endIndex; startIndex--)
             {
-                var c = @this[startIndex];
+                var c = @string[startIndex];
 
                 if (c == value)
-                    if (IsEscaped(@this, startIndex, endIndex, escapeChar))
+                    if (IsEscaped(@string, startIndex, endIndex, escapeChar))
                         startIndex--;
                     else
                         return startIndex;
@@ -299,12 +334,12 @@ namespace Karambolo.Common
             }
         }
 
-        public static IEnumerable<string> SplitEscaped(this string @this, char escapeChar, char separatorChar, StringSplitOptions options = StringSplitOptions.None)
+        public static IEnumerable<string> SplitEscaped(this string @string, char escapeChar, char separatorChar, StringSplitOptions options = StringSplitOptions.None)
         {
-            if (@this == null)
-                throw new NullReferenceException();
+            if (@string == null)
+                throw new ArgumentNullException(nameof(@string));
 
-            if (@this.Length == 0)
+            if (@string.Length == 0)
             {
                 if (options != StringSplitOptions.RemoveEmptyEntries)
                     yield return string.Empty;
@@ -314,8 +349,8 @@ namespace Karambolo.Common
             var startIndex = 0;
             do
             {
-                var index = startIndex < @this.Length ? @this.IndexOfEscaped(escapeChar, separatorChar, startIndex) : -1;
-                var section = index >= 0 ? @this.Substring(startIndex, index - startIndex) : @this.Substring(startIndex);
+                var index = startIndex < @string.Length ? @string.IndexOfEscaped(escapeChar, separatorChar, startIndex) : -1;
+                var section = index >= 0 ? @string.Substring(startIndex, index - startIndex) : @string.Substring(startIndex);
                 if (options != StringSplitOptions.RemoveEmptyEntries || section.Length > 0)
                     yield return section.Unescape(escapeChar, separatorChar);
                 startIndex = index + 1;
@@ -330,15 +365,15 @@ namespace Karambolo.Common
 
 #if !NETSTANDARD1_0
         // http://weblogs.asp.net/fmarguerie/archive/2006/10/30/removing-diacritics-accents-from-strings.aspx
-        public static string RemoveDiacritics(this string @this)
+        public static string RemoveDiacritics(this string @string)
         {
-            if (@this == null)
-                throw new NullReferenceException();
+            if (@string == null)
+                throw new ArgumentNullException(nameof(@string));
 
-            if (@this.Length == 0)
+            if (@string.Length == 0)
                 return string.Empty;
 
-            var normalizedString = @this.Normalize(NormalizationForm.FormD);
+            var normalizedString = @string.Normalize(NormalizationForm.FormD);
             var stringBuilder = new StringBuilder();
 
             for (var i = 0; i < normalizedString.Length; i++)

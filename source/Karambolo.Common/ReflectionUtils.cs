@@ -45,17 +45,26 @@ namespace Karambolo.Common
 
         public static bool AllowsNull(this Type type)
         {
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
+
             return !type.IsValueType() || Nullable.GetUnderlyingType(type) != null;
         }
 
         public static bool IsAssignableFrom(this Type type, object obj)
         {
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
+
             return obj != null ? type.IsAssignableFrom(obj.GetType()) : type.AllowsNull();
         }
 
-        public static bool IsSameOrSubclassOf(this Type type, Type otherType)
+        public static bool IsSameOrSubclassOf(this Type type, Type c)
         {
-            return type == otherType || type.IsSubclassOf(otherType);
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
+
+            return type == c || type.IsSubclassOf(c);
         }
 
         public static bool IsDelegate(this Type type)
@@ -66,10 +75,11 @@ namespace Karambolo.Common
         public static Type GetInterface(this Type type, Type interfaceType)
         {
             if (type == null)
-                throw new NullReferenceException();
+                throw new ArgumentNullException(nameof(type));
 
             if (interfaceType == null)
                 throw new ArgumentNullException(nameof(interfaceType));
+
             if (!interfaceType.IsInterface())
                 throw new ArgumentException(Resources.NotInterfaceType, nameof(interfaceType));
 
@@ -84,10 +94,11 @@ namespace Karambolo.Common
         public static IEnumerable<Type> GetClosedInterfaces(this Type type, Type openInterfaceType)
         {
             if (type == null)
-                throw new NullReferenceException();
+                throw new ArgumentNullException(nameof(type));
 
             if (openInterfaceType == null)
                 throw new ArgumentNullException(nameof(openInterfaceType));
+
             if (!openInterfaceType.IsInterface() || !openInterfaceType.IsGenericTypeDefinition())
                 throw new ArgumentException(Resources.NotGenericInterfaceType, nameof(openInterfaceType));
 
@@ -101,9 +112,12 @@ namespace Karambolo.Common
             return GetClosedInterfaces(type, openInterfaceType).Any();
         }
 
-        public static Type GetMemberType(this MemberInfo type, MemberTypes allowedMemberTypes = MemberTypes.All)
+        public static Type GetMemberType(this MemberInfo member, MemberTypes allowedMemberTypes = MemberTypes.All)
         {
-            switch (type)
+            if (member == null)
+                throw new ArgumentNullException(nameof(member));
+
+            switch (member)
             {
                 case FieldInfo field when (allowedMemberTypes & MemberTypes.Field) != 0:
                     return field.FieldType;
@@ -125,7 +139,7 @@ namespace Karambolo.Common
             where TAttribute : Attribute
         {
             if (attributeProvider == null)
-                throw new NullReferenceException();
+                throw new ArgumentNullException(nameof(attributeProvider));
 
             // http://blog.seancarpenter.net/2012/12/15/getcustomattributes-and-overridden-properties/
             return
@@ -138,7 +152,7 @@ namespace Karambolo.Common
             where TAttribute : Attribute
         {
             if (attributeProvider == null)
-                throw new NullReferenceException();
+                throw new ArgumentNullException(nameof(attributeProvider));
 
             // http://blog.seancarpenter.net/2012/12/15/getcustomattributes-and-overridden-properties/
             return

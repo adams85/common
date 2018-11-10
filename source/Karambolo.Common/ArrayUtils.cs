@@ -49,6 +49,9 @@ namespace Karambolo.Common
 
         public static int[] GetLowerBounds(this Array array)
         {
+            if (array == null)
+                throw new ArgumentNullException(nameof(array));
+
             var dimensions = array.Rank;
 
             var result = new int[dimensions];
@@ -60,6 +63,9 @@ namespace Karambolo.Common
 
         public static int[] GetUpperBounds(this Array array)
         {
+            if (array == null)
+                throw new ArgumentNullException(nameof(array));
+
             var dimensions = array.Rank;
 
             var result = new int[dimensions];
@@ -71,6 +77,9 @@ namespace Karambolo.Common
 
         public static int[] GetLengths(this Array array)
         {
+            if (array == null)
+                throw new ArgumentNullException(nameof(array));
+
             var dimensions = array.Rank;
 
             var result = new int[dimensions];
@@ -82,6 +91,9 @@ namespace Karambolo.Common
 
         public static void Fill<T>(this T[] array, T value)
         {
+            if (array == null)
+                throw new ArgumentNullException(nameof(array));
+
             var n = array.Length;
             for (var i = 0; i < n; i++)
                 array[i] = value;
@@ -89,6 +101,9 @@ namespace Karambolo.Common
 
         public static void Fill<T>(this T[] array, Func<int, T> value)
         {
+            if (array == null)
+                throw new ArgumentNullException(nameof(array));
+
             var n = array.Length;
             for (var i = 0; i < n; i++)
                 array[i] = value(i);
@@ -96,6 +111,9 @@ namespace Karambolo.Common
 
         public static void Shuffle<T>(this T[] array, Random random)
         {
+            if (array == null)
+                throw new ArgumentNullException(nameof(array));
+
             var n = array.Length;
             while (n > 1)
                 GeneralUtils.Swap(ref array[random.Next(n)], ref array[--n]);
