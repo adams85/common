@@ -56,7 +56,7 @@ namespace Karambolo.Common
             return GetMemberPath(expression, allowedMemberTypes, expr => expr == null);
         }
 
-        public static IEnumerable<MemberInfo> GetMemberPath<TSource, TMember>(this Expression<Func<TSource, TMember>> expression, MemberTypes allowedMemberTypes = MemberTypes.Property)
+        public static IEnumerable<MemberInfo> GetMemberPath<TRoot, TMember>(this Expression<Func<TRoot, TMember>> expression, MemberTypes allowedMemberTypes = MemberTypes.Property)
         {
             return GetMemberPath(expression, allowedMemberTypes, expr => expr is ParameterExpression);
         }
@@ -66,7 +66,7 @@ namespace Karambolo.Common
             return string.Join(".", GetMemberPath(expression, allowedMemberTypes).Select(m => m.Name));
         }
 
-        public static string MemberPath<TSource, TProperty>(Expression<Func<TSource, TProperty>> expression, MemberTypes allowedMemberTypes = MemberTypes.Property)
+        public static string MemberPath<TRoot, TProperty>(Expression<Func<TRoot, TProperty>> expression, MemberTypes allowedMemberTypes = MemberTypes.Property)
         {
             return string.Join(".", GetMemberPath(expression, allowedMemberTypes).Select(m => m.Name));
         }

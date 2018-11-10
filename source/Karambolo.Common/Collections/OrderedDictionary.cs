@@ -306,7 +306,7 @@ namespace Karambolo.Common.Collections
         public OrderedDictionary(int capacity, IEqualityComparer<TKey> comparer)
         {
             if (0 > capacity)
-                throw new ArgumentOutOfRangeException(nameof(capacity), Resources.CapacityOutOfRange);
+                throw new ArgumentOutOfRangeException(nameof(capacity), Resources.ValueMustBeNonNegative);
 
             comparer = comparer ?? EqualityComparer<TKey>.Default;
             _list = new List<TKey>(capacity);

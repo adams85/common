@@ -70,11 +70,20 @@ namespace Karambolo.Common.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Capacity must be non-negative..
+        ///   Looks up a localized string similar to Count is greater than the number of elements from index to the end of the source collection..
         /// </summary>
-        internal static string CapacityOutOfRange {
+        internal static string CollectionNotLongEnough {
             get {
-                return ResourceManager.GetString("CapacityOutOfRange", resourceCulture);
+                return ResourceManager.GetString("CollectionNotLongEnough", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Collection is read-only..
+        /// </summary>
+        internal static string CollectionReadOnly {
+            get {
+                return ResourceManager.GetString("CollectionReadOnly", resourceCulture);
             }
         }
         
@@ -192,6 +201,15 @@ namespace Karambolo.Common.Properties {
         internal static string UnexpectedObjectType {
             get {
                 return ResourceManager.GetString("UnexpectedObjectType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Value must be non-negative..
+        /// </summary>
+        internal static string ValueMustBeNonNegative {
+            get {
+                return ResourceManager.GetString("ValueMustBeNonNegative", resourceCulture);
             }
         }
     }

@@ -53,9 +53,14 @@ namespace Karambolo.Common
             return obj != null ? type.IsAssignableFrom(obj.GetType()) : type.AllowsNull();
         }
 
+        public static bool IsSameOrSubclassOf(this Type type, Type otherType)
+        {
+            return type == otherType || type.IsSubclassOf(otherType);
+        }
+
         public static bool IsDelegate(this Type type)
         {
-            return type == typeof(Delegate) || type.IsSubclassOf(typeof(Delegate));
+            return type.IsSameOrSubclassOf(typeof(Delegate));
         }
 
         public static Type GetInterface(this Type type, Type interfaceType)
@@ -294,7 +299,9 @@ namespace Karambolo.Common
                 throw new ArgumentException(Resources.FieldOrPropertyAllowedOnly, nameof(memberTypes));
 
             var type = obj.GetType();
+#pragma warning disable IDE0018 // Inline variable declaration
             MemberDescriptor[] memberDescriptors;
+#pragma warning restore IDE0018 // Inline variable declaration
 
 #if !NETSTANDARD1_0
             LazyInitializer.EnsureInitialized(ref memberDescriptorCache, () => new System.Collections.Concurrent.ConcurrentDictionary<Type, MemberDescriptor[]>());
