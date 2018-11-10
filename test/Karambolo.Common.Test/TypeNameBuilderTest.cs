@@ -3,7 +3,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Xunit;
 
-namespace Karambolo.Common.Test
+namespace Karambolo.Common
 {
     public class TypeNameBuilderTest
     {

@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Reflection;
 using Xunit;
 
-namespace Karambolo.Common.Test
+namespace Karambolo.Common
 {
     public class AssemblyNameBuilderTest
     {

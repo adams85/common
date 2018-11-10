@@ -5,7 +5,7 @@ using System.Collections.Specialized;
 using System.Linq;
 using Xunit;
 
-namespace Karambolo.Common.Collections.Test
+namespace Karambolo.Common.Collections
 {
     public class OrderedDictionaryTest
     {

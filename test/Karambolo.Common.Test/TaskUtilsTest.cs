@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Karambolo.Common.Test
+namespace Karambolo.Common
 {
     public class TaskUtilsTest
     {
@@ -169,6 +167,21 @@ namespace Karambolo.Common.Test
             Assert.Throws<TestException>(() => Task.FromException<bool>(new TestException()).WaitAndUnwrap());
 
             #endregion
+        }
+
+        [Fact]
+        public void FireAndForgetTest()
+        {
+            using (var cts = new CancellationTokenSource())
+            {
+                Task.Run(() =>
+                {
+                    Thread.Sleep(100);
+                    cts.Cancel();
+                }).FireAndForget();
+
+                Assert.True(cts.Token.WaitHandle.WaitOne(1000));
+            }
         }
 
         [Fact]

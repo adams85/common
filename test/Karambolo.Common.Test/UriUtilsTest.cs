@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 
-namespace Karambolo.Common.Test
+namespace Karambolo.Common
 {
     public class UriUtilsTest
     {

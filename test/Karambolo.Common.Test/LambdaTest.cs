@@ -12,7 +12,7 @@ using System.Linq.Expressions;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
 
-namespace Karambolo.Common.Test
+namespace Karambolo.Common
 {
     public class LambdaTest
     {

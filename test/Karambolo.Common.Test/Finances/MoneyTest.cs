@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
 using Xunit;
 
-namespace Karambolo.Common.Finances.Test
+namespace Karambolo.Common.Finances
 {
     public class MoneyTest
     {

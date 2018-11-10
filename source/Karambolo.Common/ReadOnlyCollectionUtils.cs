@@ -2,9 +2,9 @@
 
 namespace Karambolo.Common
 {
-    public static class CollectionUtils
+    public static class ReadOnlyCollectionUtils
     {
-        public static bool IsNullOrEmpty<T>(ICollection<T> collection)
+        public static bool IsNullOrEmpty<T>(IReadOnlyCollection<T> collection)
         {
             return collection == null || collection.Count == 0;
         }

@@ -15,7 +15,7 @@ using System.Reflection;
 using System.Text;
 using Xunit;
 
-namespace Karambolo.Common.Test
+namespace Karambolo.Common
 {
     public class ReflectionUtilsTest
     {
@@ -114,6 +114,15 @@ namespace Karambolo.Common.Test
             Assert.False(typeof(int?).IsAssignableFrom(""));
             Assert.True(typeof(int?).IsAssignableFrom(1));
             Assert.True(typeof(int?).IsAssignableFrom((object)null));
+        }
+
+        [Fact]
+        public void IsSameOrSubclassOfTest()
+        {
+            Assert.True(typeof(TestClass).IsSameOrSubclassOf(typeof(object)));
+            Assert.True(typeof(TestClass).IsSameOrSubclassOf(typeof(TestClass)));
+            Assert.True(typeof(DerivedTestClass).IsSameOrSubclassOf(typeof(TestClass)));
+            Assert.False(typeof(TestClass).IsSameOrSubclassOf(typeof(DerivedTestClass)));
         }
 
         [Fact]

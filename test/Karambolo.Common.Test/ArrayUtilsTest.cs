@@ -1,7 +1,7 @@
 ﻿using System;
 using Xunit;
 
-namespace Karambolo.Common.Test
+namespace Karambolo.Common
 {
     public class ArrayUtilsTest
     {

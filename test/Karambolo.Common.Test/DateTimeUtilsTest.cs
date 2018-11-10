@@ -1,7 +1,7 @@
 ﻿using Xunit;
 using System;
 
-namespace Karambolo.Common.Test
+namespace Karambolo.Common
 {
     public class DateTimeUtilsTest
     {

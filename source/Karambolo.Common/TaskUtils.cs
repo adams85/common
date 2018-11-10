@@ -202,11 +202,6 @@ namespace Karambolo.Common
 
         #endregion
 
-        public static void FireAndForget(this Task task)
-        {
-            task.FireAndForget(Noop<Exception>.Action);
-        }
-
         public static async void FireAndForget(this Task task, Action<Exception> exceptionHandler)
         {
             try { await task.ConfigureAwait(false); }
@@ -223,11 +218,21 @@ namespace Karambolo.Common
             return task.GetAwaiter().GetResult();
         }
 #else
+        public static void FireAndForget(this Task task, Action<Exception> exceptionHandler)
+        {
+            task.ContinueWith(t => exceptionHandler(t.Exception), TaskContinuationOptions.OnlyOnFaulted);
+        }
+
         static TResult WaitAndUnwrap<TResult>(this Task<TResult> task)
         {
             return task.Result;
         }
 #endif
+
+        public static void FireAndForget(this Task task)
+        {
+            task.FireAndForget(Noop<Exception>.Action);
+        }
 
         public static IAsyncResult BeginExecuteTask(this Task task, AsyncCallback callback, object state)
         {
