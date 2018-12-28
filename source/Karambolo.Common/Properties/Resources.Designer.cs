@@ -133,15 +133,6 @@ namespace Karambolo.Common.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Invalid public key token. Size must be {0} bytes..
-        /// </summary>
-        internal static string InvalidPublicKeyToken {
-            get {
-                return ResourceManager.GetString("InvalidPublicKeyToken", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Invalid value..
         /// </summary>
         internal static string InvalidValue {
