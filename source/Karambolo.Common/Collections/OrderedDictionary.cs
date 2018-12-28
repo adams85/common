@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Threading;
@@ -102,65 +101,215 @@ namespace Karambolo.Common.Collections
     [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(DictionaryDebugView<,>))]
     public class OrderedDictionary<TKey, TValue> : IOrderedDictionary<TKey, TValue>, IOrderedDictionary
     {
-        struct DictionaryEnumerator : IDictionaryEnumerator
+        public struct Enumerator : IEnumerator<KeyValuePair<TKey, TValue>>, IDictionaryEnumerator
         {
+            readonly bool _returnKeyValuePair;
             readonly Dictionary<TKey, TValue> _dictionary;
-            IEnumerator<TKey> _listEnumerator;
+            List<TKey>.Enumerator _listEnumerator;
 
-            public DictionaryEnumerator(OrderedDictionary<TKey, TValue> owner)
+            internal Enumerator(OrderedDictionary<TKey, TValue> dictionary, bool returnKeyValuePair)
             {
-                _dictionary = owner._dictionary;
-                _listEnumerator = owner._list.GetEnumerator();
+                _dictionary = dictionary._dictionary;
+                _listEnumerator = dictionary._list.GetEnumerator();
+                _returnKeyValuePair = returnKeyValuePair;
             }
 
-            public object Current => Entry;
+            public void Dispose()
+            {
+                _listEnumerator.Dispose();
+            }
 
-            public DictionaryEntry Entry
+            public KeyValuePair<TKey, TValue> Current
             {
                 get
                 {
                     var key = _listEnumerator.Current;
-                    return new DictionaryEntry(key, _dictionary[key]);
+                    return new KeyValuePair<TKey, TValue>(key, _dictionary[key]);
                 }
             }
+
+            object IEnumerator.Current => _returnKeyValuePair ? Current : (object)GetCurrentEntry();
+
+            DictionaryEntry GetCurrentEntry()
+            {
+                var key = _listEnumerator.Current;
+                return new DictionaryEntry(key, _dictionary[key]);
+            }
+
+            DictionaryEntry IDictionaryEnumerator.Entry => GetCurrentEntry();
+
+            object IDictionaryEnumerator.Key => _listEnumerator.Current;
+
+            object IDictionaryEnumerator.Value => _dictionary[_listEnumerator.Current];
 
             public bool MoveNext()
             {
                 return _listEnumerator.MoveNext();
             }
 
-            public void Reset()
+            void IEnumerator.Reset()
             {
-                _listEnumerator.Reset();
+                var listEnumeratorBoxed = (IEnumerator)_listEnumerator;
+                listEnumeratorBoxed.Reset();
+                _listEnumerator = (List<TKey>.Enumerator)listEnumeratorBoxed;
             }
-
-            public object Key => _listEnumerator.Current;
-
-            public object Value => _dictionary[_listEnumerator.Current];
         }
 
-        class ValueCollection : ICollection<TValue>, ICollection
+        public class KeyCollection : ICollection<TKey>, IReadOnlyCollection<TKey>, ICollection
         {
-            readonly OrderedDictionary<TKey, TValue> _owner;
-
-            public ValueCollection(OrderedDictionary<TKey, TValue> owner)
+            public struct Enumerator : IEnumerator<TKey>
             {
-                _owner = owner;
+                List<TKey>.Enumerator _listEnumerator;
+
+                internal Enumerator(OrderedDictionary<TKey, TValue> dictionary)
+                {
+                    _listEnumerator = dictionary._list.GetEnumerator();
+                }
+
+                public void Dispose()
+                {
+                    _listEnumerator.Dispose();
+                }
+
+                public TKey Current => _listEnumerator.Current;
+
+                object IEnumerator.Current => Current;
+
+                public bool MoveNext()
+                {
+                    return _listEnumerator.MoveNext();
+                }
+
+                void IEnumerator.Reset()
+                {
+                    var listEnumeratorBoxed = (IEnumerator)_listEnumerator;
+                    listEnumeratorBoxed.Reset();
+                    _listEnumerator = (List<TKey>.Enumerator)listEnumeratorBoxed;
+                }
             }
 
-            public void Add(TValue item)
+            readonly OrderedDictionary<TKey, TValue> _dictionary;
+
+            public KeyCollection(OrderedDictionary<TKey, TValue> dictionary)
+            {
+                if (dictionary == null)
+                    throw new ArgumentNullException(nameof(dictionary));
+
+                _dictionary = dictionary;
+            }
+
+            void ICollection<TKey>.Add(TKey item)
             {
                 throw new NotSupportedException();
             }
 
-            public void Clear()
+            void ICollection<TKey>.Clear()
             {
                 throw new NotSupportedException();
             }
 
-            public bool Contains(TValue item)
+            bool ICollection<TKey>.Contains(TKey item)
             {
-                return _owner._dictionary.ContainsValue(item);
+                return _dictionary.ContainsKey(item);
+            }
+
+            public void CopyTo(TKey[] array, int index)
+            {
+                _dictionary._list.CopyTo(array, index);
+            }
+
+            public int Count => _dictionary.Count;
+
+            bool ICollection<TKey>.IsReadOnly => true;
+
+            bool ICollection<TKey>.Remove(TKey item)
+            {
+                throw new NotSupportedException();
+            }
+
+            public Enumerator GetEnumerator()
+            {
+                return new Enumerator(_dictionary);
+            }
+
+            IEnumerator<TKey> IEnumerable<TKey>.GetEnumerator()
+            {
+                return GetEnumerator();
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
+            }
+
+            void ICollection.CopyTo(Array array, int index)
+            {
+                ((ICollection)_dictionary._list).CopyTo(array, index);
+            }
+
+            bool ICollection.IsSynchronized => false;
+
+            object ICollection.SyncRoot => ((ICollection)_dictionary).SyncRoot;
+        }
+
+        public class ValueCollection : ICollection<TValue>, IReadOnlyCollection<TValue>, ICollection
+        {
+            public struct Enumerator : IEnumerator<TValue>
+            {
+                readonly Dictionary<TKey, TValue> _dictionary;
+                List<TKey>.Enumerator _listEnumerator;
+
+                internal Enumerator(OrderedDictionary<TKey, TValue> dictionary)
+                {
+                    _dictionary = dictionary._dictionary;
+                    _listEnumerator = dictionary._list.GetEnumerator();
+                }
+
+                public void Dispose()
+                {
+                    _listEnumerator.Dispose();
+                }
+
+                public TValue Current => _dictionary[_listEnumerator.Current];
+
+                object IEnumerator.Current => Current;
+
+                public bool MoveNext()
+                {
+                    return _listEnumerator.MoveNext();
+                }
+
+                void IEnumerator.Reset()
+                {
+                    var listEnumeratorBoxed = (IEnumerator)_listEnumerator;
+                    listEnumeratorBoxed.Reset();
+                    _listEnumerator = (List<TKey>.Enumerator)listEnumeratorBoxed;
+                }
+            }
+
+            readonly OrderedDictionary<TKey, TValue> _dictionary;
+
+            public ValueCollection(OrderedDictionary<TKey, TValue> dictionary)
+            {
+                if (dictionary == null)
+                    throw new ArgumentNullException(nameof(dictionary));
+
+                _dictionary = dictionary;
+            }
+
+            void ICollection<TValue>.Add(TValue item)
+            {
+                throw new NotSupportedException();
+            }
+
+            void ICollection<TValue>.Clear()
+            {
+                throw new NotSupportedException();
+            }
+
+            bool ICollection<TValue>.Contains(TValue item)
+            {
+                return _dictionary.ContainsValue(item);
             }
 
             public void CopyTo(TValue[] array, int index)
@@ -172,24 +321,28 @@ namespace Karambolo.Common.Collections
                 if (index < 0 || array.Length < index)
                     throw new ArgumentOutOfRangeException(nameof(index), Resources.IndexOutOfRange);
 
-                var count = _owner._list.Count;
+                var count = _dictionary._list.Count;
                 for (var i = 0; i < count; i++)
-                    array[index++] = _owner._dictionary[_owner._list[i]];
+                    array[index++] = _dictionary._dictionary[_dictionary._list[i]];
             }
 
-            public int Count => _owner._list.Count;
+            public int Count => _dictionary.Count;
 
-            public bool IsReadOnly => true;
+            bool ICollection<TValue>.IsReadOnly => true;
 
-            public bool Remove(TValue item)
+            bool ICollection<TValue>.Remove(TValue item)
             {
                 throw new NotSupportedException();
             }
 
-            public IEnumerator<TValue> GetEnumerator()
+            public Enumerator GetEnumerator()
             {
-                foreach (var key in _owner._list)
-                    yield return _owner._dictionary[key];
+                return new Enumerator(_dictionary);
+            }
+
+            IEnumerator<TValue> IEnumerable<TValue>.GetEnumerator()
+            {
+                return GetEnumerator();
             }
 
             IEnumerator IEnumerable.GetEnumerator()
@@ -197,7 +350,7 @@ namespace Karambolo.Common.Collections
                 return GetEnumerator();
             }
 
-            public void CopyTo(Array array, int index)
+            void ICollection.CopyTo(Array array, int index)
             {
                 if (array == null)
                     throw new ArgumentNullException(nameof(array));
@@ -219,11 +372,11 @@ namespace Karambolo.Common.Collections
                 if (!(array is object[] array3))
                     throw new ArgumentException(Resources.InvalidArrayType, nameof(array));
 
-                var count = _owner._list.Count;
+                var count = _dictionary._list.Count;
                 try
                 {
                     for (var i = 0; i < count; i++)
-                        array3[index++] = _owner._dictionary[_owner._list[i]];
+                        array3[index++] = _dictionary._dictionary[_dictionary._list[i]];
                 }
                 catch (ArrayTypeMismatchException)
                 {
@@ -231,9 +384,9 @@ namespace Karambolo.Common.Collections
                 }
             }
 
-            public bool IsSynchronized => false;
+            bool ICollection.IsSynchronized => false;
 
-            public object SyncRoot => ((ICollection)_owner).SyncRoot;
+            object ICollection.SyncRoot => ((ICollection)_dictionary).SyncRoot;
         }
 
         private const int defaultInitialCapacity = 0;
@@ -246,12 +399,12 @@ namespace Karambolo.Common.Collections
 #if !NETSTANDARD1_0
         [System.NonSerialized]
 #endif
-        private ICollection<TKey> _keyCollection;
+        private KeyCollection _keys;
 
 #if !NETSTANDARD1_0
         [System.NonSerialized]
 #endif
-        private ICollection<TValue> _valueCollection;
+        private ValueCollection _values;
 
 #if !NETSTANDARD1_0
         [System.NonSerialized]
@@ -361,7 +514,7 @@ namespace Karambolo.Common.Collections
 
         IDictionaryEnumerator IOrderedDictionary.GetEnumerator()
         {
-            return new DictionaryEnumerator(this);
+            return new Enumerator(this, returnKeyValuePair: false);
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -369,10 +522,14 @@ namespace Karambolo.Common.Collections
             return GetEnumerator();
         }
 
-        public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
+        IEnumerator<KeyValuePair<TKey, TValue>> IEnumerable<KeyValuePair<TKey, TValue>>.GetEnumerator()
         {
-            foreach (var key in _list)
-                yield return new KeyValuePair<TKey, TValue>(key, _dictionary[key]);
+            return GetEnumerator();
+        }
+
+        public Enumerator GetEnumerator()
+        {
+            return new Enumerator(this, returnKeyValuePair: true);
         }
 
         /// <summary>
@@ -743,7 +900,11 @@ namespace Karambolo.Common.Collections
         /// <value>An <see cref="T:System.Collections.Generic.ICollection{TKey}">ICollection&lt;TKey&gt;</see> object containing the keys in the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see>.</value>
         /// <remarks>The returned <see cref="T:System.Collections.Generic.ICollection{TKey}">ICollection&lt;TKey&gt;</see> object is not a static copy; instead, the collection refers back to the keys in the original <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see>. Therefore, changes to the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see> continue to be reflected in the key collection.
         /// It is guaranteed that the order of the keys is the same as in the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see>.</remarks>
-        public ICollection<TKey> Keys => _keyCollection ?? (_keyCollection = new ReadOnlyCollection<TKey>(_list));
+        public KeyCollection Keys => _keys ?? (_keys = new KeyCollection(this));
+
+        ICollection<TKey> IDictionary<TKey, TValue>.Keys => Keys;
+
+        ICollection<TKey> IOrderedDictionary<TKey, TValue>.Keys => Keys;
 
         IEnumerable<TKey> IReadOnlyDictionary<TKey, TValue>.Keys => Keys;
 
@@ -764,7 +925,11 @@ namespace Karambolo.Common.Collections
         /// <value>An <see cref="T:ICollection{TValue}">ICollection&lt;TValue&gt;</see> object containing the values in the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see>.</value>
         /// <remarks>The returned <see cref="T:ICollection{TValue}">ICollection&lt;TKey&gt;</see> object is not a static copy; instead, the collection refers back to the values in the original <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see>. Therefore, changes to the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see> continue to be reflected in the value collection.
         /// It is guaranteed that the order of the values is the same as in the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see>.</remarks>
-        public ICollection<TValue> Values => _valueCollection ?? (_valueCollection = new ValueCollection(this));
+        public ValueCollection Values => _values ?? (_values = new ValueCollection(this));
+
+        ICollection<TValue> IDictionary<TKey, TValue>.Values => Values;
+
+        ICollection<TValue> IOrderedDictionary<TKey, TValue>.Values => Values;
 
         IEnumerable<TValue> IReadOnlyDictionary<TKey, TValue>.Values => Values;
 
