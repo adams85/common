@@ -155,6 +155,10 @@ namespace Karambolo.Common.Collections
             }
         }
 
+#if !NETSTANDARD1_0
+        [System.Serializable]
+#endif
+        [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(DictionaryKeyCollectionDebugView<,>))]
         public class KeyCollection : ICollection<TKey>, IReadOnlyCollection<TKey>, ICollection
         {
             public struct Enumerator : IEnumerator<TKey>
@@ -252,6 +256,10 @@ namespace Karambolo.Common.Collections
             object ICollection.SyncRoot => ((ICollection)_dictionary).SyncRoot;
         }
 
+#if !NETSTANDARD1_0
+        [System.Serializable]
+#endif
+        [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(DictionaryValueCollectionDebugView<,>))]
         public class ValueCollection : ICollection<TValue>, IReadOnlyCollection<TValue>, ICollection
         {
             public struct Enumerator : IEnumerator<TValue>
