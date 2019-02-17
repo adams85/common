@@ -65,5 +65,12 @@ namespace Karambolo.Common
             Assert.Equal(new[] { "a" }, new[] { "a" }.TakeLast());
             Assert.Equal(new[] { "c" }, new[] { "a", "b", "c" }.TakeLast());
         }
+
+        [Fact]
+        public void ScanTest()
+        {
+            Assert.Equal(new[] { 1, 3, 6, 10, 15 }, Enumerable.Range(1, 5).Scan((a, b) => a + b));
+            Assert.Equal(new[] { 0, 1, 3, 6, 10, 15 }, Enumerable.Range(1, 5).Scan(0, (a, b) => a + b));
+        }
     }
 }

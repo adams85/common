@@ -97,5 +97,53 @@ namespace Karambolo.Common
                     yield return item;
                 }
         }
+
+        static IEnumerable<TAccumulate> Scan<TSource, TAccumulate>(IEnumerable<TSource> source,
+            Func<IEnumerator<TSource>, KeyValuePair<bool, TAccumulate>> seeder, Func<TAccumulate, TSource, TAccumulate> func)
+        {
+            using (var enumerator = source.GetEnumerator())
+            {
+                var seed = seeder(enumerator);
+
+                if (!seed.Key)
+                    yield break;
+
+                var accumulator = seed.Value;
+                yield return accumulator;
+
+                while (enumerator.MoveNext())
+                {
+                    accumulator = func(accumulator, enumerator.Current);
+                    yield return accumulator;
+                }
+            }
+        }
+
+        public static IEnumerable<TSource> Scan<TSource>(this IEnumerable<TSource> source, Func<TSource, TSource, TSource> func)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+
+            if (func == null)
+                throw new ArgumentNullException(nameof(func));
+
+            return Scan(source,
+                enumerator => enumerator.MoveNext() ? new KeyValuePair<bool, TSource>(true, enumerator.Current) : default,
+                func);
+        }
+
+        public static IEnumerable<TAccumulate> Scan<TSource, TAccumulate>(this IEnumerable<TSource> source, TAccumulate seed, Func<TAccumulate, TSource, TAccumulate> func)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+
+            if (func == null)
+                throw new ArgumentNullException(nameof(func));
+
+            return Scan(source,
+                enumerator => new KeyValuePair<bool, TAccumulate>(true, seed),
+                func);
+        }
+
     }
 }
