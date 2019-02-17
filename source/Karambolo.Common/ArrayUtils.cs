@@ -34,19 +34,6 @@ namespace Karambolo.Common
             return array == null || array.Length == 0;
         }
 
-        public static T[] From<T>(T element)
-        {
-            return new[] { element };
-        }
-
-        public static T[] From<T>(params T[] elements)
-        {
-            if (elements == null)
-                throw new ArgumentNullException(nameof(elements));
-
-            return elements;
-        }
-
         public static int[] GetLowerBounds(this Array array)
         {
             if (array == null)

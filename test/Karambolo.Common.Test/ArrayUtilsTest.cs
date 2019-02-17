@@ -17,19 +17,11 @@ namespace Karambolo.Common
         {
             Assert.True(ArrayUtils.IsNullOrEmpty<int>(null));
             Assert.True(ArrayUtils.IsNullOrEmpty(ArrayUtils.Empty<int>()));
-            Assert.False(ArrayUtils.IsNullOrEmpty(ArrayUtils.From(1)));
+            Assert.False(ArrayUtils.IsNullOrEmpty(new[] { 1 }));
 
             Assert.True(ArrayUtils.IsNullOrEmpty(null));
             Assert.True(ArrayUtils.IsNullOrEmpty((Array)ArrayUtils.Empty<int>()));
-            Assert.False(ArrayUtils.IsNullOrEmpty((Array)ArrayUtils.From(1)));
-        }
-
-        [Fact]
-        public void FromTest()
-        {
-            Assert.Equal(new[] { 1 }, ArrayUtils.From(1));
-            Assert.Equal(new[] { 1, 2, 3 }, ArrayUtils.From(1, 2, 3));
-            Assert.Throws<ArgumentNullException>(() => ArrayUtils.From<int>(null));
+            Assert.False(ArrayUtils.IsNullOrEmpty((Array)new[] { 1 }));
         }
 
         [Fact]

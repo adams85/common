@@ -23,14 +23,14 @@ namespace Karambolo.Common
         public void PrependTest()
         {
             Assert.Equal(new[] { 0 }, Enumerable.Empty<int>().Prepend(0));
-            Assert.Equal(new[] { 0, 1, 2, 3 }, ArrayUtils.From(1, 2, 3).Prepend(0));
+            Assert.Equal(new[] { 0, 1, 2, 3 }, new[] { 1, 2, 3 }.Prepend(0));
         }
 
         [Fact]
         public void AppendTest()
         {
             Assert.Equal(new[] { 0 }, Enumerable.Empty<int>().Append(0));
-            Assert.Equal(new[] { 1, 2, 3, 0 }, ArrayUtils.From(1, 2, 3).Append(0));
+            Assert.Equal(new[] { 1, 2, 3, 0 }, new[] { 1, 2, 3 }.Append(0));
         }
 
         [Fact]
