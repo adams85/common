@@ -46,9 +46,19 @@ namespace Karambolo.Common.Finances
             return new Money(left._amount * right, left.Currency);
         }
 
+        public static Money operator *(decimal left, Money right)
+        {
+            return new Money(left * right._amount, right.Currency);
+        }
+
         public static Money operator /(Money left, decimal right)
         {
             return new Money(left._amount / right, left.Currency);
+        }
+
+        public static Money operator /(decimal left, Money right)
+        {
+            return new Money(left / right._amount, right.Currency);
         }
 
         public static bool operator ==(Money left, Money right)
