@@ -47,5 +47,17 @@ namespace Karambolo.Common
 
             Assert.Equal("http://example.com:1234/path?key=0&value=zero#s%23ct%3Fon", UriUtils.BuildUrl(new[] { "http://example.com:1234/", "path" }, new { key = 0, value = "zero" }, "s#ct?on"));
         }
+
+        [Fact]
+        public void GetCanonicalPathTest()
+        {
+            Assert.Same("a/b/c", UriUtils.GetCanonicalPath("a/b/c"));
+
+            Assert.Equal("a/c", UriUtils.GetCanonicalPath("a/b/.././/c"));
+            Assert.Equal("/a/c", UriUtils.GetCanonicalPath("/a/b/.././/c"));
+
+            Assert.Equal("../c", UriUtils.GetCanonicalPath("a/../../c"));
+            Assert.Equal("/../c", UriUtils.GetCanonicalPath("/a/../../c"));
+        }
     }
 }

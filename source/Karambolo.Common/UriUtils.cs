@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Karambolo.Common
 {
@@ -93,6 +94,40 @@ namespace Karambolo.Common
             }
 
             return builder.ToString();
+        }
+
+        public static string GetCanonicalPath(string path)
+        {
+            if (path == null)
+                throw new ArgumentNullException(nameof(path));
+
+            if (!Regex.IsMatch(path, @"\.{1,2}(?:/|$)|//", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase))
+                return path;
+
+            var segments = path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+
+            int i = 0;
+            while (i < segments.Count)
+            {
+                var segment = segments[i];
+
+                if (segment == ".")
+                {
+                    segments.RemoveAt(i);
+                }
+                else if (segment == ".." && i > 0)
+                {
+                    segments.RemoveRange(i - 1, 2);
+                    i--;
+                }
+                else
+                    i++;
+            }
+
+            if (path.StartsWith("/"))
+                segments.Insert(0, string.Empty);
+
+            return string.Join("/", segments);
         }
     }
 }
