@@ -1,13 +1,17 @@
 The Karambolo.Common source code itself does not bundle any third party
-libraries but it includes code from other libraries which carry their own
-copyright notices and license terms. These libraries are normally all linked
-statically into the binary distributions of Karambolo.Common:
+libraries but it includes code and design concepts from other libraries which
+carry their own copyright notices and license terms.
+
+These libraries are normally all linked statically into the binary
+distributions of Karambolo.Common:
 
 .NET Core foundational libraries (CoreFX)
 -----------------------------------------
 
 https://github.com/dotnet/corefx/blob/master/LICENSE.TXT
  
+The MIT License (MIT)
+
 Copyright (c) .NET Foundation and Contributors
 
 All rights reserved.
