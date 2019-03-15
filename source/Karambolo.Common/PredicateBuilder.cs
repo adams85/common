@@ -4,7 +4,6 @@ using Karambolo.Common.Internal;
 
 namespace Karambolo.Common
 {
-
     public class PredicateBuilder<T>
     {
         public static PredicateBuilder<T> True()

@@ -197,6 +197,15 @@ namespace Karambolo.Common
             return MakeFastGetter<TContainer, TMember>(property, MemberTypes.Property);
         }
 
+        public static Func<TContainer, TMember> MakeFastGetter<TContainer, TMember>(this Expression<Func<TContainer, TMember>> expression)
+        {
+            var memberExpression = expression.GetMemberExpression(MemberTypes.Field | MemberTypes.Property);
+            if (memberExpression == null)
+                throw new ArgumentException(Resources.InvalidValue, nameof(expression));
+
+            return MakeFastGetter<TContainer, TMember>(memberExpression.Member, MemberTypes.Field | MemberTypes.Property);
+        }
+
         static Action<TContainer, TMember> MakeFastSetter<TContainer, TMember>(MemberInfo member, MemberTypes allowedMemberTypes)
         {
             var memberType = member.GetMemberType(allowedMemberTypes);
@@ -216,6 +225,15 @@ namespace Karambolo.Common
         public static Action<TContainer, TMember> MakeFastSetter<TContainer, TMember>(this FieldInfo field)
         {
             return MakeFastSetter<TContainer, TMember>(field, MemberTypes.Field);
+        }
+
+        public static Action<TContainer, TMember> MakeFastSetter<TContainer, TMember>(this Expression<Func<TContainer, TMember>> expression)
+        {
+            var memberExpression = expression.GetMemberExpression(MemberTypes.Field | MemberTypes.Property);
+            if (memberExpression == null)
+                throw new ArgumentException(Resources.InvalidValue, nameof(expression));
+
+            return MakeFastSetter<TContainer, TMember>(memberExpression.Member, MemberTypes.Field | MemberTypes.Property);
         }
 
         public static Action<TContainer, TMember> MakeFastSetter<TContainer, TMember>(this PropertyInfo property)
@@ -304,7 +322,7 @@ namespace Karambolo.Common
         }
 
         public static IDictionary<string, object> ObjectToDictionaryCached(object obj, MemberTypes memberTypes = MemberTypes.Property,
-    ObjectToDictionaryFlags flags = ObjectToDictionaryFlags.None)
+            ObjectToDictionaryFlags flags = ObjectToDictionaryFlags.None)
         {
             if (obj == null)
                 throw new ArgumentNullException(nameof(obj));
