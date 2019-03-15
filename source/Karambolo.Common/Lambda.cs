@@ -18,7 +18,7 @@ namespace Karambolo.Common
                 null;
         }
 
-        public static MemberExpression GetMemberExpression(LambdaExpression expression, MemberTypes allowedMemberTypes)
+        public static MemberExpression GetMemberExpression(this LambdaExpression expression, MemberTypes allowedMemberTypes)
         {
             if (expression == null)
                 throw new ArgumentNullException(nameof(expression));
@@ -61,12 +61,12 @@ namespace Karambolo.Common
             return GetMemberPath(expression, allowedMemberTypes, expr => expr is ParameterExpression);
         }
 
-        public static string MemberPath<TProperty>(Expression<Func<TProperty>> expression, MemberTypes allowedMemberTypes = MemberTypes.Property)
+        public static string MemberPath<TProperty>(this Expression<Func<TProperty>> expression, MemberTypes allowedMemberTypes = MemberTypes.Property)
         {
             return string.Join(".", GetMemberPath(expression, allowedMemberTypes).Select(m => m.Name));
         }
 
-        public static string MemberPath<TRoot, TProperty>(Expression<Func<TRoot, TProperty>> expression, MemberTypes allowedMemberTypes = MemberTypes.Property)
+        public static string MemberPath<TRoot, TProperty>(this Expression<Func<TRoot, TProperty>> expression, MemberTypes allowedMemberTypes = MemberTypes.Property)
         {
             return string.Join(".", GetMemberPath(expression, allowedMemberTypes).Select(m => m.Name));
         }
@@ -107,7 +107,7 @@ namespace Karambolo.Common
             return (PropertyInfo)member.Member;
         }
 
-        public static MethodCallExpression GetCallExpression(LambdaExpression expression)
+        public static MethodCallExpression GetCallExpression(this LambdaExpression expression)
         {
             if (expression == null)
                 throw new ArgumentNullException(nameof(expression));
