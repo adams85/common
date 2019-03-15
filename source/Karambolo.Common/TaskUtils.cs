@@ -205,13 +205,14 @@ namespace Karambolo.Common
 
         #endregion
 
-        public static async void FireAndForget(this Task task, Action<Exception> exceptionHandler)
+        public static async void FireAndForget(this Task task, Action<Exception> exceptionHandler, bool propagateCancellation = false)
         {
             if (task == null)
                 throw new ArgumentNullException(nameof(task));
 
             try { await task.ConfigureAwait(false); }
-            catch (Exception ex) { exceptionHandler?.Invoke(ex); }
+            catch (OperationCanceledException) when (!propagateCancellation) { }
+            catch (Exception ex) when (exceptionHandler != null) { exceptionHandler(ex); }
         }
 
         public static void WaitAndUnwrap(this Task task)
@@ -230,12 +231,32 @@ namespace Karambolo.Common
             return task.GetAwaiter().GetResult();
         }
 #else
-        public static void FireAndForget(this Task task, Action<Exception> exceptionHandler)
+        public static void FireAndForget(this Task task, Action<Exception> exceptionHandler, bool propagateCancellation = false)
         {
             if (task == null)
                 throw new ArgumentNullException(nameof(task));
 
-            task.ContinueWith(t => exceptionHandler?.Invoke(t.Exception), TaskContinuationOptions.OnlyOnFaulted);
+            task.ContinueWith(t =>
+            {
+                Exception ex;
+                if (t.Status == TaskStatus.Canceled)
+                {
+                    if (!propagateCancellation)
+                        return;
+
+                    ex = new TaskCanceledException(t);
+                }
+                else
+                    ex = t.Exception;
+
+                if (exceptionHandler != null)
+                {
+                    exceptionHandler(ex);
+                    return;
+                }
+
+                throw ex;
+            }, TaskContinuationOptions.NotOnRanToCompletion | TaskContinuationOptions.ExecuteSynchronously);
         }
 
         static TResult WaitAndUnwrap<TResult>(this Task<TResult> task)
@@ -247,9 +268,9 @@ namespace Karambolo.Common
         }
 #endif
 
-        public static void FireAndForget(this Task task)
+        public static void FireAndForget(this Task task, bool propagateCancellation = false)
         {
-            task.FireAndForget(null);
+            task.FireAndForget(null, propagateCancellation);
         }
 
         public static IAsyncResult BeginExecuteTask(this Task task, AsyncCallback callback, object state)
