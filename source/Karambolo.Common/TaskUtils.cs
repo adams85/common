@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -7,6 +8,30 @@ namespace Karambolo.Common
 {
     public static class TaskUtils
     {
+#if NETSTANDARD2_0
+        internal static readonly TaskCreationOptions defaultTcsCreationOptions = TaskCreationOptions.RunContinuationsAsynchronously;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static Task<TResult> GetTaskSafe<TResult>(this TaskCompletionSource<TResult> tcs)
+        {
+            return tcs.Task;
+        }
+#else
+        static readonly TaskCreationOptions defaultTcsCreationOptions = TaskCreationOptions.None;
+
+#if !NET40
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
+        internal static Task<TResult> GetTaskSafe<TResult>(this TaskCompletionSource<TResult> tcs)
+        {
+            // TCSs should be created with the TaskCreationOptions.RunContinuationsAsynchronously flag
+            // (https://blogs.msdn.microsoft.com/seteplia/2018/10/01/the-danger-of-taskcompletionsourcet-class/);
+            // the flag is only available as of .NET 4.6 (and is buggy up to 4.6.1) so we resort to async task continuations
+            // (https://stackoverflow.com/questions/22579206/how-can-i-prevent-synchronous-continuations-on-a-task)
+            return tcs.Task.ContinueWith(Identity<Task<TResult>>.Func, default, TaskContinuationOptions.None, TaskScheduler.Default).Unwrap();
+        }
+#endif
+
 #if NET45 || NETSTANDARD1_0
         public static Task CompletedTask { get; } = Task.FromResult<object>(null);
 #elif NET40
@@ -64,7 +89,7 @@ namespace Karambolo.Common
             if (process == null)
                 throw new ArgumentNullException(nameof(process));
 
-            var tcs = new TaskCompletionSource<object>();
+            var tcs = new TaskCompletionSource<object>(defaultTcsCreationOptions);
 
             EventHandler exitedHandler = null;
             exitedHandler = (s, e) =>
@@ -76,7 +101,7 @@ namespace Karambolo.Common
             process.EnableRaisingEvents = true;
             process.Exited += exitedHandler;
 
-            return tcs.Task;
+            return tcs.GetTaskSafe();
         }
 #endif
 
@@ -144,9 +169,9 @@ namespace Karambolo.Common
             {
                 if (!cancellationToken.IsCancellationRequested)
                 {
-                    var tcs = new TaskCompletionSource<TResult>();
+                    var tcs = new TaskCompletionSource<TResult>(defaultTcsCreationOptions);
                     _ctr = cancellationToken.Register(() => tcs.TrySetCanceled(), useSynchronizationContext: false);
-                    Task = tcs.Task;
+                    Task = tcs.GetTaskSafe();
                 }
                 else
                 {
@@ -278,7 +303,7 @@ namespace Karambolo.Common
             if (task == null)
                 throw new ArgumentNullException(nameof(task));
 
-            var tcs = new TaskCompletionSource<Task>(state);
+            var tcs = new TaskCompletionSource<Task>(state, defaultTcsCreationOptions);
 
             task.ContinueWith(t =>
             {
@@ -292,7 +317,7 @@ namespace Karambolo.Common
                 callback?.Invoke(tcs.Task);
             }, TaskScheduler.Default);
 
-            return tcs.Task;
+            return tcs.GetTaskSafe();
         }
 
         public static Task EndExecuteTask(this IAsyncResult asyncResult)
