@@ -1,12 +1,12 @@
-﻿using Karambolo.Common.Localization;
-using System;
+﻿using System;
 using System.Text;
+using Karambolo.Common.Localization;
 
 namespace Karambolo.Common
 {
     public static class TimeSpanUtils
     {
-        class PeriodDescriptor
+        private class PeriodDescriptor
         {
             public PeriodDescriptor(string singularName, string pluralName, int divisor)
             {
@@ -24,7 +24,7 @@ namespace Karambolo.Common
         public const string DefaultNowText = "now";
         public const string DefaultFutureFormat = "in {0}";
 
-        static readonly PeriodDescriptor[] periods = new[]
+        private static readonly PeriodDescriptor[] s_periods = new[]
         {
             new PeriodDescriptor("year", "years", 31_536_000),
             new PeriodDescriptor("month", "months", 2_628_000),
@@ -55,7 +55,7 @@ namespace Karambolo.Common
             if (localizer == null)
                 throw new ArgumentNullException(nameof(localizer));
 
-            var periodCount = periods.Length;
+            var periodCount = s_periods.Length;
             if (precision < 1 || periodCount < precision)
                 throw new ArgumentOutOfRangeException(nameof(precision));
 
@@ -66,7 +66,7 @@ namespace Karambolo.Common
             var remainder = Math.Abs(total);
 
             int index, value = 0;
-            for (index = 0; index < periods.Length; index++)
+            for (index = 0; index < s_periods.Length; index++)
                 if ((value = GetValue(ref remainder, index)) > 0)
                     break;
 
@@ -74,7 +74,7 @@ namespace Karambolo.Common
             AddValue(builder, index++, value, localizer);
             precision--;
 
-            for (; index < periods.Length && precision > 0; index++, precision--)
+            for (; index < s_periods.Length && precision > 0; index++, precision--)
                 if ((value = GetValue(ref remainder, index)) > 0)
                 {
                     builder.Append(' ');
@@ -87,14 +87,14 @@ namespace Karambolo.Common
 
             int GetValue(ref long rem, int i)
             {
-                return (int)MathShim.DivRem(rem, periods[i].Divisor, out rem);
+                return (int)MathShim.DivRem(rem, s_periods[i].Divisor, out rem);
             }
 
             void AddValue(StringBuilder sb, int i, int val, TextLocalizer loc)
             {
                 sb.Append(val);
                 sb.Append(' ');
-                sb.Append(loc(periods[i].SingularName, Plural.From(periods[i].PluralName, val)));
+                sb.Append(loc(s_periods[i].SingularName, Plural.From(s_periods[i].PluralName, val)));
             }
         }
     }

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Karambolo.Common
+﻿namespace Karambolo.Common
 {
     public static class BinaryUtils
     {
@@ -9,7 +6,7 @@ namespace Karambolo.Common
         /// <summary>
         /// Bit count table from snippets.org
         /// </summary>
-        private static readonly byte[] bits =
+        private static readonly byte[] s_bits =
         {
             0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4,  /* 0   - 15  */
             1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,  /* 16  - 31  */
@@ -36,7 +33,7 @@ namespace Karambolo.Common
         /// <returns>number of set bits in byte</returns>
         public static int BitCount(this byte bitField)
         {
-            return bits[bitField];
+            return s_bits[bitField];
         }
 
         /// <summary>
@@ -58,8 +55,8 @@ namespace Karambolo.Common
         {
             const ushort mask = 0xFF;
             return
-                bits[bitField & mask] +
-                bits[bitField >> 8 & mask];
+                s_bits[bitField & mask] +
+                s_bits[bitField >> 8 & mask];
         }
 
         /// <summary>
@@ -81,10 +78,10 @@ namespace Karambolo.Common
         {
             const uint mask = 0xFFu;
             return
-                bits[(int)(bitField & mask)] +
-                bits[(int)(bitField >> 8 & mask)] +
-                bits[(int)(bitField >> 16 & mask)] +
-                bits[(int)(bitField >> 24 & mask)];
+                s_bits[(int)(bitField & mask)] +
+                s_bits[(int)(bitField >> 8 & mask)] +
+                s_bits[(int)(bitField >> 16 & mask)] +
+                s_bits[(int)(bitField >> 24 & mask)];
         }
 
         /// <summary>
@@ -106,14 +103,14 @@ namespace Karambolo.Common
         {
             const ulong mask = 0xFFUL;
             return
-                bits[(int)(bitField & mask)] +
-                bits[(int)(bitField >> 8 & mask)] +
-                bits[(int)(bitField >> 16 & mask)] +
-                bits[(int)(bitField >> 24 & mask)] +
-                bits[(int)(bitField >> 32 & mask)] +
-                bits[(int)(bitField >> 40 & mask)] +
-                bits[(int)(bitField >> 48 & mask)] +
-                bits[(int)(bitField >> 56 & mask)];
+                s_bits[(int)(bitField & mask)] +
+                s_bits[(int)(bitField >> 8 & mask)] +
+                s_bits[(int)(bitField >> 16 & mask)] +
+                s_bits[(int)(bitField >> 24 & mask)] +
+                s_bits[(int)(bitField >> 32 & mask)] +
+                s_bits[(int)(bitField >> 40 & mask)] +
+                s_bits[(int)(bitField >> 48 & mask)] +
+                s_bits[(int)(bitField >> 56 & mask)];
         }
 
 

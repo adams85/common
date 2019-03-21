@@ -1,13 +1,13 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using Karambolo.Common.Properties;
 
 namespace Karambolo.Common.Logging
 {
     public class TraceSourceLogger : ILogger
     {
-        static TraceEventType MapLevelToEventType(LoggerEventType level)
+        private static TraceEventType MapLevelToEventType(LoggerEventType level)
         {
             switch (level)
             {
@@ -26,7 +26,7 @@ namespace Karambolo.Common.Logging
             }
         }
 
-        readonly string _sourceName;
+        private readonly string _sourceName;
 
         public TraceSourceLogger(string sourceName)
         {
@@ -38,11 +38,11 @@ namespace Karambolo.Common.Logging
             _sourceName = sourceName;
         }
 
-        readonly ConcurrentDictionary<string, TraceSource> _traceSources = new ConcurrentDictionary<string, TraceSource>();
+        private readonly ConcurrentDictionary<string, TraceSource> _traceSources = new ConcurrentDictionary<string, TraceSource>();
 
         public void LogEvent(LoggerEventType level, string message, object[] args)
         {
-            var traceSource = _traceSources.GetOrAdd(_sourceName, sn => new TraceSource(sn, SourceLevels.Information));
+            TraceSource traceSource = _traceSources.GetOrAdd(_sourceName, sn => new TraceSource(sn, SourceLevels.Information));
 
             if (ArrayUtils.IsNullOrEmpty(args))
                 traceSource.TraceEvent(MapLevelToEventType(level), 0, message);

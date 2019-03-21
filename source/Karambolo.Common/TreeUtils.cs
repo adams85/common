@@ -8,9 +8,9 @@ namespace Karambolo.Common
 
     public abstract class TreeTraversal
     {
-        class PreOrderTraversal : TreeTraversal
+        private class PreOrderTraversal : TreeTraversal
         {
-            static IEnumerable<T> Traverse<T>(T node, Func<T, IEnumerable<T>> childrenSelector)
+            private static IEnumerable<T> Traverse<T>(T node, Func<T, IEnumerable<T>> childrenSelector)
             {
                 var stack = new Stack<T>();
                 stack.Push(node);
@@ -19,23 +19,23 @@ namespace Karambolo.Common
                     node = stack.Pop();
                     yield return node;
 
-                    foreach (var child in childrenSelector(node) ?? Enumerable.Empty<T>())
+                    foreach (T child in childrenSelector(node) ?? Enumerable.Empty<T>())
                         stack.Push(child);
                 }
             }
 
             public override IEnumerable<T> Traverse<T>(T node, Func<T, IEnumerable<T>> childrenSelector, bool includeSelf)
             {
-                var result = Traverse(node, childrenSelector);
+                IEnumerable<T> result = Traverse(node, childrenSelector);
                 return includeSelf ? result : result.Skip(1);
             }
         }
 
-        class PostOrderTraversal : TreeTraversal
+        private class PostOrderTraversal : TreeTraversal
         {
-            static IEnumerable<T> Traverse<T>(T node, Func<T, IEnumerable<T>> childrenSelector)
+            private static IEnumerable<T> Traverse<T>(T node, Func<T, IEnumerable<T>> childrenSelector)
             {
-                var comparer = EqualityComparer<T>.Default;
+                EqualityComparer<T> comparer = EqualityComparer<T>.Default;
 
                 var stack = new Stack<T>();
                 var visited = new Stack<T>();
@@ -46,7 +46,7 @@ namespace Karambolo.Common
 
                     if (visited.Count == 0 || !comparer.Equals(visited.Peek(), node))
                     {
-                        using (var enumerator = (childrenSelector(node) ?? Enumerable.Empty<T>()).GetEnumerator())
+                        using (IEnumerator<T> enumerator = (childrenSelector(node) ?? Enumerable.Empty<T>()).GetEnumerator())
                             if (enumerator.MoveNext())
                             {
                                 visited.Push(node);
@@ -66,14 +66,14 @@ namespace Karambolo.Common
 
             public override IEnumerable<T> Traverse<T>(T node, Func<T, IEnumerable<T>> childrenSelector, bool includeSelf)
             {
-                var result = Traverse(node, childrenSelector);
+                IEnumerable<T> result = Traverse(node, childrenSelector);
                 return includeSelf ? result : result.SkipLast();
             }
         }
 
-        class LevelOrderTraversal : TreeTraversal
+        private class LevelOrderTraversal : TreeTraversal
         {
-            static IEnumerable<T> Traverse<T>(T node, Func<T, IEnumerable<T>> childrenSelector)
+            private static IEnumerable<T> Traverse<T>(T node, Func<T, IEnumerable<T>> childrenSelector)
             {
                 var queue = new Queue<T>();
                 queue.Enqueue(node);
@@ -82,14 +82,14 @@ namespace Karambolo.Common
                     node = queue.Dequeue();
                     yield return node;
 
-                    foreach (var child in childrenSelector(node) ?? Enumerable.Empty<T>())
+                    foreach (T child in childrenSelector(node) ?? Enumerable.Empty<T>())
                         queue.Enqueue(child);
                 }
             }
 
             public override IEnumerable<T> Traverse<T>(T node, Func<T, IEnumerable<T>> childrenSelector, bool includeSelf)
             {
-                var result = Traverse(node, childrenSelector);
+                IEnumerable<T> result = Traverse(node, childrenSelector);
                 return includeSelf ? result : result.Skip(1);
             }
         }
@@ -119,7 +119,7 @@ namespace Karambolo.Common
             if (parentSelector == null)
                 throw new ArgumentNullException(nameof(parentSelector));
 
-            var comparer = EqualityComparer<T>.Default;
+            EqualityComparer<T> comparer = EqualityComparer<T>.Default;
 
             var level = 0;
             T parent;
@@ -139,7 +139,7 @@ namespace Karambolo.Common
             if (parentSelector == null)
                 throw new ArgumentNullException(nameof(parentSelector));
 
-            var comparer = EqualityComparer<T>.Default;
+            EqualityComparer<T> comparer = EqualityComparer<T>.Default;
 
             T parent;
             while (!comparer.Equals(parent = parentSelector(node), default))
@@ -155,7 +155,7 @@ namespace Karambolo.Common
             if (parentSelector == null)
                 throw new ArgumentNullException(nameof(parentSelector));
 
-            var comparer = EqualityComparer<T>.Default;
+            EqualityComparer<T> comparer = EqualityComparer<T>.Default;
 
             if (includeSelf)
                 yield return node;
@@ -182,7 +182,7 @@ namespace Karambolo.Common
                 throw new ArgumentNullException(nameof(childrenSelector));
 
             var nodeWithChildren = new KeyValuePair<T, IEnumerable<T>>(node, childrenSelector(node));
-            foreach (var nwc in TreeTraversal.PreOrder.Traverse(nodeWithChildren, n => n.Value.Select(cn => new KeyValuePair<T, IEnumerable<T>>(cn, childrenSelector(cn))), includeSelf: true))
+            foreach (KeyValuePair<T, IEnumerable<T>> nwc in TreeTraversal.PreOrder.Traverse(nodeWithChildren, n => n.Value.Select(cn => new KeyValuePair<T, IEnumerable<T>>(cn, childrenSelector(cn))), includeSelf: true))
                 if (!nwc.Value.Any())
                     yield return nwc.Key;
         }
@@ -192,12 +192,12 @@ namespace Karambolo.Common
             if (node == null)
                 throw new ArgumentNullException(nameof(node));
 
-            var paths = Enumerable.Empty<IEnumerable<T>>();
+            IEnumerable<IEnumerable<T>> paths = Enumerable.Empty<IEnumerable<T>>();
             var nodeWithPath = new KeyValuePair<T, IEnumerable<T>>(node, Enumerable.Empty<T>());
-            foreach (var _ in TreeTraversal.PreOrder.Traverse(nodeWithPath, n =>
+            foreach (KeyValuePair<T, IEnumerable<T>> _ in TreeTraversal.PreOrder.Traverse(nodeWithPath, n =>
             {
-                var path = n.Value.Append(n.Key);
-                var children = childrenSelector(n.Key);
+                IEnumerable<T> path = n.Value.Append(n.Key);
+                IEnumerable<T> children = childrenSelector(n.Key);
                 if (!children.Any())
                 {
                     paths = paths.Append(path);

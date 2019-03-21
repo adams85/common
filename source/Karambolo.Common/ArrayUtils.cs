@@ -7,7 +7,7 @@ namespace Karambolo.Common
     // https://docs.microsoft.com/en-us/dotnet/api/system.array#remarks
     public static class ArrayUtils
     {
-        static class EmptyArray<T>
+        private static class EmptyArray<T>
         {
             public static readonly T[] Instance = new T[0];
         }

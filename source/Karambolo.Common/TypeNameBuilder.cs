@@ -6,7 +6,7 @@ namespace Karambolo.Common
 {
     public class TypeName
     {
-        enum ParserState
+        private enum ParserState
         {
             BeforeTypeName,
             InTypeName,
@@ -14,7 +14,7 @@ namespace Karambolo.Common
             AfterTypeName,
         }
 
-        static string GetBaseName(string input, int startIndex, int endIndex, int dotIndex, bool isNested, ref string @namespace)
+        private static string GetBaseName(string input, int startIndex, int endIndex, int dotIndex, bool isNested, ref string @namespace)
         {
             // name is missing or ends with dot?
             if (startIndex == endIndex || dotIndex == endIndex - 1)
@@ -33,7 +33,7 @@ namespace Karambolo.Common
                 return input.Substring(startIndex, endIndex - startIndex);
         }
 
-        static List<TypeNameBuilder> CreateGenericArguments(string input, int startIndex, int endIndex)
+        private static List<TypeNameBuilder> CreateGenericArguments(string input, int startIndex, int endIndex)
         {
             if (!int.TryParse(input.Substring(startIndex, endIndex - startIndex), out var count))
                 throw new FormatException();
@@ -52,7 +52,7 @@ namespace Karambolo.Common
             var dotIndex = -1;
             var isNested = false;
 
-            var state = ParserState.BeforeTypeName;
+            ParserState state = ParserState.BeforeTypeName;
             int i;
             for (i = startIndex; i < endIndex; i++)
             {
@@ -259,7 +259,7 @@ namespace Karambolo.Common
 
     public sealed class TypeNameBuilder : TypeName
     {
-        enum ParserState
+        private enum ParserState
         {
             InBrackets,
             InGenericBracketsBeforeArg,
@@ -269,7 +269,7 @@ namespace Karambolo.Common
             AfterBrackets,
         }
 
-        static void SeekNextGenericArg(ref TypeName typeName, ref int genericArgIndex)
+        private static void SeekNextGenericArg(ref TypeName typeName, ref int genericArgIndex)
         {
             genericArgIndex++;
             while (typeName._genericArguments == null || genericArgIndex >= typeName._genericArguments.Count)
@@ -279,14 +279,14 @@ namespace Karambolo.Common
                     return;
         }
 
-        static int ParseBrackets(string input, int startIndex, int endIndex, TypeNameBuilder builder)
+        private static int ParseBrackets(string input, int startIndex, int endIndex, TypeNameBuilder builder)
         {
             TypeName typeName = builder;
             var genericArgIndex = -1;
             var sectionStartIndex = -1;
             var counter = 0;
 
-            var state = ParserState.InBrackets;
+            ParserState state = ParserState.InBrackets;
             int i;
             for (i = startIndex; i < endIndex; i++)
             {
@@ -420,7 +420,7 @@ namespace Karambolo.Common
             }
         }
 
-        static string GetAssemblyName(string input, int startIndex, int endIndex)
+        private static string GetAssemblyName(string input, int startIndex, int endIndex)
         {
             // skipping whitespaces
             for (; startIndex < endIndex && char.IsWhiteSpace(input[startIndex]); startIndex++) { }
@@ -433,7 +433,7 @@ namespace Karambolo.Common
             return input.Substring(startIndex, endIndex - startIndex + 1);
         }
 
-        static void Parse(string input, int startIndex, int endIndex, TypeNameBuilder builder)
+        private static void Parse(string input, int startIndex, int endIndex, TypeNameBuilder builder)
         {
             startIndex = ParseTypeName(input, startIndex, endIndex, builder, out builder._namespace);
 
@@ -447,7 +447,7 @@ namespace Karambolo.Common
             }
         }
 
-        static StringBuilder Build(TypeNameBuilder builder, StringBuilder sb, int index, bool appendAssemblyName)
+        private static StringBuilder Build(TypeNameBuilder builder, StringBuilder sb, int index, bool appendAssemblyName)
         {
             var length = sb.Length;
             var isNestedType = false;
@@ -539,21 +539,21 @@ namespace Karambolo.Common
             Parse(typeName, 0, typeName.Length, this);
         }
 
-        string _assemblyName;
+        private string _assemblyName;
         public string AssemblyName
         {
             get { return _assemblyName; }
             set { _assemblyName = value; }
         }
 
-        string _namespace;
+        private string _namespace;
         public string Namespace
         {
             get { return _namespace; }
             set { _namespace = value; }
         }
 
-        IList<int> _arrayDimensions;
+        private IList<int> _arrayDimensions;
         public IList<int> ArrayDimensions => _arrayDimensions ?? (_arrayDimensions = new List<int>());
         public bool IsArray => _arrayDimensions != null && _arrayDimensions.Count > 0;
 

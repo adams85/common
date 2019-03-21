@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Karambolo.Common.Properties;
-using System.Reflection;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Threading;
+using Karambolo.Common.Properties;
 
 namespace Karambolo.Common
 {
@@ -25,7 +25,7 @@ namespace Karambolo.Common
                 return new MemberDescriptor(member);
             }
 
-            MemberDescriptor(MemberInfo member)
+            private MemberDescriptor(MemberInfo member)
             {
                 Member = member;
                 ValueAccessor = MakeFastGetter<object, object>(member, MemberTypes.Field | MemberTypes.Property);
@@ -38,9 +38,9 @@ namespace Karambolo.Common
         }
 
 #if !NETSTANDARD1_0
-        static System.Collections.Concurrent.ConcurrentDictionary<Type, MemberDescriptor[]> memberDescriptorCache;
+        private static System.Collections.Concurrent.ConcurrentDictionary<Type, MemberDescriptor[]> s_memberDescriptorCache;
 #else
-        static Dictionary<Type, MemberDescriptor[]> memberDescriptorCache;
+        private static Dictionary<Type, MemberDescriptor[]> s_memberDescriptorCache;
 #endif
 
         public static bool AllowsNull(this Type type)
@@ -162,7 +162,7 @@ namespace Karambolo.Common
         }
 #endif
 
-        static Expression BuildMemberAccessExpression<TContainer>(MemberInfo member, out ParameterExpression param)
+        private static Expression BuildMemberAccessExpression<TContainer>(MemberInfo member, out ParameterExpression param)
         {
             param = Expression.Parameter(typeof(TContainer));
 
@@ -175,11 +175,11 @@ namespace Karambolo.Common
             return expression;
         }
 
-        static Func<TContainer, TMember> MakeFastGetter<TContainer, TMember>(MemberInfo member, MemberTypes allowedMemberTypes)
+        private static Func<TContainer, TMember> MakeFastGetter<TContainer, TMember>(MemberInfo member, MemberTypes allowedMemberTypes)
         {
-            var memberType = member.GetMemberType(allowedMemberTypes);
+            Type memberType = member.GetMemberType(allowedMemberTypes);
 
-            var memberAccess = BuildMemberAccessExpression<TContainer>(member, out var param);
+            Expression memberAccess = BuildMemberAccessExpression<TContainer>(member, out ParameterExpression param);
 
             if (typeof(TMember) != memberType)
                 memberAccess = Expression.Convert(memberAccess, typeof(TMember));
@@ -199,20 +199,20 @@ namespace Karambolo.Common
 
         public static Func<TContainer, TMember> MakeFastGetter<TContainer, TMember>(this Expression<Func<TContainer, TMember>> expression)
         {
-            var memberExpression = expression.GetMemberExpression(MemberTypes.Field | MemberTypes.Property);
+            MemberExpression memberExpression = expression.GetMemberExpression(MemberTypes.Field | MemberTypes.Property);
             if (memberExpression == null)
                 throw new ArgumentException(Resources.InvalidValue, nameof(expression));
 
             return MakeFastGetter<TContainer, TMember>(memberExpression.Member, MemberTypes.Field | MemberTypes.Property);
         }
 
-        static Action<TContainer, TMember> MakeFastSetter<TContainer, TMember>(MemberInfo member, MemberTypes allowedMemberTypes)
+        private static Action<TContainer, TMember> MakeFastSetter<TContainer, TMember>(MemberInfo member, MemberTypes allowedMemberTypes)
         {
-            var memberType = member.GetMemberType(allowedMemberTypes);
+            Type memberType = member.GetMemberType(allowedMemberTypes);
 
-            var expression = BuildMemberAccessExpression<TContainer>(member, out var param);
+            Expression expression = BuildMemberAccessExpression<TContainer>(member, out ParameterExpression param);
 
-            var valueParam = Expression.Parameter(typeof(TMember));
+            ParameterExpression valueParam = Expression.Parameter(typeof(TMember));
             Expression valueExpression = valueParam;
             if (memberType != typeof(TMember))
                 valueExpression = Expression.Convert(valueExpression, memberType);
@@ -229,7 +229,7 @@ namespace Karambolo.Common
 
         public static Action<TContainer, TMember> MakeFastSetter<TContainer, TMember>(this Expression<Func<TContainer, TMember>> expression)
         {
-            var memberExpression = expression.GetMemberExpression(MemberTypes.Field | MemberTypes.Property);
+            MemberExpression memberExpression = expression.GetMemberExpression(MemberTypes.Field | MemberTypes.Property);
             if (memberExpression == null)
                 throw new ArgumentException(Resources.InvalidValue, nameof(expression));
 
@@ -241,27 +241,27 @@ namespace Karambolo.Common
             return MakeFastSetter<TContainer, TMember>(property, MemberTypes.Property);
         }
 
-        static bool IsPropertyReadOnly(PropertyInfo property)
+        private static bool IsPropertyReadOnly(PropertyInfo property)
         {
             return property.GetSetMethod() == null;
         }
 
-        static IEnumerable<FieldInfo> GetObjectToDictionaryFields(Type type)
+        private static IEnumerable<FieldInfo> GetObjectToDictionaryFields(Type type)
         {
             return type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
         }
 
-        static IEnumerable<PropertyInfo> GetObjectToDictionaryProperties(Type type)
+        private static IEnumerable<PropertyInfo> GetObjectToDictionaryProperties(Type type)
         {
             return type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly)
                 .Where(prop =>
                 {
-                    var getMethod = prop.GetGetMethod();
+                    MethodInfo getMethod = prop.GetGetMethod();
                     return getMethod != null && getMethod.GetParameters().Length == 0;
                 });
         }
 
-        static IEnumerable<MemberInfo> GetObjectToDictionaryMembers(Type type)
+        private static IEnumerable<MemberInfo> GetObjectToDictionaryMembers(Type type)
         {
             IEnumerable<MemberInfo> members = GetObjectToDictionaryFields(type);
             members = members.Concat(GetObjectToDictionaryProperties(type));
@@ -275,7 +275,7 @@ namespace Karambolo.Common
                     members = GetObjectToDictionaryFields(type);
                     members = members.Concat(GetObjectToDictionaryProperties(type));
 
-                    foreach (var member in members)
+                    foreach (MemberInfo member in members)
                         if (!membersByName.ContainsKey(member.Name))
                             membersByName.Add(member.Name, member);
                 }
@@ -300,7 +300,7 @@ namespace Karambolo.Common
 
             var dictionary = new Dictionary<string, object>((flags & ObjectToDictionaryFlags.IgnoreCase) == 0 ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase);
 
-            foreach (var member in GetObjectToDictionaryMembers(obj.GetType()))
+            foreach (MemberInfo member in GetObjectToDictionaryMembers(obj.GetType()))
                 if ((member.MemberType() & memberTypes) != 0)
                 {
                     object value;
@@ -330,26 +330,26 @@ namespace Karambolo.Common
             if ((memberTypes & ~(MemberTypes.Field | MemberTypes.Property)) != 0)
                 throw new ArgumentException(Resources.FieldOrPropertyAllowedOnly, nameof(memberTypes));
 
-            var type = obj.GetType();
+            Type type = obj.GetType();
 #pragma warning disable IDE0018 // Inline variable declaration
             MemberDescriptor[] memberDescriptors;
 #pragma warning restore IDE0018 // Inline variable declaration
 
 #if !NETSTANDARD1_0
-            LazyInitializer.EnsureInitialized(ref memberDescriptorCache, () => new System.Collections.Concurrent.ConcurrentDictionary<Type, MemberDescriptor[]>());
+            LazyInitializer.EnsureInitialized(ref s_memberDescriptorCache, () => new System.Collections.Concurrent.ConcurrentDictionary<Type, MemberDescriptor[]>());
 #else
-            LazyInitializer.EnsureInitialized(ref memberDescriptorCache, () => new Dictionary<Type, MemberDescriptor[]>());
-            lock (memberDescriptorCache)
+            LazyInitializer.EnsureInitialized(ref s_memberDescriptorCache, () => new Dictionary<Type, MemberDescriptor[]>());
+            lock (s_memberDescriptorCache)
 #endif
-            if (!memberDescriptorCache.TryGetValue(type, out memberDescriptors))
-            {
-                memberDescriptors = GetObjectToDictionaryMembers(type).Select(MemberDescriptor.Create).ToArray();
+                if (!s_memberDescriptorCache.TryGetValue(type, out memberDescriptors))
+                {
+                    memberDescriptors = GetObjectToDictionaryMembers(type).Select(MemberDescriptor.Create).ToArray();
 #if !NETSTANDARD1_0
-                memberDescriptorCache.TryAdd(type, memberDescriptors);
+                    s_memberDescriptorCache.TryAdd(type, memberDescriptors);
 #else
-                memberDescriptorCache.Add(type, memberDescriptors);
+                    s_memberDescriptorCache.Add(type, memberDescriptors);
 #endif
-            }
+                }
 
             var excludeReadOnly = (flags & ObjectToDictionaryFlags.ExcludeReadOnlyProperties) != 0;
 

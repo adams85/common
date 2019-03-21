@@ -4,7 +4,7 @@
     {
         public static readonly NullLogger Instance = new NullLogger();
 
-        NullLogger() { }
+        private NullLogger() { }
 
         public void LogEvent(LoggerEventType level, string message, params object[] args) { }
     }

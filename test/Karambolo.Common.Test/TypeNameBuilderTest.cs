@@ -150,7 +150,7 @@ namespace Karambolo.Common
             Assert.False(builder.IsArray);
             Assert.Equal(0, builder.ArrayDimensions.Count);
 
-            var builder2 = builder.GenericArguments[0];
+            TypeNameBuilder builder2 = builder.GenericArguments[0];
             Assert.Equal("System", builder2.Namespace);
             Assert.Equal("String", builder2.BaseName);
             Assert.Null(builder2.AssemblyName);
@@ -406,7 +406,7 @@ namespace Karambolo.Common
             Assert.False(builder2.IsArray);
             Assert.Equal(0, builder2.ArrayDimensions.Count);
 
-            var builder3 = builder2.GenericArguments[0];
+            TypeNameBuilder builder3 = builder2.GenericArguments[0];
             Assert.Equal("System", builder3.Namespace);
             Assert.Equal("String", builder3.BaseName);
             Assert.Equal("mscorlib4", builder3.AssemblyName);

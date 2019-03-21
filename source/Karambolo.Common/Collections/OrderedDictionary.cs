@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -22,7 +22,7 @@ namespace Karambolo.Common.Collections
         /// <value>The value of the item at the specified index.</value>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is less than 0.<br/>
         /// -or-<br/>
-        /// <paramref name="index"/> is equal to or greater than <see cref="System.Collections.ICollection.Count"/>.</exception>
+        /// <paramref name="index"/> is equal to or greater than <see cref="ICollection.Count"/>.</exception>
         TValue this[int index] { get; }
 
         /// <summary>
@@ -55,7 +55,7 @@ namespace Karambolo.Common.Collections
         /// <value>The value of the item at the specified index.</value>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is less than 0.<br/>
         /// -or-<br/>
-        /// <paramref name="index"/> is equal to or greater than <see cref="System.Collections.ICollection.Count"/>.</exception>
+        /// <paramref name="index"/> is equal to or greater than <see cref="ICollection.Count"/>.</exception>
         new TValue this[int index] { get; set; }
 
         /// <summary>
@@ -66,7 +66,7 @@ namespace Karambolo.Common.Collections
         /// <param name="value">The value of the entry to add. The value can be <null/> if the type of the values in the dictionary is a reference type.</param>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is less than 0.<br/>
         /// -or-<br/>
-        /// <paramref name="index"/> is greater than <see cref="System.Collections.ICollection.Count"/>.</exception>
+        /// <paramref name="index"/> is greater than <see cref="ICollection.Count"/>.</exception>
         /// <exception cref="ArgumentException">An element with the same key already exists in the <see cref="IOrderedDictionary{TKey,TValue}">IOrderedDictionary&lt;TKey,TValue&gt;</see>.</exception>
         /// <exception cref="NotSupportedException">The <see cref="IOrderedDictionary{TKey,TValue}">IOrderedDictionary&lt;TKey,TValue&gt;</see> is read-only.<br/>
         /// -or-<br/>
@@ -96,16 +96,16 @@ namespace Karambolo.Common.Collections
     /// <typeparam name="TKey">The type of the keys in the dictionary</typeparam>
     /// <typeparam name="TValue">The type of the values in the dictionary</typeparam>
 #if !NETSTANDARD1_0
-    [System.Serializable]
+    [Serializable]
 #endif
     [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(DictionaryDebugView<,>))]
     public class OrderedDictionary<TKey, TValue> : IOrderedDictionary<TKey, TValue>, IOrderedDictionary
     {
         public struct Enumerator : IEnumerator<KeyValuePair<TKey, TValue>>, IDictionaryEnumerator
         {
-            readonly bool _returnKeyValuePair;
-            readonly Dictionary<TKey, TValue> _dictionary;
-            List<TKey>.Enumerator _listEnumerator;
+            private readonly bool _returnKeyValuePair;
+            private readonly Dictionary<TKey, TValue> _dictionary;
+            private List<TKey>.Enumerator _listEnumerator;
 
             internal Enumerator(OrderedDictionary<TKey, TValue> dictionary, bool returnKeyValuePair)
             {
@@ -123,16 +123,16 @@ namespace Karambolo.Common.Collections
             {
                 get
                 {
-                    var key = _listEnumerator.Current;
+                    TKey key = _listEnumerator.Current;
                     return new KeyValuePair<TKey, TValue>(key, _dictionary[key]);
                 }
             }
 
             object IEnumerator.Current => _returnKeyValuePair ? Current : (object)GetCurrentEntry();
 
-            DictionaryEntry GetCurrentEntry()
+            private DictionaryEntry GetCurrentEntry()
             {
-                var key = _listEnumerator.Current;
+                TKey key = _listEnumerator.Current;
                 return new DictionaryEntry(key, _dictionary[key]);
             }
 
@@ -156,14 +156,14 @@ namespace Karambolo.Common.Collections
         }
 
 #if !NETSTANDARD1_0
-        [System.Serializable]
+        [Serializable]
 #endif
         [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(DictionaryKeyCollectionDebugView<,>))]
         public class KeyCollection : ICollection<TKey>, IReadOnlyCollection<TKey>, ICollection
         {
             public struct Enumerator : IEnumerator<TKey>
             {
-                List<TKey>.Enumerator _listEnumerator;
+                private List<TKey>.Enumerator _listEnumerator;
 
                 internal Enumerator(OrderedDictionary<TKey, TValue> dictionary)
                 {
@@ -192,7 +192,7 @@ namespace Karambolo.Common.Collections
                 }
             }
 
-            readonly OrderedDictionary<TKey, TValue> _dictionary;
+            private readonly OrderedDictionary<TKey, TValue> _dictionary;
 
             public KeyCollection(OrderedDictionary<TKey, TValue> dictionary)
             {
@@ -257,15 +257,15 @@ namespace Karambolo.Common.Collections
         }
 
 #if !NETSTANDARD1_0
-        [System.Serializable]
+        [Serializable]
 #endif
         [DebuggerDisplay("Count = {" + nameof(Count) + "}"), DebuggerTypeProxy(typeof(DictionaryValueCollectionDebugView<,>))]
         public class ValueCollection : ICollection<TValue>, IReadOnlyCollection<TValue>, ICollection
         {
             public struct Enumerator : IEnumerator<TValue>
             {
-                readonly Dictionary<TKey, TValue> _dictionary;
-                List<TKey>.Enumerator _listEnumerator;
+                private readonly Dictionary<TKey, TValue> _dictionary;
+                private List<TKey>.Enumerator _listEnumerator;
 
                 internal Enumerator(OrderedDictionary<TKey, TValue> dictionary)
                 {
@@ -295,7 +295,7 @@ namespace Karambolo.Common.Collections
                 }
             }
 
-            readonly OrderedDictionary<TKey, TValue> _dictionary;
+            private readonly OrderedDictionary<TKey, TValue> _dictionary;
 
             public ValueCollection(OrderedDictionary<TKey, TValue> dictionary)
             {
@@ -397,25 +397,25 @@ namespace Karambolo.Common.Collections
             object ICollection.SyncRoot => ((ICollection)_dictionary).SyncRoot;
         }
 
-        private const int defaultInitialCapacity = 0;
+        private const int DefaultInitialCapacity = 0;
 
-        private static readonly bool valueTypeAllowsNull = typeof(TValue).AllowsNull();
+        private static readonly bool s_valueTypeAllowsNull = typeof(TValue).AllowsNull();
 
         private readonly Dictionary<TKey, TValue> _dictionary;
         private readonly List<TKey> _list;
 
 #if !NETSTANDARD1_0
-        [System.NonSerialized]
+        [NonSerialized]
 #endif
         private KeyCollection _keys;
 
 #if !NETSTANDARD1_0
-        [System.NonSerialized]
+        [NonSerialized]
 #endif
         private ValueCollection _values;
 
 #if !NETSTANDARD1_0
-        [System.NonSerialized]
+        [NonSerialized]
 #endif
         private object _syncRoot;
 
@@ -423,7 +423,7 @@ namespace Karambolo.Common.Collections
         /// Initializes a new instance of the <see cref="OrderedDictionary{TKey,TValue}">OrderedDictionary&lt;TKey,TValue&gt;</see> class.
         /// </summary>
         public OrderedDictionary()
-            : this(defaultInitialCapacity, null)
+            : this(DefaultInitialCapacity, null)
         {
         }
 
@@ -442,7 +442,7 @@ namespace Karambolo.Common.Collections
         /// </summary>
         /// <param name="comparer">The <see cref="IEqualityComparer{TKey}">IEqualityComparer&lt;TKey&gt;</see> to use when comparing keys, or <null/> to use the default <see cref="EqualityComparer{TKey}">EqualityComparer&lt;TKey&gt;</see> for the type of the key.</param>
         public OrderedDictionary(IEqualityComparer<TKey> comparer)
-            : this(defaultInitialCapacity, comparer)
+            : this(DefaultInitialCapacity, comparer)
         {
         }
 
@@ -503,7 +503,7 @@ namespace Karambolo.Common.Collections
         {
             if (value == null)
             {
-                if (!valueTypeAllowsNull)
+                if (!s_valueTypeAllowsNull)
                     throw new ArgumentNullException(nameof(value));
 
                 return default;
@@ -594,7 +594,7 @@ namespace Karambolo.Common.Collections
             if (index >= Count || index < 0)
                 throw new ArgumentOutOfRangeException(nameof(index), Resources.IndexOutOfRange);
 
-            var key = _list[index];
+            TKey key = _list[index];
             _list.RemoveAt(index);
             _dictionary.Remove(key);
         }
@@ -615,7 +615,7 @@ namespace Karambolo.Common.Collections
                 if (index >= Count || index < 0)
                     throw new ArgumentOutOfRangeException(nameof(index), Resources.IndexOutOfRange);
 
-                var key = _list[index];
+                TKey key = _list[index];
                 _list[index] = key; // forcing the list to update its internal version
                 _dictionary[key] = value;
             }
@@ -755,7 +755,7 @@ namespace Karambolo.Common.Collections
             if (key == null)
                 throw new ArgumentNullException(nameof(key));
 
-            var comparer = _dictionary.Comparer;
+            IEqualityComparer<TKey> comparer = _dictionary.Comparer;
             var count = _list.Count;
             for (var index = 0; index < count; index++)
                 if (comparer.Equals(_list[index], key))

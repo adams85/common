@@ -6,7 +6,7 @@ namespace Karambolo.Common.Localization
     {
         public static readonly NullTextLocalizer Instance = new NullTextLocalizer();
 
-        NullTextLocalizer() { }
+        private NullTextLocalizer() { }
 
         public override string Localize(ILocalizableText localizableObject)
         {

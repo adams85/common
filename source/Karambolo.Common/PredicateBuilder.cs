@@ -16,11 +16,11 @@ namespace Karambolo.Common
             return new PredicateBuilder<T>(false);
         }
 
-        readonly ParameterExpression _param;
-        readonly ParameterReplacerVisitor _paramReplacer;
-        Expression _body;
+        private readonly ParameterExpression _param;
+        private readonly ParameterReplacerVisitor _paramReplacer;
+        private Expression _body;
 
-        PredicateBuilder(bool value)
+        private PredicateBuilder(bool value)
         {
             _param = Expression.Parameter(typeof(T));
             _paramReplacer = new ParameterReplacerVisitor(_param);

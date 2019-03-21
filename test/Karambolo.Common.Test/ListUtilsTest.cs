@@ -8,16 +8,15 @@ namespace Karambolo.Common
 {
     public class ListUtilsTest
     {
-        class IntCollection : Collection<int>
+        private class IntCollection : Collection<int>
         {
             public IntCollection() { }
 
             public IntCollection(IEnumerable<int> items) : base(items.ToList()) { }
         }
 
-        static readonly Comparison<int> intComparison = (x, y) => x < y ? -1 : x > y ? 1 : 0;
-
-        static readonly IComparer<int> intComparer = DelegatedComparer.Create(new Func<int, int, int>(intComparison));
+        private static readonly Comparison<int> s_intComparison = (x, y) => x < y ? -1 : x > y ? 1 : 0;
+        private static readonly IComparer<int> s_intComparer = DelegatedComparer.Create(new Func<int, int, int>(s_intComparison));
 
         [Fact]
         public void BinarySearchTest()
@@ -30,8 +29,8 @@ namespace Karambolo.Common
             Assert.Equal(1, ListUtils.BinarySearch(collection, 8));
             Assert.Equal(1, ReadOnlyListUtils.BinarySearch(collection, 8));
 
-            Assert.Equal(1, ListUtils.BinarySearch(collection, 8, intComparer));
-            Assert.Equal(1, ReadOnlyListUtils.BinarySearch(collection, 8, intComparer));
+            Assert.Equal(1, ListUtils.BinarySearch(collection, 8, s_intComparer));
+            Assert.Equal(1, ReadOnlyListUtils.BinarySearch(collection, 8, s_intComparer));
 
             Assert.Equal(-2, ListUtils.BinarySearch(collection, 1, 2, 5));
             Assert.Equal(-2, ReadOnlyListUtils.BinarySearch(collection, 1, 2, 5));
@@ -42,8 +41,8 @@ namespace Karambolo.Common
             Assert.Equal(2, ListUtils.BinarySearch(collection, 1, 2, 9));
             Assert.Equal(2, ReadOnlyListUtils.BinarySearch(collection, 1, 2, 9));
 
-            Assert.Equal(2, ListUtils.BinarySearch(collection, 1, 2, 9, intComparer));
-            Assert.Equal(2, ReadOnlyListUtils.BinarySearch(collection, 1, 2, 9, intComparer));
+            Assert.Equal(2, ListUtils.BinarySearch(collection, 1, 2, 9, s_intComparer));
+            Assert.Equal(2, ReadOnlyListUtils.BinarySearch(collection, 1, 2, 9, s_intComparer));
 
             Assert.Equal(-1, ListUtils.BinarySearch(collection, 0, 0, 5));
             Assert.Equal(-1, ReadOnlyListUtils.BinarySearch(collection, 0, 0, 5));
@@ -126,20 +125,20 @@ namespace Karambolo.Common
             Assert.Equal(3, ListUtils.FindIndex(collection, 2, 2, item => item % 2 == 0));
             Assert.Equal(3, ReadOnlyListUtils.FindIndex(collection, 2, 2, item => item % 2 == 0));
 
-            Assert.Equal(-1, ListUtils.FindIndex(collection, 0, 0, True<int>.Predicate));
-            Assert.Equal(-1, ReadOnlyListUtils.FindIndex(collection, 0, 0, True<int>.Predicate));
+            Assert.Equal(-1, ListUtils.FindIndex(collection, 0, 0, _ => true));
+            Assert.Equal(-1, ReadOnlyListUtils.FindIndex(collection, 0, 0, _ => true));
 
-            Assert.Equal(-1, ListUtils.FindIndex(collection, collection.Count, 0, True<int>.Predicate));
-            Assert.Equal(-1, ReadOnlyListUtils.FindIndex(collection, collection.Count, 0, True<int>.Predicate));
+            Assert.Equal(-1, ListUtils.FindIndex(collection, collection.Count, 0, _ => true));
+            Assert.Equal(-1, ReadOnlyListUtils.FindIndex(collection, collection.Count, 0, _ => true));
 
-            Assert.Throws<ArgumentOutOfRangeException>(() => ListUtils.FindIndex(collection, -1, 1, True<int>.Predicate));
-            Assert.Throws<ArgumentOutOfRangeException>(() => ReadOnlyListUtils.FindIndex(collection, -1, 1, True<int>.Predicate));
+            Assert.Throws<ArgumentOutOfRangeException>(() => ListUtils.FindIndex(collection, -1, 1, _ => true));
+            Assert.Throws<ArgumentOutOfRangeException>(() => ReadOnlyListUtils.FindIndex(collection, -1, 1, _ => true));
 
-            Assert.Throws<ArgumentOutOfRangeException>(() => ListUtils.FindIndex(collection, 0, -1, True<int>.Predicate));
-            Assert.Throws<ArgumentOutOfRangeException>(() => ReadOnlyListUtils.FindIndex(collection, 0, -1, True<int>.Predicate));
+            Assert.Throws<ArgumentOutOfRangeException>(() => ListUtils.FindIndex(collection, 0, -1, _ => true));
+            Assert.Throws<ArgumentOutOfRangeException>(() => ReadOnlyListUtils.FindIndex(collection, 0, -1, _ => true));
 
-            Assert.Throws<ArgumentOutOfRangeException>(() => ListUtils.FindIndex(collection, collection.Count, 1, True<int>.Predicate));
-            Assert.Throws<ArgumentOutOfRangeException>(() => ReadOnlyListUtils.FindIndex(collection, collection.Count, 1, True<int>.Predicate));
+            Assert.Throws<ArgumentOutOfRangeException>(() => ListUtils.FindIndex(collection, collection.Count, 1, _ => true));
+            Assert.Throws<ArgumentOutOfRangeException>(() => ReadOnlyListUtils.FindIndex(collection, collection.Count, 1, _ => true));
         }
 
         [Fact]
@@ -174,23 +173,23 @@ namespace Karambolo.Common
             Assert.Equal(-1, ListUtils.FindLastIndex(collection, 2, 1, item => item % 2 == 0));
             Assert.Equal(-1, ReadOnlyListUtils.FindLastIndex(collection, 2, 1, item => item % 2 == 0));
 
-            Assert.Equal(-1, ListUtils.FindLastIndex(collection, collection.Count - 1, 0, True<int>.Predicate));
-            Assert.Equal(-1, ReadOnlyListUtils.FindLastIndex(collection, collection.Count - 1, 0, True<int>.Predicate));
+            Assert.Equal(-1, ListUtils.FindLastIndex(collection, collection.Count - 1, 0, _ => true));
+            Assert.Equal(-1, ReadOnlyListUtils.FindLastIndex(collection, collection.Count - 1, 0, _ => true));
 
-            Assert.Equal(-1, ListUtils.FindLastIndex(collection, -1, 0, True<int>.Predicate));
-            Assert.Equal(-1, ReadOnlyListUtils.FindLastIndex(collection, -1, 0, True<int>.Predicate));
+            Assert.Equal(-1, ListUtils.FindLastIndex(collection, -1, 0, _ => true));
+            Assert.Equal(-1, ReadOnlyListUtils.FindLastIndex(collection, -1, 0, _ => true));
 
-            Assert.Throws<ArgumentOutOfRangeException>(() => ListUtils.FindLastIndex(collection, -1, 1, True<int>.Predicate));
-            Assert.Throws<ArgumentOutOfRangeException>(() => ReadOnlyListUtils.FindLastIndex(collection, -1, 1, True<int>.Predicate));
+            Assert.Throws<ArgumentOutOfRangeException>(() => ListUtils.FindLastIndex(collection, -1, 1, _ => true));
+            Assert.Throws<ArgumentOutOfRangeException>(() => ReadOnlyListUtils.FindLastIndex(collection, -1, 1, _ => true));
 
-            Assert.Throws<ArgumentOutOfRangeException>(() => ListUtils.FindLastIndex(collection, 0, -1, True<int>.Predicate));
-            Assert.Throws<ArgumentOutOfRangeException>(() => ReadOnlyListUtils.FindLastIndex(collection, 0, -1, True<int>.Predicate));
+            Assert.Throws<ArgumentOutOfRangeException>(() => ListUtils.FindLastIndex(collection, 0, -1, _ => true));
+            Assert.Throws<ArgumentOutOfRangeException>(() => ReadOnlyListUtils.FindLastIndex(collection, 0, -1, _ => true));
 
-            Assert.Throws<ArgumentOutOfRangeException>(() => ListUtils.FindLastIndex(collection, collection.Count, 0, True<int>.Predicate));
-            Assert.Throws<ArgumentOutOfRangeException>(() => ReadOnlyListUtils.FindLastIndex(collection, collection.Count, 0, True<int>.Predicate));
+            Assert.Throws<ArgumentOutOfRangeException>(() => ListUtils.FindLastIndex(collection, collection.Count, 0, _ => true));
+            Assert.Throws<ArgumentOutOfRangeException>(() => ReadOnlyListUtils.FindLastIndex(collection, collection.Count, 0, _ => true));
 
-            Assert.Throws<ArgumentOutOfRangeException>(() => ListUtils.FindLastIndex(new int[0], 1, 0, True<int>.Predicate));
-            Assert.Throws<ArgumentOutOfRangeException>(() => ReadOnlyListUtils.FindLastIndex(new int[0], 1, 0, True<int>.Predicate));
+            Assert.Throws<ArgumentOutOfRangeException>(() => ListUtils.FindLastIndex(new int[0], 1, 0, _ => true));
+            Assert.Throws<ArgumentOutOfRangeException>(() => ReadOnlyListUtils.FindLastIndex(new int[0], 1, 0, _ => true));
         }
 
         [Fact]

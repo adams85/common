@@ -25,7 +25,7 @@ namespace Karambolo.Common
 
             yield return element;
 
-            foreach (var e in source)
+            foreach (TSource e in source)
                 yield return e;
         }
 
@@ -34,7 +34,7 @@ namespace Karambolo.Common
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
 
-            foreach (var e in source)
+            foreach (TSource e in source)
                 yield return e;
 
             yield return element;
@@ -55,13 +55,13 @@ namespace Karambolo.Common
                 throw new ArgumentNullException(nameof(second));
 
             var counters = new Dictionary<TSource, int>(comparer);
-            foreach (var item in source)
+            foreach (TSource item in source)
                 if (counters.ContainsKey(item))
                     counters[item]++;
                 else
                     counters.Add(item, 1);
 
-            foreach (var item in second)
+            foreach (TSource item in second)
             {
                 if (counters.ContainsKey(item))
                     counters[item]--;
@@ -77,9 +77,9 @@ namespace Karambolo.Common
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
 
-            using (var enumerator = source.GetEnumerator())
+            using (IEnumerator<TSource> enumerator = source.GetEnumerator())
                 if (enumerator.MoveNext())
-                    for (var item = enumerator.Current; enumerator.MoveNext(); item = enumerator.Current)
+                    for (TSource item = enumerator.Current; enumerator.MoveNext(); item = enumerator.Current)
                         yield return item;
         }
 
@@ -88,27 +88,27 @@ namespace Karambolo.Common
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
 
-            using (var enumerator = source.GetEnumerator())
+            using (IEnumerator<TSource> enumerator = source.GetEnumerator())
                 if (enumerator.MoveNext())
                 {
-                    var item = enumerator.Current;
+                    TSource item = enumerator.Current;
                     while (enumerator.MoveNext())
                         item = enumerator.Current;
                     yield return item;
                 }
         }
 
-        static IEnumerable<TAccumulate> Scan<TSource, TAccumulate>(IEnumerable<TSource> source,
+        private static IEnumerable<TAccumulate> Scan<TSource, TAccumulate>(IEnumerable<TSource> source,
             Func<IEnumerator<TSource>, KeyValuePair<bool, TAccumulate>> seeder, Func<TAccumulate, TSource, TAccumulate> func)
         {
-            using (var enumerator = source.GetEnumerator())
+            using (IEnumerator<TSource> enumerator = source.GetEnumerator())
             {
-                var seed = seeder(enumerator);
+                KeyValuePair<bool, TAccumulate> seed = seeder(enumerator);
 
                 if (!seed.Key)
                     yield break;
 
-                var accumulator = seed.Value;
+                TAccumulate accumulator = seed.Value;
                 yield return accumulator;
 
                 while (enumerator.MoveNext())

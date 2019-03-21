@@ -50,7 +50,7 @@ namespace Karambolo.Common
         Arm = 5
     }
 
-    static partial class StringShim
+    internal static partial class StringShim
     {
         public static IEnumerable<char> AsEnumerable(this string source)
         {
@@ -63,7 +63,7 @@ namespace Karambolo.Common
         }
     }
 
-    static partial class ReflectionShim
+    internal static partial class ReflectionShim
     {
         public static FieldInfo[] GetFields(this Type type, BindingFlags bindingFlags)
         {
@@ -73,9 +73,9 @@ namespace Karambolo.Common
             if (bindingFlags != (BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly))
                 throw new NotImplementedException();
 
-            var typeInfo = type.GetTypeInfo();
+            TypeInfo typeInfo = type.GetTypeInfo();
 
-            var fields = typeInfo.DeclaredFields.Where(ShouldIncludeField);
+            IEnumerable<FieldInfo> fields = typeInfo.DeclaredFields.Where(ShouldIncludeField);
 
             return fields.ToArray();
 
@@ -93,15 +93,15 @@ namespace Karambolo.Common
             if (bindingFlags != (BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly))
                 throw new NotImplementedException();
 
-            var typeInfo = type.GetTypeInfo();
+            TypeInfo typeInfo = type.GetTypeInfo();
 
-            var properties = typeInfo.DeclaredProperties.Where(ShouldIncludeProperty);
+            IEnumerable<PropertyInfo> properties = typeInfo.DeclaredProperties.Where(ShouldIncludeProperty);
 
             return properties.ToArray();
 
             bool ShouldIncludeProperty(PropertyInfo property)
             {
-                var method = property.GetMethod ?? property.SetMethod;
+                MethodInfo method = property.GetMethod ?? property.SetMethod;
                 return !method.IsStatic && method.IsPublic;
             }
         }
@@ -133,14 +133,14 @@ namespace Karambolo.Common
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static MethodInfo GetGetMethod(this PropertyInfo property)
         {
-            var getMethod = property.GetMethod;
+            MethodInfo getMethod = property.GetMethod;
             return getMethod != null && getMethod.IsPublic ? getMethod : null;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static MethodInfo GetSetMethod(this PropertyInfo property)
         {
-            var setMethod = property.SetMethod;
+            MethodInfo setMethod = property.SetMethod;
             return setMethod != null && setMethod.IsPublic ? setMethod : null;
         }
     }

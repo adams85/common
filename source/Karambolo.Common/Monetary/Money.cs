@@ -1,13 +1,13 @@
 ﻿using System;
+using System.Globalization;
 using System.Linq;
 using System.Text;
-using System.Globalization;
 using Karambolo.Common.Properties;
 
 namespace Karambolo.Common.Monetary
 {
 #if !NETSTANDARD1_0
-    [System.Serializable]
+    [Serializable]
     public readonly struct Money : IEquatable<Money>, IComparable<Money>, IFormattable, IConvertible, IComparable
 #else
     public readonly struct Money : IEquatable<Money>, IComparable<Money>, IFormattable, IComparable
@@ -91,7 +91,7 @@ namespace Karambolo.Common.Monetary
             return left.CompareTo(right) <= 0;
         }
 
-        static string RemoveSignFromCurrencyString(string part, NumberFormatInfo numberFormat)
+        private static string RemoveSignFromCurrencyString(string part, NumberFormatInfo numberFormat)
         {
             if (part.StartsWith(numberFormat.PositiveSign))
                 return part.Remove(0, numberFormat.PositiveSign.Length);
@@ -108,7 +108,7 @@ namespace Karambolo.Common.Monetary
             return part;
         }
 
-        static string ExtractCurrencyString(string value, NumberFormatInfo numberFormat)
+        private static string ExtractCurrencyString(string value, NumberFormatInfo numberFormat)
         {
             var length = value.Length;
             if (length == 0)
@@ -181,7 +181,7 @@ namespace Karambolo.Common.Monetary
                 return false;
             }
 
-            var numberFormat =
+            NumberFormatInfo numberFormat =
                 (NumberFormatInfo)formatProvider?.GetFormat(typeof(NumberFormatInfo)) ??
                 NumberFormatInfo.CurrentInfo;
 
@@ -237,8 +237,8 @@ namespace Karambolo.Common.Monetary
             return ChangeCurrency(value, Currency.FromCode(currencyCode));
         }
 
-        readonly decimal _amount;
-        readonly Currency _currency;
+        private readonly decimal _amount;
+        private readonly Currency _currency;
 
         public Money(decimal amount)
             : this(amount, Currency.None) { }
@@ -271,7 +271,7 @@ namespace Karambolo.Common.Monetary
             return obj is Money money && Equals(money);
         }
 
-        NumberFormatInfo CustomizeNumberFormat(NumberFormatInfo numberFormat)
+        private NumberFormatInfo CustomizeNumberFormat(NumberFormatInfo numberFormat)
         {
             var clone = (NumberFormatInfo)numberFormat.Clone();
             clone.CurrencyDecimalDigits = _currency.DefaultDecimals;
@@ -315,7 +315,7 @@ namespace Karambolo.Common.Monetary
 
         public string ToString(string format, IFormatProvider formatProvider)
         {
-            var numberFormat =
+            NumberFormatInfo numberFormat =
                 (NumberFormatInfo)formatProvider?.GetFormat(typeof(NumberFormatInfo)) ??
                 NumberFormatInfo.CurrentInfo;
 

@@ -42,8 +42,8 @@ namespace Karambolo.Common
             Assert.Equal(-1, text.FindIndex(3, 1, char.IsWhiteSpace));
             Assert.Equal(-1, text.FindIndex(4, 0, char.IsWhiteSpace));
 
-            Assert.Equal(0, text.FindIndex(True<char>.Predicate));
-            Assert.Equal(text.Length - 1, text.FindIndex(text.Length - 1, True<char>.Predicate));
+            Assert.Equal(0, text.FindIndex(_ => true));
+            Assert.Equal(text.Length - 1, text.FindIndex(text.Length - 1, _ => true));
             Assert.Equal(-1, text.FindIndex(0, 0, char.IsWhiteSpace));
             Assert.Equal(-1, text.FindIndex(text.Length, 0, char.IsWhiteSpace));
 
@@ -68,8 +68,8 @@ namespace Karambolo.Common
             Assert.Equal(-1, text.FindLastIndex(40, 1, char.IsWhiteSpace));
             Assert.Equal(-1, text.FindLastIndex(39, 0, char.IsWhiteSpace));
 
-            Assert.Equal(text.Length - 1, text.FindLastIndex(True<char>.Predicate));
-            Assert.Equal(0, text.FindLastIndex(0, True<char>.Predicate));
+            Assert.Equal(text.Length - 1, text.FindLastIndex(_ => true));
+            Assert.Equal(0, text.FindLastIndex(0, _ => true));
             Assert.Equal(-1, text.FindLastIndex(text.Length - 1, 0, char.IsWhiteSpace));
             Assert.Equal(-1, text.FindLastIndex(-1, 0, char.IsWhiteSpace));
 

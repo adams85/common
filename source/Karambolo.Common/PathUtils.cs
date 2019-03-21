@@ -8,13 +8,13 @@ namespace Karambolo.Common
 {
     public static class PathUtils
     {
-        static readonly HashSet<char> illegalFileNameChars;
-        static readonly HashSet<string> reservedFileNames;
-        static readonly Func<string, bool> isReservedFileName;
+        private static readonly HashSet<char> s_illegalFileNameChars;
+        private static readonly HashSet<string> s_reservedFileNames;
+        private static readonly Func<string, bool> s_isReservedFileName;
 
         static PathUtils()
         {
-            illegalFileNameChars = new HashSet<char>(Path.GetInvalidFileNameChars().Concat(Path.GetInvalidPathChars()));
+            s_illegalFileNameChars = new HashSet<char>(Path.GetInvalidFileNameChars().Concat(Path.GetInvalidPathChars()));
 
             bool isWindowsOS =
 #if NETSTANDARD2_0
@@ -25,25 +25,25 @@ namespace Karambolo.Common
 
             if (isWindowsOS)
             {
-                reservedFileNames = new HashSet<string>
+                s_reservedFileNames = new HashSet<string>
                 {
                     "con", "prn", "aux", "nul",
                     "com1", "com2", "com3", "com4", "com5", "com6", "com7", "com8", "com9",
                     "lpt1", "lpt2", "lpt3", "lpt4", "lpt5", "lpt6", "lpt7", "lpt8", "lpt9",
                 };
-                isReservedFileName = IsReservedFileNameWindows;
+                s_isReservedFileName = IsReservedFileNameWindows;
             }
             else
-                isReservedFileName = IsReservedFileNameOther;
+                s_isReservedFileName = IsReservedFileNameOther;
 
         }
 
-        static bool IsReservedFileNameWindows(string value)
+        private static bool IsReservedFileNameWindows(string value)
         {
-            return reservedFileNames.Contains(Path.GetFileNameWithoutExtension(value));
+            return s_reservedFileNames.Contains(Path.GetFileNameWithoutExtension(value));
         }
 
-        static bool IsReservedFileNameOther(string value)
+        private static bool IsReservedFileNameOther(string value)
         {
             return false;
         }
@@ -53,7 +53,7 @@ namespace Karambolo.Common
             if (value == null)
                 throw new ArgumentNullException(nameof(value));
 
-            return isReservedFileName(value);
+            return s_isReservedFileName(value);
         }
 
         /// <remarks>
@@ -77,14 +77,14 @@ namespace Karambolo.Common
             char[] chars = null;
             var n = Math.Min(value.Length, maxLength);
             for (var i = 0; i < n; i++)
-                if (illegalFileNameChars.Contains(value[i]))
+                if (s_illegalFileNameChars.Contains(value[i]))
                     (chars ?? (chars = value.ToCharArray()))[i] = '_';
 
             if (chars != null)
                 return new string(chars);
 
-            if (isReservedFileName(value))
-                return "_" + value;
+            if (s_isReservedFileName(value))
+                value = "_" + value;
 
             return value.Truncate(maxLength);
         }

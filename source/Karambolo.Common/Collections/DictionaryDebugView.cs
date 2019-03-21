@@ -6,9 +6,9 @@ using System.Linq;
 namespace Karambolo.Common.Collections
 {
     [DebuggerNonUserCode]
-    sealed class DictionaryDebugView<TKey, TValue>
+    internal sealed class DictionaryDebugView<TKey, TValue>
     {
-        readonly IDictionary<TKey, TValue> _dictionary;
+        private readonly IDictionary<TKey, TValue> _dictionary;
 
         public DictionaryDebugView(IDictionary<TKey, TValue> dictionary)
         {
@@ -23,9 +23,9 @@ namespace Karambolo.Common.Collections
     }
 
     [DebuggerNonUserCode]
-    sealed class DictionaryKeyCollectionDebugView<TKey, TValue>
+    internal sealed class DictionaryKeyCollectionDebugView<TKey, TValue>
     {
-        readonly ICollection<TKey> _collection;
+        private readonly ICollection<TKey> _collection;
 
         public DictionaryKeyCollectionDebugView(ICollection<TKey> collection)
         {
@@ -40,9 +40,9 @@ namespace Karambolo.Common.Collections
     }
 
     [DebuggerNonUserCode]
-    sealed class DictionaryValueCollectionDebugView<TKey, TValue>
+    internal sealed class DictionaryValueCollectionDebugView<TKey, TValue>
     {
-        readonly ICollection<TValue> _collection;
+        private readonly ICollection<TValue> _collection;
 
         public DictionaryValueCollectionDebugView(ICollection<TValue> collection)
         {

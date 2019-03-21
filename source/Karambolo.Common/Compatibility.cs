@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace Karambolo.Common
 {
-    static class MathShim
+    internal static class MathShim
     {
 #if !NET40
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -32,7 +32,7 @@ namespace Karambolo.Common
         }
     }
 
-    static partial class ReflectionShim
+    internal static partial class ReflectionShim
     {
 #if !NET40
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]

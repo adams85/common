@@ -9,7 +9,7 @@ namespace Karambolo.Common
     public static class TaskUtils
     {
 #if NETSTANDARD2_0
-        internal static readonly TaskCreationOptions defaultTcsCreationOptions = TaskCreationOptions.RunContinuationsAsynchronously;
+        internal static readonly TaskCreationOptions DefaultTcsCreationOptions = TaskCreationOptions.RunContinuationsAsynchronously;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static Task<TResult> GetTaskSafe<TResult>(this TaskCompletionSource<TResult> tcs)
@@ -17,7 +17,7 @@ namespace Karambolo.Common
             return tcs.Task;
         }
 #else
-        static readonly TaskCreationOptions defaultTcsCreationOptions = TaskCreationOptions.None;
+        internal static readonly TaskCreationOptions DefaultTcsCreationOptions = TaskCreationOptions.None;
 
 #if !NET40
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -76,8 +76,8 @@ namespace Karambolo.Common
             return tcs.Task;
         }
 #else
-        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        static Task<TResult> FromCanceled<TResult>(CancellationToken cancellationToken)
+        [MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        private static Task<TResult> FromCanceled<TResult>(CancellationToken cancellationToken)
         {
             return Task.FromCanceled<TResult>(cancellationToken);
         }
@@ -89,7 +89,7 @@ namespace Karambolo.Common
             if (process == null)
                 throw new ArgumentNullException(nameof(process));
 
-            var tcs = new TaskCompletionSource<object>(defaultTcsCreationOptions);
+            var tcs = new TaskCompletionSource<object>(DefaultTcsCreationOptions);
 
             EventHandler exitedHandler = null;
             exitedHandler = (s, e) =>
@@ -111,7 +111,7 @@ namespace Karambolo.Common
         internal static async Task WithTimeoutAsync(Task task, TimeSpan timeout)
         {
             var timeoutTask = Task.Delay(timeout);
-            var completedTask = await Task.WhenAny(task, timeoutTask).ConfigureAwait(false);
+            Task completedTask = await Task.WhenAny(task, timeoutTask).ConfigureAwait(false);
 
             if (completedTask == timeoutTask)
                 throw new TimeoutException();
@@ -135,7 +135,7 @@ namespace Karambolo.Common
         internal static async Task<TResult> WithTimeoutAsync<TResult>(Task<TResult> task, TimeSpan timeout)
         {
             var timeoutTask = Task.Delay(timeout);
-            var completedTask = await Task.WhenAny(task, timeoutTask).ConfigureAwait(false);
+            Task completedTask = await Task.WhenAny(task, timeoutTask).ConfigureAwait(false);
 
             if (completedTask == timeoutTask)
                 throw new TimeoutException();
@@ -161,15 +161,15 @@ namespace Karambolo.Common
 
         #region Cancellation
 
-        readonly struct CancellationTokenTaskSource<TResult> : IDisposable
+        private readonly struct CancellationTokenTaskSource<TResult> : IDisposable
         {
-            readonly IDisposable _ctr;
+            private readonly IDisposable _ctr;
 
             public CancellationTokenTaskSource(CancellationToken cancellationToken)
             {
                 if (!cancellationToken.IsCancellationRequested)
                 {
-                    var tcs = new TaskCompletionSource<TResult>(defaultTcsCreationOptions);
+                    var tcs = new TaskCompletionSource<TResult>(DefaultTcsCreationOptions);
                     _ctr = cancellationToken.Register(() => tcs.TrySetCanceled(), useSynchronizationContext: false);
                     Task = tcs.GetTaskSafe();
                 }
@@ -284,7 +284,7 @@ namespace Karambolo.Common
             }, TaskContinuationOptions.NotOnRanToCompletion | TaskContinuationOptions.ExecuteSynchronously);
         }
 
-        static TResult WaitAndUnwrap<TResult>(this Task<TResult> task)
+        private static TResult WaitAndUnwrap<TResult>(this Task<TResult> task)
         {
             if (task == null)
                 throw new ArgumentNullException(nameof(task));
@@ -303,7 +303,7 @@ namespace Karambolo.Common
             if (task == null)
                 throw new ArgumentNullException(nameof(task));
 
-            var tcs = new TaskCompletionSource<Task>(state, defaultTcsCreationOptions);
+            var tcs = new TaskCompletionSource<Task>(state, DefaultTcsCreationOptions);
 
             task.ContinueWith(t =>
             {

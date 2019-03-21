@@ -16,7 +16,7 @@ namespace Karambolo.Common
 {
     public class LambdaTest
     {
-        class Class
+        private class Class
         {
             public static int StaticField = 0;
             public static string StaticProperty => StaticField.ToString();
@@ -33,7 +33,7 @@ namespace Karambolo.Common
         public void GetMemberExpressionTest()
         {
             Expression<Func<Class, int>> fieldExpr = c => c.Field;
-            var memberExpr = Lambda.GetMemberExpression(fieldExpr, CommonMemberTypes.Property);
+            MemberExpression memberExpr = Lambda.GetMemberExpression(fieldExpr, CommonMemberTypes.Property);
             Assert.Null(memberExpr);
 
             memberExpr = Lambda.GetMemberExpression(fieldExpr, CommonMemberTypes.Field);
@@ -82,7 +82,7 @@ namespace Karambolo.Common
         [Fact]
         public void FieldTest()
         {
-            var field = Lambda.Field(() => Class.StaticField);
+            FieldInfo field = Lambda.Field(() => Class.StaticField);
             Assert.Equal(typeof(Class).GetTypeInfo().GetDeclaredField(nameof(Class.StaticField)), field);
 
             field = Lambda.Field((Class c) => c.Field);
@@ -94,7 +94,7 @@ namespace Karambolo.Common
         [Fact]
         public void PropertyTest()
         {
-            var property = Lambda.Property(() => Class.StaticProperty);
+            PropertyInfo property = Lambda.Property(() => Class.StaticProperty);
             Assert.Equal(typeof(Class).GetTypeInfo().GetDeclaredProperty(nameof(Class.StaticProperty)), property);
 
             property = Lambda.Property((Class c) => c.Property);
@@ -107,7 +107,7 @@ namespace Karambolo.Common
         public void GetCallExpressionTest()
         {
             Expression<Func<int>> callExpr = () => Class.StaticMethod(default);
-            var methodCallExpr = Lambda.GetCallExpression(callExpr);
+            MethodCallExpression methodCallExpr = Lambda.GetCallExpression(callExpr);
             Assert.Equal(typeof(Class).GetTypeInfo().GetDeclaredMethod(nameof(Class.StaticMethod)), methodCallExpr.Method);
 
             Expression<Func<int>> nonCallExpr = () => Class.StaticField;
@@ -118,7 +118,7 @@ namespace Karambolo.Common
         [Fact]
         public void MethodTest()
         {
-            var method = Lambda.Method(() => Class.StaticMethod(default));
+            MethodInfo method = Lambda.Method(() => Class.StaticMethod(default));
             Assert.Equal(typeof(Class).GetTypeInfo().GetDeclaredMethod(nameof(Class.StaticMethod)), method);
 
             method = Lambda.Method((Class c) => c.Method(default));
@@ -129,8 +129,8 @@ namespace Karambolo.Common
         public void MakeGenericMethodTest()
         {
             Expression<Action> callExpr = () => Class.StaticGenericMethod<object, object>(default);
-            var methodCallExpr = Lambda.GetCallExpression(callExpr);
-            var method = Lambda.MakeGenericMethod(methodCallExpr, typeof(string), typeof(int));
+            MethodCallExpression methodCallExpr = Lambda.GetCallExpression(callExpr);
+            MethodInfo method = Lambda.MakeGenericMethod(methodCallExpr, typeof(string), typeof(int));
             Assert.True(method.IsGenericMethod);
             Assert.False(method.IsGenericMethodDefinition);
             Assert.Equal(typeof(Class).GetTypeInfo().GetDeclaredMethod(nameof(Class.StaticGenericMethod)), method.GetGenericMethodDefinition());
@@ -155,16 +155,16 @@ namespace Karambolo.Common
             Expression<Func<int, Class>> expr1 = value => new Class { Field = value };
             Expression<Func<Class, string>> expr2 = c => c.Property;
 
-            var chainedExpr = expr1.Chain(expr2);
+            Expression<Func<int, string>> chainedExpr = expr1.Chain(expr2);
             Assert.Equal("1", chainedExpr.Compile()(1));
 
             Func<int, Class> func1 = expr1.Compile();
             Func<Class, string> func2 = expr2.Compile();
 
-            var chainedFunc = func1.Chain(func2);
+            Func<int, string> chainedFunc = func1.Chain(func2);
             Assert.Equal("2", chainedFunc(2));
 
-            List<int> list = new List<int>();
+            var list = new List<int>();
             Lambda.Chain(() => list.Add(1), () => list.Add(2))();
             Assert.Equal(new[] { 1, 2 }, list);
 

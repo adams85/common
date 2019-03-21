@@ -4,13 +4,13 @@ using Karambolo.Common.Properties;
 namespace Karambolo.Common.Monetary
 {
 #if !NETSTANDARD1_0
-    [System.Serializable]
+    [Serializable]
 #endif
     public sealed class Conversion
     {
-        readonly Currency _from;
-        readonly Currency _to;
-        readonly decimal _rate;
+        private readonly Currency _from;
+        private readonly Currency _to;
+        private readonly decimal _rate;
 
         public Conversion(Currency from, Currency to, decimal rate)
         {

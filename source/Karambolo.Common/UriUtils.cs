@@ -72,10 +72,10 @@ namespace Karambolo.Common
             if (query != null)
             {
                 var separator = '?';
-                foreach (var queryPart in query)
-                    foreach (var value in 
+                foreach (KeyValuePair<string, object> queryPart in query)
+                    foreach (var value in
                         queryPart.Value is string || !(queryPart.Value is IEnumerable enumerable) ?
-                        EnumerableUtils.Return(queryPart.Value) : 
+                        EnumerableUtils.Return(queryPart.Value) :
                         enumerable.Cast<object>())
                     {
                         builder.Append(separator);

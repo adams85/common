@@ -1,35 +1,34 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Globalization;
+using System.Linq;
 using Karambolo.Common.Properties;
 
 namespace Karambolo.Common.Monetary
 {
 #if !NETSTANDARD1_0
-    [System.Serializable]
+    [Serializable]
 #endif
     public readonly struct Currency : IEquatable<Currency>
     {
-        class Metadata
+        private class Metadata
         {
             public string Symbol { get; set; }
             public int DefaultDecimals { get; set; }
         }
 
         public static readonly Currency None = new Currency();
-
-        static readonly Dictionary<string, Metadata> metadataLookup = new Dictionary<string, Metadata>(StringComparer.OrdinalIgnoreCase);
+        private static readonly Dictionary<string, Metadata> s_metadataLookup = new Dictionary<string, Metadata>(StringComparer.OrdinalIgnoreCase);
 
 #if !NETSTANDARD1_0
         public static void RegisterSystemDefaults()
         {
-            foreach (var culture in CultureInfo.GetCultures(CultureTypes.SpecificCultures))
+            foreach (CultureInfo culture in CultureInfo.GetCultures(CultureTypes.SpecificCultures))
             {
                 var lcid = culture.LCID;
                 var regionInfo = new RegionInfo(lcid);
                 var code = regionInfo.ISOCurrencySymbol;
-                metadataLookup[code] = new Metadata
+                s_metadataLookup[code] = new Metadata
                 {
                     Symbol = regionInfo.CurrencySymbol,
                     DefaultDecimals = culture.NumberFormat.CurrencyDecimalDigits
@@ -48,7 +47,7 @@ namespace Karambolo.Common.Monetary
             if (symbol == null)
                 throw new ArgumentNullException(nameof(symbol));
 
-            metadataLookup[code] = new Metadata
+            s_metadataLookup[code] = new Metadata
             {
                 Symbol = symbol,
                 DefaultDecimals = defaultDecimals
@@ -60,12 +59,12 @@ namespace Karambolo.Common.Monetary
             if (code == null)
                 throw new ArgumentNullException(nameof(code));
 
-            return metadataLookup.ContainsKey(code);
+            return s_metadataLookup.ContainsKey(code);
         }
 
-        static Metadata GetMetadata(string code)
+        private static Metadata GetMetadata(string code)
         {
-            return !string.IsNullOrEmpty(code) && metadataLookup.TryGetValue(code, out Metadata metadata) ? metadata : null;
+            return !string.IsNullOrEmpty(code) && s_metadataLookup.TryGetValue(code, out Metadata metadata) ? metadata : null;
         }
 
         public static bool operator ==(Currency left, Currency right)
@@ -78,7 +77,7 @@ namespace Karambolo.Common.Monetary
             return !left.Equals(right);
         }
 
-        static int? Encode(string code)
+        private static int? Encode(string code)
         {
             if (string.IsNullOrEmpty(code))
                 return 0;
@@ -98,7 +97,7 @@ namespace Karambolo.Common.Monetary
             return result;
         }
 
-        static string Decode(int data)
+        private static string Decode(int data)
         {
             if (data == 0)
                 return null;
@@ -110,12 +109,12 @@ namespace Karambolo.Common.Monetary
             return new string(chars);
         }
 
-        static string SymbolToCode(string symbol)
+        private static string SymbolToCode(string symbol)
         {
             if (string.IsNullOrEmpty(symbol))
                 return null;
 
-            return metadataLookup
+            return s_metadataLookup
                 .FirstOrDefault(kvp => string.Equals(kvp.Value.Symbol, symbol, StringComparison.OrdinalIgnoreCase))
                 .Key;
         }
@@ -156,7 +155,7 @@ namespace Karambolo.Common.Monetary
             return new Currency(code);
         }
 
-        readonly int _data;
+        private readonly int _data;
 
         public Currency(string code)
         {

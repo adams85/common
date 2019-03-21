@@ -9,7 +9,7 @@ namespace Karambolo.Common.Localization
             return new TextContext(id);
         }
 
-        TextContext(string id)
+        private TextContext(string id)
         {
             if (id == null)
                 throw new ArgumentNullException(nameof(id));

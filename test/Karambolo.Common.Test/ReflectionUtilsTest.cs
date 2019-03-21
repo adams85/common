@@ -20,7 +20,7 @@ namespace Karambolo.Common
     public class ReflectionUtilsTest
     {
         [AttributeUsage(AttributeTargets.All, AllowMultiple = true, Inherited = false)]
-        class NonInheritedAttribute : Attribute
+        private class NonInheritedAttribute : Attribute
         {
             public NonInheritedAttribute(int id)
             {
@@ -31,7 +31,7 @@ namespace Karambolo.Common
         }
 
         [AttributeUsage(AttributeTargets.All, AllowMultiple = true, Inherited = true)]
-        class InheritedAttribute : Attribute
+        private class InheritedAttribute : Attribute
         {
             public InheritedAttribute(int id)
             {
@@ -43,7 +43,7 @@ namespace Karambolo.Common
 
         [NonInherited(1), NonInherited(2)]
         [Inherited(1), Inherited(2)]
-        class TestClass
+        private class TestClass
         {
             public TestClass() { }
             public TestClass(string value) { _field = value; }
@@ -62,14 +62,14 @@ namespace Karambolo.Common
             public bool Method() => default;
         }
 
-        interface ITestInterface
+        private interface ITestInterface
         {
             int VirtualProperty { get; }
             int ReadOnlyProperty { get; }
             object ExplicitProperty { get; set; }
         }
 
-        class DerivedTestClass : TestClass, ITestInterface
+        private class DerivedTestClass : TestClass, ITestInterface
         {
             internal int InternalProperty { get; set; }
 
@@ -178,30 +178,30 @@ namespace Karambolo.Common
         [Fact]
         public void GetMemberTypeTest()
         {
-            var type = typeof(TestClass);
+            Type type = typeof(TestClass);
 
-            var field = type.GetField(nameof(TestClass._field), SystemBindingFlags.Instance | SystemBindingFlags.NonPublic);
+            FieldInfo field = type.GetField(nameof(TestClass._field), SystemBindingFlags.Instance | SystemBindingFlags.NonPublic);
             Assert.Equal(typeof(string), field.GetMemberType(CommonMemberTypes.Field));
             Assert.Equal(null, field.GetMemberType(0));
 
-            var property = type.GetProperty(nameof(TestClass.Property));
+            PropertyInfo property = type.GetProperty(nameof(TestClass.Property));
             Assert.Equal(typeof(int), property.GetMemberType(CommonMemberTypes.Property));
             Assert.Equal(null, property.GetMemberType(0));
 
-            var @event = type.GetEvent(nameof(TestClass.Event));
+            EventInfo @event = type.GetEvent(nameof(TestClass.Event));
             Assert.Equal(typeof(EventHandler), @event.GetMemberType(CommonMemberTypes.Event));
             Assert.Equal(null, @event.GetMemberType(0));
 
-            var method = type.GetMethod(nameof(TestClass.Method));
+            MethodInfo method = type.GetMethod(nameof(TestClass.Method));
             Assert.Equal(typeof(bool), method.GetMemberType(CommonMemberTypes.Method));
             Assert.Equal(null, method.GetMemberType(0));
 
-            var explicitCtor = type.GetConstructor(new[] { typeof(string) });
+            ConstructorInfo explicitCtor = type.GetConstructor(new[] { typeof(string) });
             Assert.Equal(typeof(TestClass), explicitCtor.GetMemberType(CommonMemberTypes.Constructor));
             Assert.Equal(null, method.GetMemberType(0));
 
             type = typeof(DerivedTestClass);
-            var implicitCtor = type.GetConstructor(Type.EmptyTypes);
+            ConstructorInfo implicitCtor = type.GetConstructor(Type.EmptyTypes);
             Assert.Equal(typeof(DerivedTestClass), implicitCtor.GetMemberType(CommonMemberTypes.Constructor));
             Assert.Equal(null, method.GetMemberType(0));
         }
@@ -210,14 +210,14 @@ namespace Karambolo.Common
         [Fact]
         public void GetAttributeseTest()
         {
-            var type = typeof(TestClass);
-            var derivedType = typeof(DerivedTestClass);
+            Type type = typeof(TestClass);
+            Type derivedType = typeof(DerivedTestClass);
 
-            var property = type.GetProperty(nameof(TestClass.Property));
-            var derivedProperty = derivedType.GetProperty(nameof(DerivedTestClass.Property));
+            PropertyInfo property = type.GetProperty(nameof(TestClass.Property));
+            PropertyInfo derivedProperty = derivedType.GetProperty(nameof(DerivedTestClass.Property));
 
-            var virtualProperty = type.GetProperty(nameof(TestClass.VirtualProperty));
-            var derivedVirtualProperty = derivedType.GetProperty(nameof(DerivedTestClass.VirtualProperty));
+            PropertyInfo virtualProperty = type.GetProperty(nameof(TestClass.VirtualProperty));
+            PropertyInfo derivedVirtualProperty = derivedType.GetProperty(nameof(DerivedTestClass.VirtualProperty));
 
             #region non-inherited on type
 
@@ -367,14 +367,14 @@ namespace Karambolo.Common
         [Fact]
         public void HasAttributeseTest()
         {
-            var type = typeof(TestClass);
-            var derivedType = typeof(DerivedTestClass);
+            Type type = typeof(TestClass);
+            Type derivedType = typeof(DerivedTestClass);
 
-            var property = type.GetProperty(nameof(TestClass.Property));
-            var derivedProperty = derivedType.GetProperty(nameof(DerivedTestClass.Property));
+            PropertyInfo property = type.GetProperty(nameof(TestClass.Property));
+            PropertyInfo derivedProperty = derivedType.GetProperty(nameof(DerivedTestClass.Property));
 
-            var virtualProperty = type.GetProperty(nameof(TestClass.VirtualProperty));
-            var derivedVirtualProperty = derivedType.GetProperty(nameof(DerivedTestClass.VirtualProperty));
+            PropertyInfo virtualProperty = type.GetProperty(nameof(TestClass.VirtualProperty));
+            PropertyInfo derivedVirtualProperty = derivedType.GetProperty(nameof(DerivedTestClass.VirtualProperty));
 
             #region non-inherited on type
 
@@ -435,18 +435,18 @@ namespace Karambolo.Common
         [Fact]
         public void MakeFastGetterTest()
         {
-            var type = typeof(TestClass);
+            Type type = typeof(TestClass);
 
             var obj = new DerivedTestClass { _field = "x", Property = 1 };
 
-            var field = type.GetField(nameof(TestClass._field), SystemBindingFlags.Instance | SystemBindingFlags.NonPublic);
+            FieldInfo field = type.GetField(nameof(TestClass._field), SystemBindingFlags.Instance | SystemBindingFlags.NonPublic);
             Assert.Equal(obj._field, field.MakeFastGetter<TestClass, string>()(obj));
             Assert.Equal(obj._field, field.MakeFastGetter<TestClass, object>()(obj));
             Assert.Equal(obj._field, field.MakeFastGetter<object, object>()(obj));
             Assert.Throws<InvalidOperationException>(() => field.MakeFastGetter<object, StringBuilder>()(obj));
             Assert.Throws<InvalidCastException>(() => field.MakeFastGetter<object, string>()(new object()));
 
-            var property = type.GetProperty(nameof(TestClass.Property));
+            PropertyInfo property = type.GetProperty(nameof(TestClass.Property));
             Assert.Equal(obj.Property, property.MakeFastGetter<TestClass, int>()(obj));
             Assert.Equal(obj.Property, property.MakeFastGetter<TestClass, int?>()(obj));
             Assert.Equal(obj.Property, property.MakeFastGetter<TestClass, short>()(obj));
@@ -459,9 +459,9 @@ namespace Karambolo.Common
         [Fact]
         public void MakeFastSetterTest()
         {
-            var type = typeof(TestClass);
+            Type type = typeof(TestClass);
 
-            var field = type.GetField(nameof(TestClass._field), SystemBindingFlags.Instance | SystemBindingFlags.NonPublic);
+            FieldInfo field = type.GetField(nameof(TestClass._field), SystemBindingFlags.Instance | SystemBindingFlags.NonPublic);
 
             var obj = new DerivedTestClass { _field = "x" };
             field.MakeFastSetter<TestClass, string>()(obj, "y");
@@ -478,7 +478,7 @@ namespace Karambolo.Common
             Assert.Throws<InvalidOperationException>(() => field.MakeFastSetter<object, StringBuilder>()(obj, new StringBuilder()));
             Assert.Throws<InvalidCastException>(() => field.MakeFastSetter<object, string>()(new object(), "y"));
 
-            var property = type.GetProperty(nameof(TestClass.Property));
+            PropertyInfo property = type.GetProperty(nameof(TestClass.Property));
 
             obj = new DerivedTestClass { Property = 1 };
             property.MakeFastSetter<TestClass, int>()(obj, 2);
@@ -514,7 +514,7 @@ namespace Karambolo.Common
 
             #region default (properties only, include read-only properties, case-sensitive)
 
-            var dic = ReflectionUtils.ObjectToDictionary(obj);
+            IDictionary<string, object> dic = ReflectionUtils.ObjectToDictionary(obj);
             Assert.Equal(4, dic.Count);
             Assert.Equal(obj.Property, dic[nameof(DerivedTestClass.Property)]);
             Assert.Equal(obj.VirtualProperty, dic[nameof(DerivedTestClass.VirtualProperty)]);

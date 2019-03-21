@@ -13,7 +13,7 @@ namespace Karambolo.Common
                 throw new ArgumentNullException(nameof(source));
 
             var result = new OrderedDictionary<TKey, TElement>(comparer);
-            foreach (var item in source)
+            foreach (T item in source)
                 result.Add(keySelector(item), elementSelector(item));
 
             return result;

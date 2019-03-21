@@ -116,7 +116,7 @@ namespace Karambolo.Common
                 throw new ArgumentNullException(nameof(match));
 
             T item;
-            List<T> items = new List<T>();
+            var items = new List<T>();
             for (int i = 0, n = list.Count; i < n; i++)
                 if (match(item = list[i]))
                     items.Add(item);
@@ -295,7 +295,7 @@ namespace Karambolo.Common
             if (count < 0 || startIndex > n - count)
                 throw new ArgumentOutOfRangeException(nameof(count));
 
-            var comparer = EqualityComparer<T>.Default;
+            EqualityComparer<T> comparer = EqualityComparer<T>.Default;
             for (var endIndex = startIndex + count; startIndex < endIndex; startIndex++)
                 if (comparer.Equals(list[startIndex], item))
                     return startIndex;
@@ -344,7 +344,7 @@ namespace Karambolo.Common
             if (count < 0 || startIndex - count + 1 < 0)
                 throw new ArgumentOutOfRangeException(nameof(count));
 
-            var comparer = EqualityComparer<T>.Default;
+            EqualityComparer<T> comparer = EqualityComparer<T>.Default;
             for (var endIndex = startIndex - count; startIndex > endIndex; startIndex--)
                 if (comparer.Equals(list[startIndex], item))
                     return startIndex;

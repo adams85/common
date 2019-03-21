@@ -8,7 +8,7 @@ namespace Karambolo.Common
 {
     public class TaskUtilsTest
     {
-        class TestException : Exception { }
+        private class TestException : Exception { }
 
 #if NET461 || NETCOREAPP1_0
         [Fact]
@@ -20,11 +20,11 @@ namespace Karambolo.Common
         [Fact]
         public async Task FromExceptionTest()
         {
-            var task = TaskUtils.FromException(new TestException());
+            Task task = TaskUtils.FromException(new TestException());
             Assert.Equal(TaskStatus.Faulted, task.Status);
             await Assert.ThrowsAsync<TestException>(() => task);
 
-            var taskWithResult = TaskUtils.FromException<int>(new TestException());
+            Task<int> taskWithResult = TaskUtils.FromException<int>(new TestException());
             Assert.Equal(TaskStatus.Faulted, taskWithResult.Status);
             await Assert.ThrowsAsync<TestException>(() => taskWithResult);
         }
@@ -36,7 +36,7 @@ namespace Karambolo.Common
             {
                 await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => TaskUtils.FromCanceled(cts.Token));
                 cts.Cancel();
-                var task = TaskUtils.FromCanceled(cts.Token);
+                Task task = TaskUtils.FromCanceled(cts.Token);
                 Assert.Equal(TaskStatus.Canceled, task.Status);
                 await Assert.ThrowsAsync<TaskCanceledException>(() => task);
             }
@@ -45,7 +45,7 @@ namespace Karambolo.Common
             {
                 await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => TaskUtils.FromCanceled(cts.Token));
                 cts.Cancel();
-                var taskWithResult = TaskUtils.FromCanceled(cts.Token);
+                Task taskWithResult = TaskUtils.FromCanceled(cts.Token);
                 Assert.Equal(TaskStatus.Canceled, taskWithResult.Status);
                 await Assert.ThrowsAsync<TaskCanceledException>(() => taskWithResult);
             }
@@ -188,7 +188,7 @@ namespace Karambolo.Common
         public void ExecuteTaskApmTest()
         {
             int flag = 0;
-            var asyncResult = TaskUtils.BeginExecuteTask(Task.Delay(100).ContinueWith(t => flag++, TaskContinuationOptions.ExecuteSynchronously), ar =>
+            IAsyncResult asyncResult = TaskUtils.BeginExecuteTask(Task.Delay(100).ContinueWith(t => flag++, TaskContinuationOptions.ExecuteSynchronously), ar =>
             {
                 Assert.Equal("state", ar.AsyncState);
                 ar.EndExecuteTask().WaitAndUnwrap();

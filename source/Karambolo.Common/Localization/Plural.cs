@@ -9,7 +9,7 @@ namespace Karambolo.Common.Localization
             return new Plural(id, count);
         }
 
-        Plural(string id, int count)
+        private Plural(string id, int count)
         {
             if (id == null)
                 throw new ArgumentNullException(nameof(id));

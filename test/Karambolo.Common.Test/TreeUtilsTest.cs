@@ -6,7 +6,7 @@ namespace Karambolo.Common
 {
     public class TreeUtilsTest
     {
-        class TreeNode<T>
+        private class TreeNode<T>
         {
             public TreeNode(T id)
             {
@@ -32,7 +32,7 @@ namespace Karambolo.Common
             }
         }
 
-        bool PathEquals(IEnumerable<TreeNode<int>> path, params int[] ids)
+        private bool PathEquals(IEnumerable<TreeNode<int>> path, params int[] ids)
         {
             return ids.SequenceEqual(path.Select(n => n.Id));
         }
@@ -107,7 +107,7 @@ namespace Karambolo.Common
                     .AddChild("I")
                         .AddChild("H");
 
-            var descendants = TreeUtils.Descendants(tree, n => n.Children.AsEnumerable().Reverse(), includeSelf: true);
+            IEnumerable<TreeNode<string>> descendants = TreeUtils.Descendants(tree, n => n.Children.AsEnumerable().Reverse(), includeSelf: true);
             Assert.Equal("F, B, A, D, C, E, G, I, H", string.Join(", ", descendants.Select(n => n.Id)));
 
             descendants = TreeUtils.Descendants(tree, n => n.Children.AsEnumerable().Reverse(), includeSelf: false);
@@ -131,7 +131,7 @@ namespace Karambolo.Common
                     .AddChild("I")
                         .AddChild("H");
 
-            var traversal = TreeTraversal.PreOrder.Traverse(tree, t => t.Children.AsEnumerable().Reverse(), includeSelf: true);
+            IEnumerable<TreeNode<string>> traversal = TreeTraversal.PreOrder.Traverse(tree, t => t.Children.AsEnumerable().Reverse(), includeSelf: true);
             Assert.Equal("F, B, A, D, C, E, G, I, H", string.Join(", ", traversal.Select(n => n.Id)));
 
             traversal = TreeTraversal.PreOrder.Traverse(tree, t => t.Children.AsEnumerable().Reverse(), includeSelf: false);
@@ -157,7 +157,7 @@ namespace Karambolo.Common
         public void LeavesTest()
         {
             var tree = new TreeNode<int>(0);
-            var result = TreeUtils.Leaves(tree, t => t.Children).ToArray();
+            TreeNode<int>[] result = TreeUtils.Leaves(tree, t => t.Children).ToArray();
             Assert.Single(result);
             Assert.Contains(result, r => r.Id == 0);
 
@@ -188,7 +188,7 @@ namespace Karambolo.Common
         public void EnumeratePathsTest()
         {
             var tree = new TreeNode<int>(0);
-            var result = TreeUtils.EnumeratePaths(tree, n => n.Children).ToArray();
+            IEnumerable<TreeNode<int>>[] result = TreeUtils.EnumeratePaths(tree, n => n.Children).ToArray();
             Assert.Single(result);
             Assert.Contains(result, r => PathEquals(r, 0));
 

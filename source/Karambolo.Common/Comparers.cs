@@ -5,8 +5,8 @@ namespace Karambolo.Common
 {
     public sealed class ProjectionEqualityComparer<TSource, TKey> : IEqualityComparer<TSource>
     {
-        readonly Func<TSource, TKey> _projection;
-        readonly IEqualityComparer<TKey> _comparer;
+        private readonly Func<TSource, TKey> _projection;
+        private readonly IEqualityComparer<TKey> _comparer;
 
         public ProjectionEqualityComparer(Func<TSource, TKey> projection)
             : this(projection, null) { }
@@ -35,10 +35,7 @@ namespace Karambolo.Common
 
         public int GetHashCode(TSource obj)
         {
-            if (obj == null)
-                return 0;
-
-            return _comparer.GetHashCode(_projection(obj));
+            return obj != null ? _comparer.GetHashCode(_projection(obj)) : 0;
         }
 
         #endregion
@@ -60,8 +57,8 @@ namespace Karambolo.Common
 
     public sealed class DelegatedEqualityComparer<TSource> : IEqualityComparer<TSource>
     {
-        readonly Func<TSource, TSource, bool> _comparer;
-        readonly Func<TSource, int> _hasher;
+        private readonly Func<TSource, TSource, bool> _comparer;
+        private readonly Func<TSource, int> _hasher;
 
         public DelegatedEqualityComparer(Func<TSource, TSource, bool> comparer, Func<TSource, int> hasher)
         {
@@ -90,10 +87,7 @@ namespace Karambolo.Common
 
         public int GetHashCode(TSource obj)
         {
-            if (obj == null)
-                return 0;
-
-            return _hasher(obj);
+            return obj != null ? _hasher(obj) : 0;
         }
 
         #endregion
@@ -109,7 +103,7 @@ namespace Karambolo.Common
 
     public sealed class DelegatedComparer<TSource> : IComparer<TSource>
     {
-        readonly Func<TSource, TSource, int> _comparer;
+        private readonly Func<TSource, TSource, int> _comparer;
 
         public DelegatedComparer(Func<TSource, TSource, int> comparer)
         {

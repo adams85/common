@@ -79,7 +79,7 @@ namespace Karambolo.Common.Collections
             }, dicNonGeneric.Cast<KeyValuePair<int, string>>());
 
             var entries = new List<object>();
-            var enumerator = dicNonGeneric.GetEnumerator();
+            IDictionaryEnumerator enumerator = dicNonGeneric.GetEnumerator();
             while (enumerator.MoveNext())
                 entries.Add(enumerator.Current);
 
@@ -378,28 +378,28 @@ namespace Karambolo.Common.Collections
 
             #region Default enumerator
 
-            using (var enumerator = dic.GetEnumerator())
+            using (OrderedDictionary<int, string>.Enumerator enumerator = dic.GetEnumerator())
             {
                 enumerator.MoveNext();
                 dic.Remove(1);
                 Assert.Throws<InvalidOperationException>(() => enumerator.MoveNext());
             }
 
-            using (var enumerator = dic.GetEnumerator())
+            using (OrderedDictionary<int, string>.Enumerator enumerator = dic.GetEnumerator())
             {
                 enumerator.MoveNext();
                 dicIntf[0] = "zero";
                 Assert.Throws<InvalidOperationException>(() => enumerator.MoveNext());
             }
 
-            using (var enumerator = dic.GetEnumerator())
+            using (OrderedDictionary<int, string>.Enumerator enumerator = dic.GetEnumerator())
             {
                 enumerator.MoveNext();
                 dicIntf[1] = "1";
                 Assert.Throws<InvalidOperationException>(() => enumerator.MoveNext());
             }
 
-            using (var enumerator = dic.GetEnumerator())
+            using (OrderedDictionary<int, string>.Enumerator enumerator = dic.GetEnumerator())
             {
                 enumerator.MoveNext();
                 dic[0] = "zero";
@@ -410,28 +410,28 @@ namespace Karambolo.Common.Collections
 
             #region Keys
 
-            using (var enumerator = dic.Keys.GetEnumerator())
+            using (OrderedDictionary<int, string>.KeyCollection.Enumerator enumerator = dic.Keys.GetEnumerator())
             {
                 enumerator.MoveNext();
                 dic.Remove(1);
                 Assert.Throws<InvalidOperationException>(() => enumerator.MoveNext());
             }
 
-            using (var enumerator = dic.Keys.GetEnumerator())
+            using (OrderedDictionary<int, string>.KeyCollection.Enumerator enumerator = dic.Keys.GetEnumerator())
             {
                 enumerator.MoveNext();
                 dicIntf[0] = "zero";
                 Assert.Throws<InvalidOperationException>(() => enumerator.MoveNext());
             }
 
-            using (var enumerator = dic.Keys.GetEnumerator())
+            using (OrderedDictionary<int, string>.KeyCollection.Enumerator enumerator = dic.Keys.GetEnumerator())
             {
                 enumerator.MoveNext();
                 dicIntf[1] = "1";
                 Assert.Throws<InvalidOperationException>(() => enumerator.MoveNext());
             }
 
-            using (var enumerator = dic.Keys.GetEnumerator())
+            using (OrderedDictionary<int, string>.KeyCollection.Enumerator enumerator = dic.Keys.GetEnumerator())
             {
                 enumerator.MoveNext();
                 dic[0] = "zero";
@@ -442,28 +442,28 @@ namespace Karambolo.Common.Collections
 
             #region Values
 
-            using (var enumerator = dic.Values.GetEnumerator())
+            using (OrderedDictionary<int, string>.ValueCollection.Enumerator enumerator = dic.Values.GetEnumerator())
             {
                 enumerator.MoveNext();
                 dic.Remove(1);
                 Assert.Throws<InvalidOperationException>(() => enumerator.MoveNext());
             }
 
-            using (var enumerator = dic.Values.GetEnumerator())
+            using (OrderedDictionary<int, string>.ValueCollection.Enumerator enumerator = dic.Values.GetEnumerator())
             {
                 enumerator.MoveNext();
                 dicIntf[0] = "zero";
                 Assert.Throws<InvalidOperationException>(() => enumerator.MoveNext());
             }
 
-            using (var enumerator = dic.Values.GetEnumerator())
+            using (OrderedDictionary<int, string>.ValueCollection.Enumerator enumerator = dic.Values.GetEnumerator())
             {
                 enumerator.MoveNext();
                 dicIntf[1] = "1";
                 Assert.Throws<InvalidOperationException>(() => enumerator.MoveNext());
             }
 
-            using (var enumerator = dic.Values.GetEnumerator())
+            using (OrderedDictionary<int, string>.ValueCollection.Enumerator enumerator = dic.Values.GetEnumerator())
             {
                 enumerator.MoveNext();
                 dic[0] = "zero";
@@ -475,28 +475,28 @@ namespace Karambolo.Common.Collections
             #region IDictionaryEnumerator
 
             {
-                var enumerator = dicNonGeneric.GetEnumerator();
+                IDictionaryEnumerator enumerator = dicNonGeneric.GetEnumerator();
                 enumerator.MoveNext();
                 dic.Remove(1);
                 Assert.Throws<InvalidOperationException>(() => enumerator.MoveNext());
             }
 
             {
-                var enumerator = dicNonGeneric.GetEnumerator();
+                IDictionaryEnumerator enumerator = dicNonGeneric.GetEnumerator();
                 enumerator.MoveNext();
                 dicIntf[0] = "zero";
                 Assert.Throws<InvalidOperationException>(() => enumerator.MoveNext());
             }
 
             {
-                var enumerator = dicNonGeneric.GetEnumerator();
+                IDictionaryEnumerator enumerator = dicNonGeneric.GetEnumerator();
                 enumerator.MoveNext();
                 dicIntf[1] = "1";
                 Assert.Throws<InvalidOperationException>(() => enumerator.MoveNext());
             }
 
             {
-                var enumerator = dicNonGeneric.GetEnumerator();
+                IDictionaryEnumerator enumerator = dicNonGeneric.GetEnumerator();
                 enumerator.MoveNext();
                 dic[0] = "zero";
                 Assert.Throws<InvalidOperationException>(() => enumerator.MoveNext());

@@ -52,11 +52,6 @@ namespace Karambolo.Common
             Assert.False(False<int>.Func(1));
             Assert.False(False<int?>.Func(1));
             Assert.False(False<string>.Func("1"));
-
-            Assert.Same(False<int>.Predicate, False<int>.Predicate);
-            Assert.False(False<int>.Predicate(1));
-            Assert.False(False<int?>.Predicate(1));
-            Assert.False(False<string>.Predicate("1"));
         }
 
         [Fact]
@@ -69,11 +64,6 @@ namespace Karambolo.Common
             Assert.True(True<int>.Func(1));
             Assert.True(True<int?>.Func(1));
             Assert.True(True<string>.Func("1"));
-
-            Assert.Same(True<int>.Predicate, True<int>.Predicate);
-            Assert.True(True<int>.Predicate(1));
-            Assert.True(True<int?>.Predicate(1));
-            Assert.True(True<string>.Predicate("1"));
         }
     }
 }

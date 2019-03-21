@@ -1,16 +1,16 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Karambolo.Common.Properties;
 using Karambolo.Common.Internal;
+using Karambolo.Common.Properties;
 
 namespace Karambolo.Common
 {
     public static class Lambda
     {
-        static MemberExpression GetMemberExpression(Expression expression, MemberTypes allowedMemberTypes)
+        private static MemberExpression GetMemberExpression(Expression expression, MemberTypes allowedMemberTypes)
         {
             return
                 expression is MemberExpression memberExpression && (allowedMemberTypes & memberExpression.Member.MemberType()) != 0 ?
@@ -26,7 +26,7 @@ namespace Karambolo.Common
             return GetMemberExpression(expression.Body, allowedMemberTypes);
         }
 
-        static IEnumerable<MemberInfo> GetMemberPath(LambdaExpression expression, MemberTypes allowedMemberTypes, Func<Expression, bool> isSource)
+        private static IEnumerable<MemberInfo> GetMemberPath(LambdaExpression expression, MemberTypes allowedMemberTypes, Func<Expression, bool> isSource)
         {
             if (expression == null)
                 throw new ArgumentNullException(nameof(expression));
@@ -35,7 +35,7 @@ namespace Karambolo.Common
                 throw new ArgumentException(Resources.FieldOrPropertyAllowedOnly, nameof(allowedMemberTypes));
 
             var memberExpressions = new List<MemberInfo>();
-            var currentExpression = expression.Body;
+            Expression currentExpression = expression.Body;
             MemberExpression memberExpression;
             do
             {
@@ -73,7 +73,7 @@ namespace Karambolo.Common
 
         public static FieldInfo Field<TField>(this Expression<Func<TField>> expression)
         {
-            var member = GetMemberExpression(expression, MemberTypes.Field);
+            MemberExpression member = GetMemberExpression(expression, MemberTypes.Field);
             if (member == null)
                 throw new ArgumentException(Resources.InvalidValue, nameof(expression));
 
@@ -82,7 +82,7 @@ namespace Karambolo.Common
 
         public static FieldInfo Field<TContainer, TField>(this Expression<Func<TContainer, TField>> expression)
         {
-            var member = GetMemberExpression(expression, MemberTypes.Field);
+            MemberExpression member = GetMemberExpression(expression, MemberTypes.Field);
             if (member == null)
                 throw new ArgumentException(Resources.InvalidValue, nameof(expression));
 
@@ -91,7 +91,7 @@ namespace Karambolo.Common
 
         public static PropertyInfo Property<TProperty>(this Expression<Func<TProperty>> expression)
         {
-            var member = GetMemberExpression(expression, MemberTypes.Property);
+            MemberExpression member = GetMemberExpression(expression, MemberTypes.Property);
             if (member == null)
                 throw new ArgumentException(Resources.InvalidValue, nameof(expression));
 
@@ -100,7 +100,7 @@ namespace Karambolo.Common
 
         public static PropertyInfo Property<TContainer, TProperty>(this Expression<Func<TContainer, TProperty>> expression)
         {
-            var member = GetMemberExpression(expression, MemberTypes.Property);
+            MemberExpression member = GetMemberExpression(expression, MemberTypes.Property);
             if (member == null)
                 throw new ArgumentException(Resources.InvalidValue, nameof(expression));
 
@@ -117,7 +117,7 @@ namespace Karambolo.Common
 
         public static MethodInfo Method(this Expression<Action> expression)
         {
-            var member = GetCallExpression(expression);
+            MethodCallExpression member = GetCallExpression(expression);
             if (member == null)
                 throw new ArgumentException(Resources.InvalidValue, nameof(expression));
 
@@ -126,7 +126,7 @@ namespace Karambolo.Common
 
         public static MethodInfo Method<TContainer>(this Expression<Action<TContainer>> expression)
         {
-            var member = GetCallExpression(expression);
+            MethodCallExpression member = GetCallExpression(expression);
             if (member == null)
                 throw new ArgumentException(Resources.InvalidValue, nameof(expression));
 
@@ -138,21 +138,21 @@ namespace Karambolo.Common
             if (expression == null)
                 throw new ArgumentNullException(nameof(expression));
 
-            var method = expression.Method;
+            MethodInfo method = expression.Method;
 
             return method.GetGenericMethodDefinition().MakeGenericMethod(typeArgs);
         }
 
         public static MethodInfo MakeGenericMethod(this Expression<Action> expression, params Type[] typeArgs)
         {
-            var method = Method(expression);
+            MethodInfo method = Method(expression);
 
             return method.GetGenericMethodDefinition().MakeGenericMethod(typeArgs);
         }
 
         public static MethodInfo MakeGenericMethod<TContainer>(this Expression<Action<TContainer>> expression, params Type[] typeArgs)
         {
-            var method = Method(expression);
+            MethodInfo method = Method(expression);
 
             return method.GetGenericMethodDefinition().MakeGenericMethod(typeArgs);
         }
