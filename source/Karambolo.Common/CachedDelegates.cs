@@ -35,7 +35,6 @@ namespace Karambolo.Common
     public static class False<T>
     {
         public static readonly Func<T, bool> Func = _ => false;
-        public static readonly Predicate<T> Predicate = new Predicate<T>(Func);
     }
 
     public static class True
@@ -46,6 +45,5 @@ namespace Karambolo.Common
     public static class True<T>
     {
         public static readonly Func<T, bool> Func = _ => true;
-        public static readonly Predicate<T> Predicate = new Predicate<T>(Func);
     }
 }
