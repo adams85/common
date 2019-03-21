@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Collections;
 using System.Collections.Generic;
 using Xunit;
 
@@ -6,6 +6,19 @@ namespace Karambolo.Common
 {
     public class CollectionUtilsTest
     {
+        private class ReadOnlyCollection<T> : IReadOnlyCollection<T>
+        {
+            private readonly ICollection<T> _collection;
+
+            public ReadOnlyCollection(ICollection<T> collection) => _collection = collection;
+
+            public int Count => _collection.Count;
+
+            public IEnumerator<T> GetEnumerator() => _collection.GetEnumerator();
+
+            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        }
+
         [Fact]
         public void IsNullOrEmptyTest()
         {
@@ -18,6 +31,20 @@ namespace Karambolo.Common
             Assert.True(CollectionUtils.IsNullOrEmpty((ICollection<int>)null));
             Assert.True(CollectionUtils.IsNullOrEmpty(ArrayUtils.Empty<int>()));
             Assert.False(CollectionUtils.IsNullOrEmpty(new[] { 1 }));
+        }
+
+        [Fact]
+        public void ContainsTest()
+        {
+            var set = new HashSet<int> { 4, 5, 6 };
+
+            Assert.True(ReadOnlyCollectionUtils.Contains(set, 5));
+            Assert.False(ReadOnlyCollectionUtils.Contains(set, 7));
+
+            var readOnlyCollection = new ReadOnlyCollection<int>(set);
+
+            Assert.True(ReadOnlyCollectionUtils.Contains(set, 5));
+            Assert.False(ReadOnlyCollectionUtils.Contains(set, 7));
         }
     }
 }
