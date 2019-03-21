@@ -3,7 +3,7 @@ using System;
 
 namespace Karambolo.Common
 {
-    public class DateTimeUtilsTest
+    public class TimeSpanUtilsTest
     {
         [Fact]
         public void ToTimeReferenceTest()

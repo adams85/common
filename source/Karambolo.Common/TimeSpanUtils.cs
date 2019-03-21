@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Karambolo.Common
 {
-    public static class DateTimeUtils
+    public static class TimeSpanUtils
     {
         class PeriodDescriptor
         {
