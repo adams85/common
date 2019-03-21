@@ -4,7 +4,7 @@ using System.Text;
 using System.Globalization;
 using Karambolo.Common.Properties;
 
-namespace Karambolo.Common.Finances
+namespace Karambolo.Common.Monetary
 {
 #if !NETSTANDARD1_0
     [System.Serializable]
