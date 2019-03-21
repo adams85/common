@@ -418,16 +418,16 @@ namespace Karambolo.Common
                 return string.Empty;
 
             var normalizedString = @string.Normalize(NormalizationForm.FormD);
-            var stringBuilder = new StringBuilder();
+            var sb = new StringBuilder();
 
             for (var i = 0; i < normalizedString.Length; i++)
             {
                 var c = normalizedString[i];
                 if (CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
-                    stringBuilder.Append(c);
+                    sb.Append(c);
             }
 
-            return stringBuilder.ToString();
+            return sb.ToString();
         }
 #endif
     }

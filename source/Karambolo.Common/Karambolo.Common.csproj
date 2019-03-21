@@ -38,6 +38,8 @@
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.0'">
     <Compile Remove="Compatibility.Net40.cs" />
 
+    <Compile Remove="PathUtils.cs" />
+
     <Compile Remove="Localization\**" />
     <Compile Include="Localization\Plural.cs" />
     <Compile Include="Localization\TextContext.cs" />

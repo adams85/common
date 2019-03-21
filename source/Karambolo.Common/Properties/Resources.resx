@@ -165,4 +165,7 @@
   <data name="ValueMustBeNonNegative" xml:space="preserve">
     <value>Value must be non-negative.</value>
   </data>
+  <data name="NoCommonBasePath" xml:space="preserve">
+    <value>The specified paths have no common base.</value>
+  </data>
 </root>

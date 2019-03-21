@@ -3,6 +3,18 @@ using System.Reflection;
 
 namespace Karambolo.Common
 {
+    internal static class Platform
+    {
+        public static readonly bool? IsWindowsOS =
+#if NETSTANDARD2_0
+                System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows);
+#elif NETSTANDARD1_0
+                null;
+#else
+                true;
+#endif
+    }
+
     internal static class MathShim
     {
 #if !NET40

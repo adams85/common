@@ -160,6 +160,15 @@ namespace Karambolo.Common.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The specified paths have no common base..
+        /// </summary>
+        internal static string NoCommonBasePath {
+            get {
+                return ResourceManager.GetString("NoCommonBasePath", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Arrays with non-zero lower bounds are not supported..
         /// </summary>
         internal static string NonZeroLowerBoundArrayNotSupported {

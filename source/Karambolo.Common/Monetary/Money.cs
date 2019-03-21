@@ -116,17 +116,17 @@ namespace Karambolo.Common.Monetary
 
             // pre-number
             char c;
-            var builder = new StringBuilder();
+            var sb = new StringBuilder();
             var separator = numberFormat.CurrencyDecimalSeparator.AsEnumerable().First();
             for (var i = 0; i < length - 1; i++)
                 if (!char.IsDigit(c = value[i]) && c != separator)
-                    builder.Append(c);
+                    sb.Append(c);
                 else
                     break;
 
-            if (builder.Length > 0)
+            if (sb.Length > 0)
             {
-                var part = builder.ToString().Trim();
+                var part = sb.ToString().Trim();
                 var index = part.IndexOf('(');
                 if (index < 0)
                     part = RemoveSignFromCurrencyString(part, numberFormat);
@@ -141,17 +141,17 @@ namespace Karambolo.Common.Monetary
             }
 
             // post-number
-            builder.Clear();
+            sb.Clear();
             separator = numberFormat.CurrencyDecimalSeparator.AsEnumerable().Last();
             for (var i = length - 1; i > 0; i--)
                 if (!char.IsDigit(c = value[i]) && c != separator)
-                    builder.Insert(0, c);
+                    sb.Insert(0, c);
                 else
                     break;
 
-            if (builder.Length > 0)
+            if (sb.Length > 0)
             {
-                var part = builder.ToString().Trim();
+                var part = sb.ToString().Trim();
                 var index = part.LastIndexOf(')');
                 if (index < 0)
                     part = RemoveSignFromCurrencyString(part, numberFormat);

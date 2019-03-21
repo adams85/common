@@ -70,31 +70,31 @@ namespace Karambolo.Common
                 if ((value = GetValue(ref remainder, index)) > 0)
                     break;
 
-            var builder = new StringBuilder();
-            AddValue(builder, index++, value, localizer);
+            var sb = new StringBuilder();
+            AddValue(sb, index++, value, localizer);
             precision--;
 
             for (; index < s_periods.Length && precision > 0; index++, precision--)
                 if ((value = GetValue(ref remainder, index)) > 0)
                 {
-                    builder.Append(' ');
-                    AddValue(builder, index, value, localizer);
+                    sb.Append(' ');
+                    AddValue(sb, index, value, localizer);
                 }
                 else
                     break;
 
-            return localizer(total > 0 ? futureFormat : pastFormat, builder.ToString());
+            return localizer(total > 0 ? futureFormat : pastFormat, sb.ToString());
 
             int GetValue(ref long rem, int i)
             {
                 return (int)MathShim.DivRem(rem, s_periods[i].Divisor, out rem);
             }
 
-            void AddValue(StringBuilder sb, int i, int val, TextLocalizer loc)
+            void AddValue(StringBuilder builder, int i, int val, TextLocalizer loc)
             {
-                sb.Append(val);
-                sb.Append(' ');
-                sb.Append(loc(s_periods[i].SingularName, Plural.From(s_periods[i].PluralName, val)));
+                builder.Append(val);
+                builder.Append(' ');
+                builder.Append(loc(s_periods[i].SingularName, Plural.From(s_periods[i].PluralName, val)));
             }
         }
     }

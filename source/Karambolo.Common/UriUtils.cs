@@ -41,7 +41,7 @@ namespace Karambolo.Common
 
         public static string BuildUrl(string[] parts, IDictionary<string, object> query, string fragment)
         {
-            var builder = new StringBuilder();
+            var sb = new StringBuilder();
 
             if (!ArrayUtils.IsNullOrEmpty(parts))
             {
@@ -51,16 +51,16 @@ namespace Karambolo.Common
                 var count = parts.Length;
                 for (var i = 0; i < count; i++)
                 {
-                    builder.Append(delimiter);
+                    sb.Append(delimiter);
 
                     part = parts[i];
                     if (!string.IsNullOrEmpty(part))
                     {
                         var endIndex = part.Length - 1;
                         if (part[0] == '/')
-                            builder.Append(part, 1, endIndex);
+                            sb.Append(part, 1, endIndex);
                         else
-                            builder.Append(part);
+                            sb.Append(part);
 
                         delimiter = endIndex > 0 && part[endIndex] != '/' ? "/" : null;
                     }
@@ -78,22 +78,22 @@ namespace Karambolo.Common
                         EnumerableUtils.Return(queryPart.Value) :
                         enumerable.Cast<object>())
                     {
-                        builder.Append(separator);
+                        sb.Append(separator);
                         separator = '&';
 
-                        builder.Append(queryPart.Key);
-                        builder.Append('=');
-                        builder.Append(value != null ? Uri.EscapeDataString(value.ToString()) : string.Empty);
+                        sb.Append(queryPart.Key);
+                        sb.Append('=');
+                        sb.Append(value != null ? Uri.EscapeDataString(value.ToString()) : string.Empty);
                     }
             }
 
             if (!string.IsNullOrEmpty(fragment))
             {
-                builder.Append('#');
-                builder.Append(Uri.EscapeDataString(fragment));
+                sb.Append('#');
+                sb.Append(Uri.EscapeDataString(fragment));
             }
 
-            return builder.ToString();
+            return sb.ToString();
         }
 
         public static string GetCanonicalPath(string path)
