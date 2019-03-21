@@ -4,6 +4,10 @@ using Karambolo.Common.Properties;
 
 namespace Karambolo.Common
 {
+#if NET40
+    using Karambolo.Common.Collections;
+#endif
+
     public static class ReadOnlyListUtils
     {
         #region BinarySearch

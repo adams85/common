@@ -144,7 +144,10 @@ namespace Karambolo.Common
             return setMethod != null && setMethod.IsPublic ? setMethod : null;
         }
     }
+}
 
+namespace Karambolo.Common.Collections
+{
     public interface IOrderedDictionary : IDictionary, ICollection, IEnumerable
     {
         object this[int index] { get; set; }

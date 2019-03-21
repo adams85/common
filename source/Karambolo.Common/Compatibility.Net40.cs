@@ -3,6 +3,15 @@ using System.Collections.Generic;
 
 namespace Karambolo.Common
 {
+    public enum AssemblyContentType
+    {
+        Default = 0,
+        WindowsRuntime = 1
+    }
+}
+
+namespace Karambolo.Common.Collections
+{
     public interface IReadOnlyCollection<out T> : IEnumerable<T>, IEnumerable
     {
         int Count { get; }
@@ -20,11 +29,5 @@ namespace Karambolo.Common
         TValue this[TKey key] { get; }
         bool ContainsKey(TKey key);
         bool TryGetValue(TKey key, out TValue value);
-    }
-
-    public enum AssemblyContentType
-    {
-        Default = 0,
-        WindowsRuntime = 1
     }
 }
