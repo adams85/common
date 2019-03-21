@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using Karambolo.Common.Properties;
 
 namespace Karambolo.Common
@@ -19,7 +18,7 @@ namespace Karambolo.Common
 
             bool isWindowsOS =
 #if NETSTANDARD2_0
-                RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+                System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows);
 #else
                 true;
 #endif
