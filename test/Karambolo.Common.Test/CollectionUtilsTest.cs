@@ -32,19 +32,5 @@ namespace Karambolo.Common
             Assert.True(CollectionUtils.IsNullOrEmpty(ArrayUtils.Empty<int>()));
             Assert.False(CollectionUtils.IsNullOrEmpty(new[] { 1 }));
         }
-
-        [Fact]
-        public void ContainsTest()
-        {
-            var set = new HashSet<int> { 4, 5, 6 };
-
-            Assert.True(ReadOnlyCollectionUtils.Contains(set, 5));
-            Assert.False(ReadOnlyCollectionUtils.Contains(set, 7));
-
-            var readOnlyCollection = new ReadOnlyCollection<int>(set);
-
-            Assert.True(ReadOnlyCollectionUtils.Contains(set, 5));
-            Assert.False(ReadOnlyCollectionUtils.Contains(set, 7));
-        }
     }
 }
