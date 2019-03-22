@@ -106,7 +106,7 @@ namespace Karambolo.Common
                     return path.Substring(index + 1);
 
             // no common part
-            if (lastSeparatorIndex == 0 && index < pathLength)
+            if (lastSeparatorIndex == 0 && index < pathLength && basePath[0] != Path.DirectorySeparatorChar)
                 throw new ArgumentException(Resources.NoCommonBasePath, nameof(path));
 
             // determining relative part

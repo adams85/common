@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using Xunit;
 
 #if !NETCOREAPP1_0
@@ -43,43 +44,59 @@ namespace Karambolo.Common
         [Fact]
         public void MakeRelativePathTest()
         {
-            Assert.Equal(string.Empty, PathUtils.MakeRelativePathCore(@"C:\", @"C:\"));
-            Assert.Equal(string.Empty, PathUtils.MakeRelativePathCore(@"C:", @"C:"));
-            Assert.Equal(string.Empty, PathUtils.MakeRelativePath(@"C:", @"C:"));
-            Assert.Equal(string.Empty, PathUtils.MakeRelativePathCore(@"C:", @"C:"));
-            Assert.Equal(string.Empty, PathUtils.MakeRelativePath(@"\", @"\"));
+            var s = Path.DirectorySeparatorChar;
 
-            Assert.Equal(string.Empty, PathUtils.MakeRelativePathCore(@"C:\DIR", @"C:\DIR"));
-            Assert.Equal(string.Empty, PathUtils.MakeRelativePathCore(@"C:\DIR\", @"C:\DIR"));
-            Assert.Equal(@".\", PathUtils.MakeRelativePathCore(@"C:\DIR", @"C:\DIR\"));
-            Assert.Equal(@".\", PathUtils.MakeRelativePathCore(@"C:\DIR\", @"C:\DIR\"));
+            Assert.Equal(string.Empty, PathUtils.MakeRelativePathCore($"{s}", $"{s}"));
 
-            Assert.Equal(@"SUBDIR", PathUtils.MakeRelativePathCore(@"C:\DIR", @"C:\DIR\SUBDIR"));
-            Assert.Equal(@"SUBDIR", PathUtils.MakeRelativePathCore(@"C:\DIR\", @"C:\DIR\SUBDIR"));
-            Assert.Equal(@"SUBDIR\", PathUtils.MakeRelativePathCore(@"C:\DIR", @"C:\DIR\SUBDIR\"));
-            Assert.Equal(@"SUBDIR\", PathUtils.MakeRelativePathCore(@"C:\DIR\", @"C:\DIR\SUBDIR\"));
+            Assert.Equal($"aa", PathUtils.MakeRelativePathCore($"{s}", $"{s}aa"));
+            Assert.Equal($"aa{s}", PathUtils.MakeRelativePathCore($"{s}", $"{s}aa{s}"));
 
-            Assert.Equal(@"..\DI", PathUtils.MakeRelativePathCore(@"C:\DIR", @"C:\DI"));
-            Assert.Equal(@"..\DI", PathUtils.MakeRelativePathCore(@"C:\DIR\", @"C:\DI"));
-            Assert.Equal(@"..\DI\", PathUtils.MakeRelativePathCore(@"C:\DIR", @"C:\DI\"));
-            Assert.Equal(@"..\DI\", PathUtils.MakeRelativePathCore(@"C:\DIR\", @"C:\DI\"));
+            Assert.Equal("..", PathUtils.MakeRelativePathCore($"{s}aa", $"{s}"));
+            Assert.Equal("..", PathUtils.MakeRelativePathCore($"{s}aa{s}", $"{s}"));
 
-            Assert.Equal(@"..\DIR", PathUtils.MakeRelativePathCore(@"C:\DI", @"C:\DIR"));
-            Assert.Equal(@"..\DIR", PathUtils.MakeRelativePathCore(@"C:\DI\", @"C:\DIR"));
-            Assert.Equal(@"..\DIR\", PathUtils.MakeRelativePathCore(@"C:\DI", @"C:\DIR\"));
-            Assert.Equal(@"..\DIR\", PathUtils.MakeRelativePathCore(@"C:\DI\", @"C:\DIR\"));
+            Assert.Equal($"..{s}bb", PathUtils.MakeRelativePathCore($"{s}aa", $"{s}bb"));
+            Assert.Equal($"..{s}bb", PathUtils.MakeRelativePathCore($"{s}aa{s}", $"{s}bb"));
+            Assert.Equal($"..{s}bb{s}", PathUtils.MakeRelativePathCore($"{s}aa", $"{s}bb{s}"));
+            Assert.Equal($"..{s}bb{s}", PathUtils.MakeRelativePathCore($"{s}aa{s}", $"{s}bb{s}"));
 
-            Assert.Equal(@"..\DIR2", PathUtils.MakeRelativePathCore(@"C:\DIR1", @"C:\DIR2"));
-            Assert.Equal(@"..\DIR2", PathUtils.MakeRelativePathCore(@"C:\DIR1\", @"C:\DIR2"));
-            Assert.Equal(@"..\DIR2\", PathUtils.MakeRelativePathCore(@"C:\DIR1", @"C:\DIR2\"));
-            Assert.Equal(@"..\DIR2\", PathUtils.MakeRelativePathCore(@"C:\DIR1\", @"C:\DIR2\"));
+            if (Platform.IsWindowsOS == true)
+            {
+                Assert.Equal(string.Empty, PathUtils.MakeRelativePath(@"C:\", @"C:\"));
+                Assert.Equal(string.Empty, PathUtils.MakeRelativePath(@"C:", @"C:"));
+                Assert.Equal(string.Empty, PathUtils.MakeRelativePath(@"C:", @"C:"));
 
-            Assert.Equal(@"..\..\DIR2", PathUtils.MakeRelativePathCore(@"C:\DIR1\SUBDIR", @"C:\DIR2"));
-            Assert.Equal(@"..\..\DIR2", PathUtils.MakeRelativePathCore(@"C:\DIR1\SUBDIR\", @"C:\DIR2"));
-            Assert.Equal(@"..\..\DIR2\", PathUtils.MakeRelativePathCore(@"C:\DIR1\SUBDIR", @"C:\DIR2\"));
-            Assert.Equal(@"..\..\DIR2\", PathUtils.MakeRelativePathCore(@"C:\DIR1\SUBDIR\", @"C:\DIR2\"));
+                Assert.Equal(string.Empty, PathUtils.MakeRelativePath(@"C:\DIR", @"C:\DIR"));
+                Assert.Equal(string.Empty, PathUtils.MakeRelativePath(@"C:\DIR\", @"C:\DIR"));
+                Assert.Equal(@".\", PathUtils.MakeRelativePath(@"C:\DIR", @"C:\DIR\"));
+                Assert.Equal(@".\", PathUtils.MakeRelativePath(@"C:\DIR\", @"C:\DIR\"));
 
-            Assert.Throws<ArgumentException>(() => PathUtils.MakeRelativePathCore(@"C:\DIR", @"D:\DIR"));
+                Assert.Equal(@"SUBDIR", PathUtils.MakeRelativePath(@"C:\DIR", @"C:\DIR\SUBDIR"));
+                Assert.Equal(@"SUBDIR", PathUtils.MakeRelativePath(@"C:\DIR\", @"C:\DIR\SUBDIR"));
+                Assert.Equal(@"SUBDIR\", PathUtils.MakeRelativePath(@"C:\DIR", @"C:\DIR\SUBDIR\"));
+                Assert.Equal(@"SUBDIR\", PathUtils.MakeRelativePath(@"C:\DIR\", @"C:\DIR\SUBDIR\"));
+
+                Assert.Equal(@"..\DI", PathUtils.MakeRelativePath(@"C:\DIR", @"C:\DI"));
+                Assert.Equal(@"..\DI", PathUtils.MakeRelativePath(@"C:\DIR\", @"C:\DI"));
+                Assert.Equal(@"..\DI\", PathUtils.MakeRelativePath(@"C:\DIR", @"C:\DI\"));
+                Assert.Equal(@"..\DI\", PathUtils.MakeRelativePath(@"C:\DIR\", @"C:\DI\"));
+
+                Assert.Equal(@"..\DIR", PathUtils.MakeRelativePath(@"C:\DI", @"C:\DIR"));
+                Assert.Equal(@"..\DIR", PathUtils.MakeRelativePath(@"C:\DI\", @"C:\DIR"));
+                Assert.Equal(@"..\DIR\", PathUtils.MakeRelativePath(@"C:\DI", @"C:\DIR\"));
+                Assert.Equal(@"..\DIR\", PathUtils.MakeRelativePath(@"C:\DI\", @"C:\DIR\"));
+
+                Assert.Equal(@"..\DIR2", PathUtils.MakeRelativePath(@"C:\DIR1", @"C:\DIR2"));
+                Assert.Equal(@"..\DIR2", PathUtils.MakeRelativePath(@"C:\DIR1\", @"C:\DIR2"));
+                Assert.Equal(@"..\DIR2\", PathUtils.MakeRelativePath(@"C:\DIR1", @"C:\DIR2\"));
+                Assert.Equal(@"..\DIR2\", PathUtils.MakeRelativePath(@"C:\DIR1\", @"C:\DIR2\"));
+
+                Assert.Equal(@"..\..\DIR2", PathUtils.MakeRelativePath(@"C:\DIR1\SUBDIR", @"C:\DIR2"));
+                Assert.Equal(@"..\..\DIR2", PathUtils.MakeRelativePath(@"C:\DIR1\SUBDIR\", @"C:\DIR2"));
+                Assert.Equal(@"..\..\DIR2\", PathUtils.MakeRelativePath(@"C:\DIR1\SUBDIR", @"C:\DIR2\"));
+                Assert.Equal(@"..\..\DIR2\", PathUtils.MakeRelativePath(@"C:\DIR1\SUBDIR\", @"C:\DIR2\"));
+
+                Assert.Throws<ArgumentException>(() => PathUtils.MakeRelativePath(@"C:\DIR", @"D:\DIR"));
+            }
         }
     }
 }
