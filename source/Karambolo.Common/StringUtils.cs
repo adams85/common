@@ -8,7 +8,7 @@ namespace Karambolo.Common
 {
     public static class StringUtils
     {
-        public static string ToHexString(byte[] value, bool upperCase = false)
+        public static string BytesToHexString(byte[] value, bool upperCase = false)
         {
             if (value == null)
                 throw new ArgumentNullException(nameof(value));
@@ -28,7 +28,7 @@ namespace Karambolo.Common
             return new string(result);
         }
 
-        public static byte[] FromHexString(string value)
+        public static byte[] BytesFromHexString(string value)
         {
             if (value == null)
                 throw new ArgumentNullException(nameof(value));

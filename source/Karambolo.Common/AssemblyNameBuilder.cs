@@ -142,7 +142,7 @@ namespace Karambolo.Common
                         if (NullValue.Equals(value, StringComparison.OrdinalIgnoreCase))
                             Custom = ArrayUtils.Empty<byte>();
                         else if (value.Length <= PublicKeyMaxLength << 1)
-                            try { Custom = StringUtils.FromHexString(value); }
+                            try { Custom = StringUtils.BytesFromHexString(value); }
                             catch (FormatException) { }
                     }
                 }
@@ -184,11 +184,11 @@ namespace Karambolo.Common
             get =>
                 PublicKeyToken == null ? null :
                 PublicKeyToken.Length == 0 ? NullValue :
-                StringUtils.ToHexString(PublicKeyToken);
+                StringUtils.BytesToHexString(PublicKeyToken);
             set => PublicKeyToken =
                 value == null ? null :
                 NullValue.Equals(value, StringComparison.OrdinalIgnoreCase) ? ArrayUtils.Empty<byte>() :
-                StringUtils.FromHexString(value);
+                StringUtils.BytesFromHexString(value);
         }
 
         public byte[] PublicKey { get; set; }
@@ -198,11 +198,11 @@ namespace Karambolo.Common
             get =>
                 PublicKey == null ? null :
                 PublicKey.Length == 0 ? NullValue :
-                StringUtils.ToHexString(PublicKey);
+                StringUtils.BytesToHexString(PublicKey);
             set => PublicKey =
                 value == null ? null :
                 NullValue.Equals(value, StringComparison.OrdinalIgnoreCase) ? ArrayUtils.Empty<byte>() :
-                StringUtils.FromHexString(value);
+                StringUtils.BytesFromHexString(value);
         }
 
         public _ProcessorArchitecture ProcessorArchitecture { get; set; }
@@ -260,7 +260,7 @@ namespace Karambolo.Common
                 sb.Append(',').Append(' ').Append(ContentTypeKey).Append('=').Append(ContentType);
 
             if (Custom != null)
-                sb.Append(',').Append(' ').Append(CustomKey).Append('=').Append(Custom.Length > 0 ? StringUtils.ToHexString(Custom) : NullValue);
+                sb.Append(',').Append(' ').Append(CustomKey).Append('=').Append(Custom.Length > 0 ? StringUtils.BytesToHexString(Custom) : NullValue);
 
             return sb.ToString();
         }

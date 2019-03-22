@@ -7,24 +7,24 @@ namespace Karambolo.Common
     public class StringUtilsTest
     {
         [Fact]
-        public void ToHexStringTest()
+        public void BytesToHexStringTest()
         {
             byte[] bytes = { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef };
-            Assert.Equal("0123456789abcdef", StringUtils.ToHexString(bytes));
-            Assert.Equal("0123456789ABCDEF", StringUtils.ToHexString(bytes, upperCase: true));
+            Assert.Equal("0123456789abcdef", StringUtils.BytesToHexString(bytes));
+            Assert.Equal("0123456789ABCDEF", StringUtils.BytesToHexString(bytes, upperCase: true));
         }
 
         [Fact]
-        public void FromHexStringTest()
+        public void BytesFromHexStringTest()
         {
             byte[] bytes = { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef };
-            Assert.Equal(bytes, StringUtils.FromHexString("0123456789abcdef"));
-            Assert.Equal(bytes, StringUtils.FromHexString("0123456789ABCDEF"));
-            Assert.Equal(bytes, StringUtils.FromHexString("0123456789aBCDeF"));
+            Assert.Equal(bytes, StringUtils.BytesFromHexString("0123456789abcdef"));
+            Assert.Equal(bytes, StringUtils.BytesFromHexString("0123456789ABCDEF"));
+            Assert.Equal(bytes, StringUtils.BytesFromHexString("0123456789aBCDeF"));
 
-            Assert.Throws<FormatException>(() => StringUtils.FromHexString("0123456789abcde"));
-            Assert.Throws<FormatException>(() => StringUtils.FromHexString("0123456789abcdeg"));
-            Assert.Throws<FormatException>(() => StringUtils.FromHexString("0123456789abcd-f"));
+            Assert.Throws<FormatException>(() => StringUtils.BytesFromHexString("0123456789abcde"));
+            Assert.Throws<FormatException>(() => StringUtils.BytesFromHexString("0123456789abcdeg"));
+            Assert.Throws<FormatException>(() => StringUtils.BytesFromHexString("0123456789abcd-f"));
         }
 
         [Fact]
