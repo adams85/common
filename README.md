@@ -4,7 +4,7 @@ The main goal of this library is to gather base functionality that is frequently
 
 [![NuGet Release](https://img.shields.io/nuget/v/Karambolo.Common.svg)](https://www.nuget.org/packages/Karambolo.Common/)
 
-Before version 3.0 the library rather served as a common base for my projects including a bunch of APIs not so relevant for the public. The codebase of 3.0 went through a major revision and the APIs to include were carefully selected to keep the library as focused and lightweight as possible. This, of course, involved a lot of breaking changes, what users of the previous versions should keep in mind when considering upgrading.
+Before version 3.0 the library rather served as a common base for my projects including a bunch of APIs not so relevant for the public. The codebase of version 3 went through a major revision and the APIs to include were carefully selected to keep the library as focused and lightweight as possible. This, of course, involved a lot of breaking changes, what users of the previous versions should keep in mind when considering upgrading.
 
 ### Feature highlights
 
@@ -79,7 +79,7 @@ You enter a money value (like '$100', 'USD 100', '100 usd', etc.), then the appl
 Currently, `PathUtils` offers two useful methods regarding file paths:
 
 * `MakeValidFileName`, which, as its name suggests, can be used to produce a valid file name from an arbitrary string (it not only takes length and reserved characters into account but also reserved file names of Windows like *con*, *prn*, *prn.txt*, etc.),
-* `MakeRelativePath`, which converts a path relative to the specified base path (the implementation of 3.0.0 contains a minor bug affecting \*nix style paths; this is fixed in 3.1.0).
+* `MakeRelativePath`, which converts a path relative to the specified base path (the implementation had some bugs up to 3.1.0, was fixed in 3.1.1).
 
 #### String utilities
 
