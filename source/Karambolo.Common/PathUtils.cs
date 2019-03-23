@@ -12,7 +12,7 @@ namespace Karambolo.Common
         private static readonly HashSet<char> s_illegalFileNameChars;
         private static readonly HashSet<string> s_reservedFileNames;
         private static readonly Func<string, bool> s_isReservedFileName;
-        private static readonly Func<string, string, bool> s_areEqualPaths;
+        private static readonly Func<char, char, bool> s_areEqualPathChars;
 
         static PathUtils()
         {
@@ -27,12 +27,12 @@ namespace Karambolo.Common
                     "lpt1", "lpt2", "lpt3", "lpt4", "lpt5", "lpt6", "lpt7", "lpt8", "lpt9",
                 };
                 s_isReservedFileName = value => s_reservedFileNames.Contains(Path.GetFileNameWithoutExtension(value));
-                s_areEqualPaths = (x, y) => string.Equals(x, y, StringComparison.OrdinalIgnoreCase);
+                s_areEqualPathChars = (x, y) => char.ToUpperInvariant(x) == char.ToUpperInvariant(y);
             }
             else
             {
                 s_isReservedFileName = False<string>.Func;
-                s_areEqualPaths = string.Equals;
+                s_areEqualPathChars = EqualityComparer<char>.Default.Equals;
             }
         }
 
@@ -79,11 +79,12 @@ namespace Karambolo.Common
 
         internal static string MakeRelativePathCore(string basePath, string path)
         {
-            // dealing with trailing backslashes
+            // length of basePath without trailing separator
             var basePathLength = basePath.Length;
             if (basePath[basePathLength - 1] == Path.DirectorySeparatorChar) // index access is safe, Path.GetFullPath doesn't allow empty strings
                 basePathLength--;
 
+            // length of path without trailing separator
             var pathLength = path.Length;
             if (path[pathLength - 1] == Path.DirectorySeparatorChar) // index access is safe, Path.GetFullPath doesn't allow empty strings
                 pathLength--;
@@ -93,21 +94,30 @@ namespace Karambolo.Common
             var length = Math.Min(basePathLength, pathLength);
             int index, lastSeparatorIndex;
             for (index = 0, lastSeparatorIndex = 0; index < length; index++)
-                if ((c = basePath[index]) != path[index])
+                if (!s_areEqualPathChars(c = basePath[index], path[index]))
                     break;
                 else if (c == Path.DirectorySeparatorChar)
                     lastSeparatorIndex = index;
 
-            // trivial case: basePath is just a prefix of path
+            // end of basePath was reached
             if (index == basePathLength)
+                // are basePath and path identical (except for trailing separators)?
                 if (pathLength == basePathLength)
                     return lastSeparatorIndex > 0 && path.Length > pathLength ? "." + Path.DirectorySeparatorChar : string.Empty;
+                // is basePath a prefix of path?
                 else if (path[index] == Path.DirectorySeparatorChar)
                     return path.Substring(index + 1);
 
-            // no common part
-            if (lastSeparatorIndex == 0 && index < pathLength && basePath[0] != Path.DirectorySeparatorChar)
-                throw new ArgumentException(Resources.NoCommonBasePath, nameof(path));
+            // no separator was found
+            if (lastSeparatorIndex == 0)
+            {
+                // is path a prefix of basePath?
+                if (index == pathLength && basePath[index] == Path.DirectorySeparatorChar)
+                    lastSeparatorIndex = index;               
+                // no common part?
+                if (index <= pathLength && basePath.Length > lastSeparatorIndex && basePath[lastSeparatorIndex] != Path.DirectorySeparatorChar)
+                    throw new ArgumentException(Resources.NoCommonBasePath, nameof(path));
+            }
 
             // determining relative part
             lastSeparatorIndex++;
@@ -116,7 +126,7 @@ namespace Karambolo.Common
                 if (basePath[index] == Path.DirectorySeparatorChar)
                     subDirCount++;
 
-            length = Math.Max(pathLength - lastSeparatorIndex, 0);
+            length = Math.Max(path.Length - lastSeparatorIndex, 0);
             var sb = new StringBuilder(subDirCount * 3 + length);
 
             sb.Append("..");

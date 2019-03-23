@@ -65,6 +65,11 @@ namespace Karambolo.Common
                 Assert.Equal(string.Empty, PathUtils.MakeRelativePath(@"C:", @"C:"));
                 Assert.Equal(string.Empty, PathUtils.MakeRelativePath(@"C:", @"C:"));
 
+                Assert.Equal("..", PathUtils.MakeRelativePath(@"\DIR", @"\"));
+                Assert.Equal("..", PathUtils.MakeRelativePath(@"\DIR", @"\"));
+                Assert.Equal("..", PathUtils.MakeRelativePath(@"C:\DIR", @"C:\"));
+                Assert.Equal("..", PathUtils.MakeRelativePath(@"C:\DIR\", @"C:\"));
+
                 Assert.Equal(string.Empty, PathUtils.MakeRelativePath(@"C:\DIR", @"C:\DIR"));
                 Assert.Equal(string.Empty, PathUtils.MakeRelativePath(@"C:\DIR\", @"C:\DIR"));
                 Assert.Equal(@".\", PathUtils.MakeRelativePath(@"C:\DIR", @"C:\DIR\"));
@@ -95,7 +100,11 @@ namespace Karambolo.Common
                 Assert.Equal(@"..\..\DIR2\", PathUtils.MakeRelativePath(@"C:\DIR1\SUBDIR", @"C:\DIR2\"));
                 Assert.Equal(@"..\..\DIR2\", PathUtils.MakeRelativePath(@"C:\DIR1\SUBDIR\", @"C:\DIR2\"));
 
+                Assert.Equal(@"..\x", PathUtils.MakeRelativePath(@"c:\dir\.\SUBDIR\\", @"C:\DIR\\SuBDiR\..\x"));
+
+                Assert.Throws<ArgumentException>(() => PathUtils.MakeRelativePath(@"C:\", @"D:\"));
                 Assert.Throws<ArgumentException>(() => PathUtils.MakeRelativePath(@"C:\DIR", @"D:\DIR"));
+                Assert.Throws<NotSupportedException>(() => PathUtils.MakeRelativePath(@"A:\", @"AA:\"));
             }
         }
     }
