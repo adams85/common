@@ -51,13 +51,110 @@ namespace Karambolo.Common
         [Fact]
         public void GetCanonicalPathTest()
         {
+            Assert.Same("", UriUtils.GetCanonicalPath(""));
+            Assert.Same("/", UriUtils.GetCanonicalPath("/"));
+
+            // '.'
+
+            Assert.Equal("", UriUtils.GetCanonicalPath("."));
+            Assert.Equal("", UriUtils.GetCanonicalPath("./"));
+            Assert.Equal("", UriUtils.GetCanonicalPath("./."));
+            Assert.Equal("", UriUtils.GetCanonicalPath("././"));
+            Assert.Equal("", UriUtils.GetCanonicalPath("././."));
+
+            Assert.Equal("a", UriUtils.GetCanonicalPath("a/."));
+            Assert.Equal("a/", UriUtils.GetCanonicalPath("a/./"));
+            Assert.Equal("a", UriUtils.GetCanonicalPath("a/./."));
+            Assert.Equal("a/", UriUtils.GetCanonicalPath("a/././"));
+
+            Assert.Equal("/", UriUtils.GetCanonicalPath("/."));
+            Assert.Equal("/", UriUtils.GetCanonicalPath("/./"));
+            Assert.Equal("/", UriUtils.GetCanonicalPath("/./."));
+            Assert.Equal("/", UriUtils.GetCanonicalPath("/././"));
+
+            Assert.Equal("/a", UriUtils.GetCanonicalPath("/a/."));
+            Assert.Equal("/a/", UriUtils.GetCanonicalPath("/a/./"));
+            Assert.Equal("/a", UriUtils.GetCanonicalPath("/a/./."));
+            Assert.Equal("/a/", UriUtils.GetCanonicalPath("/a/././"));
+
+            // '..'
+
+            Assert.Equal("..", UriUtils.GetCanonicalPath(".."));
+            Assert.Equal("../", UriUtils.GetCanonicalPath("../"));
+            Assert.Equal("../..", UriUtils.GetCanonicalPath("../.."));
+            Assert.Equal("../../", UriUtils.GetCanonicalPath("../../"));
+            Assert.Equal("../../..", UriUtils.GetCanonicalPath("../../.."));
+
+            Assert.Equal("", UriUtils.GetCanonicalPath("a/.."));
+            Assert.Equal("", UriUtils.GetCanonicalPath("a/../"));
+            Assert.Equal("..", UriUtils.GetCanonicalPath("a/../.."));
+            Assert.Equal("../", UriUtils.GetCanonicalPath("a/../../"));
+
+            Assert.Equal("/..", UriUtils.GetCanonicalPath("/../."));
+            Assert.Equal("/../", UriUtils.GetCanonicalPath("/.././"));
+            Assert.Equal("/../..", UriUtils.GetCanonicalPath("/../../."));
+            Assert.Equal("/../../", UriUtils.GetCanonicalPath("/../.././"));
+            Assert.Equal("/../..", UriUtils.GetCanonicalPath("/.././.."));
+            Assert.Equal("/../../", UriUtils.GetCanonicalPath("/.././../"));
+
+            Assert.Equal("", UriUtils.GetCanonicalPath("a/../."));
+            Assert.Equal("", UriUtils.GetCanonicalPath("a/.././"));
+            Assert.Equal("..", UriUtils.GetCanonicalPath("a/../../."));
+            Assert.Equal("../", UriUtils.GetCanonicalPath("a/../.././"));
+            Assert.Equal("..", UriUtils.GetCanonicalPath("a/.././.."));
+            Assert.Equal("../", UriUtils.GetCanonicalPath("a/.././../"));
+
+            Assert.Equal("", UriUtils.GetCanonicalPath("../a"));
+            Assert.Equal("", UriUtils.GetCanonicalPath("../a/"));
+            Assert.Equal("..", UriUtils.GetCanonicalPath("../../a"));
+            Assert.Equal("../", UriUtils.GetCanonicalPath("../../a/"));
+            Assert.Equal("b", UriUtils.GetCanonicalPath("../a/b"));
+            Assert.Equal("b/", UriUtils.GetCanonicalPath("../a/b/"));
+
+            Assert.Equal("/", UriUtils.GetCanonicalPath("/../a"));
+            Assert.Equal("/", UriUtils.GetCanonicalPath("/../a/"));
+            Assert.Equal("/..", UriUtils.GetCanonicalPath("/../../a"));
+            Assert.Equal("/../", UriUtils.GetCanonicalPath("/../../a/"));
+            Assert.Equal("/b", UriUtils.GetCanonicalPath("/../a/b"));
+            Assert.Equal("/b/", UriUtils.GetCanonicalPath("/../a/b/"));
+
+            Assert.Equal("", UriUtils.GetCanonicalPath("a/../../b"));
+            Assert.Equal("", UriUtils.GetCanonicalPath("a/../../b/"));
+            Assert.Equal("/", UriUtils.GetCanonicalPath("/a/../../b"));
+            Assert.Equal("/", UriUtils.GetCanonicalPath("/a/../../b/"));
+
+            // '/'
+
+            Assert.Equal("/", UriUtils.GetCanonicalPath("//"));
+            Assert.Equal("/", UriUtils.GetCanonicalPath("///"));
+
+            Assert.Equal("/", UriUtils.GetCanonicalPath("//"));
+            Assert.Equal("/", UriUtils.GetCanonicalPath("///"));
+
+            Assert.Equal("/", UriUtils.GetCanonicalPath("//."));
+            Assert.Equal("", UriUtils.GetCanonicalPath(".//"));
+            Assert.Equal("/", UriUtils.GetCanonicalPath("//.//"));
+
+            Assert.Equal("/a", UriUtils.GetCanonicalPath("//a"));
+            Assert.Equal("a/", UriUtils.GetCanonicalPath("a//"));
+            Assert.Equal("/a/", UriUtils.GetCanonicalPath("//a//"));
+
+            // special file names
+
+            Assert.Same(".git", UriUtils.GetCanonicalPath(".git"));
+            Assert.Same("git.", UriUtils.GetCanonicalPath("git."));
+            Assert.Same("..git", UriUtils.GetCanonicalPath("..git"));
+            Assert.Same("git..", UriUtils.GetCanonicalPath("git.."));
+            Assert.Same("...", UriUtils.GetCanonicalPath("..."));
+
+            // other
+
             Assert.Same("a/b/c", UriUtils.GetCanonicalPath("a/b/c"));
 
-            Assert.Equal("a/c", UriUtils.GetCanonicalPath("a/b/.././/c"));
-            Assert.Equal("/a/c", UriUtils.GetCanonicalPath("/a/b/.././/c"));
+            Assert.Equal("a/c", UriUtils.GetCanonicalPath("a///b/.././/c"));
+            Assert.Equal("/a/c", UriUtils.GetCanonicalPath("///a/b/.././/c"));
 
-            Assert.Equal("../c", UriUtils.GetCanonicalPath("a/../../c"));
-            Assert.Equal("/../c", UriUtils.GetCanonicalPath("/a/../../c"));
+            Assert.Equal("/xx/zz/abc.def", UriUtils.GetCanonicalPath("/xx/yy/../zz/.//abc.def"));
         }
     }
 }

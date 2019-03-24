@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 
 namespace Karambolo.Common
 {
@@ -96,38 +95,152 @@ namespace Karambolo.Common
             return sb.ToString();
         }
 
+        private enum GcpState
+        {
+            Initial,
+            OneDotRead,
+            TwoDotsRead,
+            SlashRead,
+            SkipUntilSlash,
+        }
+
         public static string GetCanonicalPath(string path)
         {
             if (path == null)
                 throw new ArgumentNullException(nameof(path));
 
-            if (!Regex.IsMatch(path, @"\.{1,2}(?:/|$)|//", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase))
-                return path;
+            GcpState state = GcpState.Initial;
+            int sectionStartIndex = 0, sectionEndIndex;
+            int level = 0;
+            StringBuilder sb = null;
 
-            var segments = path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries).ToList();
-
-            int i = 0;
-            while (i < segments.Count)
+            var length = path.Length;
+            for (var index = 0; index < length; index++)
             {
-                var segment = segments[i];
+                var c = path[index];
 
-                if (segment == ".")
+                switch (state)
                 {
-                    segments.RemoveAt(i);
+                    case GcpState.Initial:
+                        if (c == '/')
+                        {
+                            sectionStartIndex++;
+                            state = GcpState.SlashRead;
+                        }
+                        else if (c == '.')
+                            state = GcpState.OneDotRead;
+                        else
+                            state = GcpState.SkipUntilSlash;
+                        break;
+                    case GcpState.OneDotRead:
+                        if (c == '/')
+                        {
+                            sectionEndIndex = index + 1;
+                            if (sb == null)
+                                sb = new StringBuilder(path, 0, sectionStartIndex, length - (sectionEndIndex - sectionStartIndex));
+
+                            sectionStartIndex = sectionEndIndex;
+                            state = GcpState.SlashRead;
+                        }
+                        else if (c == '.')
+                            state = GcpState.TwoDotsRead;
+                        else
+                            state = GcpState.SkipUntilSlash;
+                        break;
+                    case GcpState.TwoDotsRead:
+                        if (c == '/')
+                        {
+                            sectionEndIndex = index + 1;
+                            if (sb == null)
+                                sb = new StringBuilder(path, 0, sectionStartIndex, length - (sectionEndIndex - sectionStartIndex));
+
+                            AddSection(sb, path, sectionStartIndex, sectionEndIndex, -(--level));
+
+                            sectionStartIndex = sectionEndIndex;
+                            state = GcpState.SlashRead;
+                        }
+                        else
+                            state = GcpState.SkipUntilSlash;
+                        break;
+                    case GcpState.SlashRead:
+                        if (c == '/')
+                        {
+                            sectionEndIndex = index + 1;
+                            if (sb == null)
+                                sb = new StringBuilder(path, 0, sectionStartIndex, length - (sectionEndIndex - sectionStartIndex));
+
+                            sectionStartIndex++;
+                        }
+                        else if (c == '.')
+                            state = GcpState.OneDotRead;
+                        else
+                            state = GcpState.SkipUntilSlash;
+                        break;
+                    case GcpState.SkipUntilSlash:
+                        if (c == '/')
+                        {
+                            sectionEndIndex = index + 1;
+                            level++;
+                            if (sb != null)
+                                AddSection(sb, path, sectionStartIndex, sectionEndIndex, level);
+
+                            sectionStartIndex = sectionEndIndex;
+                            state = GcpState.SlashRead;
+                        }
+                        break;
                 }
-                else if (segment == ".." && i > 0)
-                {
-                    segments.RemoveRange(i - 1, 2);
-                    i--;
-                }
-                else
-                    i++;
             }
 
-            if (path.StartsWith("/"))
-                segments.Insert(0, string.Empty);
+            switch (state)
+            {
+                case GcpState.OneDotRead:
+                    if (sb == null)
+                        return path.Length > 2 ? path.Substring(0, length - 2) : path[0] == '/' ? "/" : string.Empty;
 
-            return string.Join("/", segments);
+                    return (sb.Length > 1 ? sb.Remove(sb.Length - 1, 1) : sb).ToString();
+                case GcpState.TwoDotsRead:
+                    if (sb == null)
+                        sb = new StringBuilder(path, 0, sectionStartIndex, sectionStartIndex);
+
+                    return AddSection(sb, path, sectionStartIndex, length, -(--level)).ToString();
+                case GcpState.SlashRead:
+                    if (sb == null)
+                        return path;
+
+                    return (sb.Length > 0 && sb[sb.Length - 1] != '/' ? sb.Append('/') : sb).ToString();
+                case GcpState.SkipUntilSlash:
+                    if (sb == null)
+                        return path;
+
+                    AddSection(sb, path, sectionStartIndex, length, ++level);
+                    return (sb.Length > 1 && sb[sectionEndIndex = sb.Length - 1] == '/' ? sb.Remove(sectionEndIndex, 1) : sb).ToString();
+                default:
+                    return path;
+            }
+
+            StringBuilder AddSection(StringBuilder builder, string pathVal, int startIndex, int endIndex, int lvl)
+            {
+                if (lvl < 0)
+                {
+                    var separatorIndex = -1;
+                    for (int j = builder.Length - 2; j >= 0; j--)
+                        if (builder[j] == '/')
+                        {
+                            separatorIndex = j;
+                            break;
+                        }
+
+                    builder.Remove(++separatorIndex, builder.Length - separatorIndex);
+                }
+                else if (lvl > 0)
+                    builder.Append(pathVal, startIndex, endIndex - startIndex);
+                else if (builder.Length > 0 && builder[0] == '/')
+                    builder.Clear().Append('/');
+                else
+                    builder.Clear();
+
+                return builder;
+            }
         }
     }
 }
