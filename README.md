@@ -76,12 +76,18 @@ You enter a money value (like '$100', 'USD 100', '100 usd', etc.), then the appl
 
 #### Path utilities
 
-`PathUtils` offers two useful methods regarding file paths:
+##### File paths
+
+`PathUtils` offers two useful methods for dealing with file paths:
 
 * `MakeValidFileName`, which, as its name suggests, can be used to produce a valid file name from an arbitrary string (it not only takes length and reserved characters into account but also reserved file names of Windows like *con*, *prn*, *prn.txt*, etc.),
 * `MakeRelativePath`, which converts a path relative to the specified base path (the implementation had some bugs up to 3.1.0, was fixed in 3.1.1).
 
-`UriUtils` has another one for URLs: the `GetCanonicalPath` method, which can be used to normalize URL paths (e.g. `/dir//subdir/./../my.file` -> `/dir/my.file`). (Version 3.1.2 contains an improved, optimized algorithm which gets edge cases right and allocates only when necessary.)
+##### URL paths
+
+`UriUtils` contains another helper method named `GetCanonicalPath`, which can be used to normalize URL paths (e.g. `/dir//subdir/./../my.file` -> `/dir/my.file`). (Version 3.1.2 contains an improved, optimized algorithm which gets edge cases right and allocates only when necessary.)
+
+It's worth adding that [there is a built-in solution](https://stackoverflow.com/questions/3192389/whats-the-quickest-cleanest-way-to-remove-parent-pathing-from-a-url-string) that may be sufficient in some cases but it doesn't collapse multiple slashes (`/a//b`) and doesn't handle edge cases (like `/..` or `a/../../b`) well.
 
 #### String utilities
 
