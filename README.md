@@ -11,7 +11,7 @@ Before version 3.0 the library rather served as a common base for my projects in
 [Generic ordered dictionary](#generic-ordered-dictionary)  
 [Localization base types](#localization-base-types)  
 [Monetary types](#monetary-types)  
-[File path utilities](#file-path-utilities)  
+[Path utilities](#path-utilities)  
 [String utilities](#string-utilities)  
 [Date/time utilities](#datetime-utilities)  
 [Tree traversal](#tree-traversal)  
@@ -74,12 +74,14 @@ static async Task Main()
 
 You enter a money value (like '$100', 'USD 100', '100 usd', etc.), then the application tells how much bitcoin you could buy for that amount.
 
-#### File path utilities
+#### Path utilities
 
-Currently, `PathUtils` offers two useful methods regarding file paths:
+`PathUtils` offers two useful methods regarding file paths:
 
 * `MakeValidFileName`, which, as its name suggests, can be used to produce a valid file name from an arbitrary string (it not only takes length and reserved characters into account but also reserved file names of Windows like *con*, *prn*, *prn.txt*, etc.),
 * `MakeRelativePath`, which converts a path relative to the specified base path (the implementation had some bugs up to 3.1.0, was fixed in 3.1.1).
+
+`UriUtils` has another one for URLs: the `GetCanonicalPath` method, which can be used to normalize URL paths (e.g. `/dir//subdir/./../my.file` -> `/dir/my.file`). (Version 3.1.2 contains an improved, optimized algorithm which gets edge cases right and allocates only when necessary.)
 
 #### String utilities
 
