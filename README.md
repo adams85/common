@@ -49,7 +49,7 @@ static async Task Main()
     // registers currencies provided by the OS (on platforms other than Windows you may have to register currencies manually)
     Currency.RegisterSystemDefaults();
     // registers a custom currency
-    Currency.Register("BTC", "?", 8);
+    Currency.Register("BTC", "₿", 8);
 
     var moneyString = Console.ReadLine();
     if (!Money.TryParse(moneyString, out var money))
