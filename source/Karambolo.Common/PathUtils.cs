@@ -113,7 +113,7 @@ namespace Karambolo.Common
             {
                 // is path a prefix of basePath?
                 if (index == pathLength && basePath[index] == Path.DirectorySeparatorChar)
-                    lastSeparatorIndex = index;               
+                    lastSeparatorIndex = index;
                 // no common part?
                 if (index <= pathLength && basePath.Length > lastSeparatorIndex && basePath[lastSeparatorIndex] != Path.DirectorySeparatorChar)
                     throw new ArgumentException(Resources.NoCommonBasePath, nameof(path));

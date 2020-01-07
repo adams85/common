@@ -2,7 +2,7 @@
   <PropertyGroup>
     <AssemblyName>Karambolo.Common.Test</AssemblyName>
     <RootNamespace>Karambolo.Common.Test</RootNamespace>
-    <TargetFrameworks>net461;netcoreapp2.0;netcoreapp1.0</TargetFrameworks>
+    <TargetFrameworks>net45;net461;netcoreapp1.0;netcoreapp2.0;netcoreapp3.0</TargetFrameworks>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\..\source\Karambolo.Common\Karambolo.Public.snk</AssemblyOriginatorKeyFile>
     <DebugType>full</DebugType>

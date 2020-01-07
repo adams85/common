@@ -5,6 +5,7 @@ namespace Karambolo.Common
 {
     public static partial class EnumerableUtils
     {
+#if NET40 || NET45 || NETSTANDARD1_0 || NETSTANDARD2_0
         public static HashSet<T> ToHashSet<T>(this IEnumerable<T> source, IEqualityComparer<T> comparer)
         {
             if (source == null)
@@ -17,5 +18,6 @@ namespace Karambolo.Common
         {
             return ToHashSet(source, null);
         }
+#endif
     }
 }

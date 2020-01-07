@@ -17,61 +17,6 @@ namespace Karambolo.Common
                 yield return element;
         }
 
-#if !NETSTANDARD2_0
-        public static IEnumerable<TSource> Prepend<TSource>(this IEnumerable<TSource> source, TSource element)
-        {
-            if (source == null)
-                throw new ArgumentNullException(nameof(source));
-
-            yield return element;
-
-            foreach (TSource e in source)
-                yield return e;
-        }
-
-        public static IEnumerable<TSource> Append<TSource>(this IEnumerable<TSource> source, TSource element)
-        {
-            if (source == null)
-                throw new ArgumentNullException(nameof(source));
-
-            foreach (TSource e in source)
-                yield return e;
-
-            yield return element;
-        }
-#endif
-
-        public static bool SequenceEqualUnordered<TSource>(this IEnumerable<TSource> source, IEnumerable<TSource> second)
-        {
-            return SequenceEqualUnordered(source, second, EqualityComparer<TSource>.Default);
-        }
-
-        public static bool SequenceEqualUnordered<TSource>(this IEnumerable<TSource> source, IEnumerable<TSource> second, IEqualityComparer<TSource> comparer)
-        {
-            if (source == null)
-                throw new ArgumentNullException(nameof(source));
-
-            if (second == null)
-                throw new ArgumentNullException(nameof(second));
-
-            var counters = new Dictionary<TSource, int>(comparer);
-            foreach (TSource item in source)
-                if (counters.ContainsKey(item))
-                    counters[item]++;
-                else
-                    counters.Add(item, 1);
-
-            foreach (TSource item in second)
-            {
-                if (counters.ContainsKey(item))
-                    counters[item]--;
-                else
-                    return false;
-            }
-
-            return counters.Values.All(counter => counter == 0);
-        }
-
         public static IEnumerable<TSource> SkipLast<TSource>(this IEnumerable<TSource> source)
         {
             if (source == null)
@@ -145,5 +90,59 @@ namespace Karambolo.Common
                 func);
         }
 
+#if NET40 || NET45 || NETSTANDARD1_0
+        public static IEnumerable<TSource> Prepend<TSource>(this IEnumerable<TSource> source, TSource element)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+
+            yield return element;
+
+            foreach (TSource e in source)
+                yield return e;
+        }
+
+        public static IEnumerable<TSource> Append<TSource>(this IEnumerable<TSource> source, TSource element)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+
+            foreach (TSource e in source)
+                yield return e;
+
+            yield return element;
+        }
+#endif
+
+        public static bool SequenceEqualUnordered<TSource>(this IEnumerable<TSource> source, IEnumerable<TSource> second)
+        {
+            return SequenceEqualUnordered(source, second, EqualityComparer<TSource>.Default);
+        }
+
+        public static bool SequenceEqualUnordered<TSource>(this IEnumerable<TSource> source, IEnumerable<TSource> second, IEqualityComparer<TSource> comparer)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+
+            if (second == null)
+                throw new ArgumentNullException(nameof(second));
+
+            var counters = new Dictionary<TSource, int>(comparer);
+            foreach (TSource item in source)
+                if (counters.ContainsKey(item))
+                    counters[item]++;
+                else
+                    counters.Add(item, 1);
+
+            foreach (TSource item in second)
+            {
+                if (counters.ContainsKey(item))
+                    counters[item]--;
+                else
+                    return false;
+            }
+
+            return counters.Values.All(counter => counter == 0);
+        }
     }
 }

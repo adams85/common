@@ -8,15 +8,7 @@ namespace Karambolo.Common
 {
     public static class TaskUtils
     {
-#if NETSTANDARD2_0
-        internal static readonly TaskCreationOptions DefaultTcsCreationOptions = TaskCreationOptions.RunContinuationsAsynchronously;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static Task<TResult> GetTaskSafe<TResult>(this TaskCompletionSource<TResult> tcs)
-        {
-            return tcs.Task;
-        }
-#else
+#if NET40 || NET45 || NETSTANDARD1_0
         internal static readonly TaskCreationOptions DefaultTcsCreationOptions = TaskCreationOptions.None;
 
 #if !NET40
@@ -29,6 +21,14 @@ namespace Karambolo.Common
             // the flag is only available as of .NET 4.6 (and is buggy up to 4.6.1) so we resort to async task continuations
             // (https://stackoverflow.com/questions/22579206/how-can-i-prevent-synchronous-continuations-on-a-task)
             return tcs.Task.ContinueWith(Identity<Task<TResult>>.Func, default, TaskContinuationOptions.None, TaskScheduler.Default).Unwrap();
+        }
+#else
+        internal static readonly TaskCreationOptions DefaultTcsCreationOptions = TaskCreationOptions.RunContinuationsAsynchronously;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static Task<TResult> GetTaskSafe<TResult>(this TaskCompletionSource<TResult> tcs)
+        {
+            return tcs.Task;
         }
 #endif
 
@@ -116,7 +116,10 @@ namespace Karambolo.Common
             if (completedTask == timeoutTask)
                 throw new TimeoutException();
 
-            await completedTask.ConfigureAwait(false);
+#pragma warning disable CAC001 // ConfigureAwaitChecker
+            // ConfigureAwait(false) is unnecessary as the task returned by Task.WhenAny is already completed
+            await completedTask;
+#pragma warning restore CAC001 // ConfigureAwaitChecker
         }
 
         public static Task WithTimeout(this Task task, TimeSpan timeout)
@@ -140,7 +143,10 @@ namespace Karambolo.Common
             if (completedTask == timeoutTask)
                 throw new TimeoutException();
 
-            return await ((Task<TResult>)completedTask).ConfigureAwait(false);
+#pragma warning disable CAC001 // ConfigureAwaitChecker
+            // ConfigureAwait(false) is unnecessary as the task returned by Task.WhenAny is already completed
+            return await (Task<TResult>)completedTask;
+#pragma warning restore CAC001 // ConfigureAwaitChecker
         }
 
         public static Task<TResult> WithTimeout<TResult>(this Task<TResult> task, TimeSpan timeout)
@@ -191,6 +197,7 @@ namespace Karambolo.Common
         internal static async Task AsCancelableAsync(Task task, CancellationToken cancellationToken)
         {
             using (var ctts = new CancellationTokenTaskSource<object>(cancellationToken))
+                // ConfigureAwait(false) is unnecessary as the task returned by Task.WhenAny is already completed
                 await await Task.WhenAny(ctts.Task, task).ConfigureAwait(false);
         }
 
@@ -211,6 +218,7 @@ namespace Karambolo.Common
         internal static async Task<TResult> AsCancelableAsync<TResult>(Task<TResult> task, CancellationToken cancellationToken)
         {
             using (var ctts = new CancellationTokenTaskSource<TResult>(cancellationToken))
+                // ConfigureAwait(false) is unnecessary as the task returned by Task.WhenAny is already completed
                 return await await Task.WhenAny(ctts.Task, task).ConfigureAwait(false);
         }
 

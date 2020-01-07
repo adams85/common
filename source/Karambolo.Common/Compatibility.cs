@@ -6,12 +6,12 @@ namespace Karambolo.Common
     internal static class Platform
     {
         public static readonly bool? IsWindowsOS =
-#if NETSTANDARD2_0
-                System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows);
+#if NET40 || NET45
+            true;
 #elif NETSTANDARD1_0
-                null;
+            null;
 #else
-                true;
+            System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows);
 #endif
     }
 

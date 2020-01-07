@@ -72,5 +72,4 @@ namespace Karambolo.Common
             return Expression.Lambda<Func<T, bool>>(_body, _param);
         }
     }
-
 }

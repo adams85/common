@@ -8,9 +8,27 @@ namespace Karambolo.Common
 {
     public class TaskUtilsTest
     {
+#if NET45
+        private static readonly Task s_completedTask = TaskUtils.CompletedTask;
+
+        private static Task FromException(Exception exception) => FromException(exception);
+        private static Task<TResult> FromException<TResult>(Exception exception) => FromException<TResult>(exception);
+
+        private static Task FromCanceled(CancellationToken cancellationToken) => FromCanceled(cancellationToken);
+        private static Task<TResult> FromCanceled<TResult>(CancellationToken cancellationToken) => FromCanceled<TResult>(cancellationToken);
+#else
+        private static readonly Task s_completedTask = Task.CompletedTask;
+
+        private static Task FromException(Exception exception) => Task.FromException(exception);
+        private static Task<TResult> FromException<TResult>(Exception exception) => Task.FromException<TResult>(exception);
+
+        private static Task FromCanceled(CancellationToken cancellationToken) => Task.FromCanceled(cancellationToken);
+        private static Task<TResult> FromCanceled<TResult>(CancellationToken cancellationToken) => Task.FromCanceled<TResult>(cancellationToken);
+#endif
+
         private class TestException : Exception { }
 
-#if NET461 || NETCOREAPP1_0
+#if NET45 || NET461 || NETCOREAPP1_0
         [Fact]
         public void CompletedTaskTest()
         {
@@ -20,11 +38,11 @@ namespace Karambolo.Common
         [Fact]
         public async Task FromExceptionTest()
         {
-            Task task = TaskUtils.FromException(new TestException());
+            Task task = FromException(new TestException());
             Assert.Equal(TaskStatus.Faulted, task.Status);
             await Assert.ThrowsAsync<TestException>(() => task);
 
-            Task<int> taskWithResult = TaskUtils.FromException<int>(new TestException());
+            Task<int> taskWithResult = FromException<int>(new TestException());
             Assert.Equal(TaskStatus.Faulted, taskWithResult.Status);
             await Assert.ThrowsAsync<TestException>(() => taskWithResult);
         }
@@ -34,25 +52,25 @@ namespace Karambolo.Common
         {
             using (var cts = new CancellationTokenSource())
             {
-                await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => TaskUtils.FromCanceled(cts.Token));
+                await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => FromCanceled(cts.Token));
                 cts.Cancel();
-                Task task = TaskUtils.FromCanceled(cts.Token);
+                Task task = FromCanceled(cts.Token);
                 Assert.Equal(TaskStatus.Canceled, task.Status);
                 await Assert.ThrowsAsync<TaskCanceledException>(() => task);
             }
 
             using (var cts = new CancellationTokenSource())
             {
-                await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => TaskUtils.FromCanceled(cts.Token));
+                await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => FromCanceled(cts.Token));
                 cts.Cancel();
-                Task taskWithResult = TaskUtils.FromCanceled(cts.Token);
+                Task taskWithResult = FromCanceled(cts.Token);
                 Assert.Equal(TaskStatus.Canceled, taskWithResult.Status);
                 await Assert.ThrowsAsync<TaskCanceledException>(() => taskWithResult);
             }
         }
 #endif
 
-#if NET461
+#if NET45 || NET461
         [Fact]
         public async Task WaitForExitAsyncTest()
         {
@@ -98,15 +116,15 @@ namespace Karambolo.Common
         {
             #region Task
 
-            await Task.CompletedTask.AsCancelable(CancellationToken.None);
+            await s_completedTask.AsCancelable(CancellationToken.None);
 
             var cts = new CancellationTokenSource();
-            await Task.CompletedTask.AsCancelable(cts.Token);
+            await s_completedTask.AsCancelable(cts.Token);
 
             cts = new CancellationTokenSource();
             cts.Cancel();
-            await Assert.ThrowsAsync<TaskCanceledException>(() => Task.CompletedTask.AsCancelable(cts.Token));
-            await Assert.ThrowsAsync<TaskCanceledException>(() => TaskUtils.AsCancelableAsync(Task.CompletedTask, cts.Token));
+            await Assert.ThrowsAsync<TaskCanceledException>(() => s_completedTask.AsCancelable(cts.Token));
+            await Assert.ThrowsAsync<TaskCanceledException>(() => TaskUtils.AsCancelableAsync(s_completedTask, cts.Token));
 
             cts = new CancellationTokenSource();
             cts.CancelAfter(1000);
@@ -146,13 +164,13 @@ namespace Karambolo.Common
         {
             #region Task
 
-            Task.CompletedTask.WaitAndUnwrap();
+            s_completedTask.WaitAndUnwrap();
 
             var cts = new CancellationTokenSource();
             cts.Cancel();
-            Assert.Throws<TaskCanceledException>(() => Task.FromCanceled(cts.Token).WaitAndUnwrap());
+            Assert.Throws<TaskCanceledException>(() => FromCanceled(cts.Token).WaitAndUnwrap());
 
-            Assert.Throws<TestException>(() => Task.FromException(new TestException()).WaitAndUnwrap());
+            Assert.Throws<TestException>(() => FromException(new TestException()).WaitAndUnwrap());
 
             #endregion
 
@@ -162,9 +180,9 @@ namespace Karambolo.Common
 
             cts = new CancellationTokenSource();
             cts.Cancel();
-            Assert.Throws<TaskCanceledException>(() => Task.FromCanceled<bool>(cts.Token).WaitAndUnwrap());
+            Assert.Throws<TaskCanceledException>(() => FromCanceled<bool>(cts.Token).WaitAndUnwrap());
 
-            Assert.Throws<TestException>(() => Task.FromException<bool>(new TestException()).WaitAndUnwrap());
+            Assert.Throws<TestException>(() => FromException<bool>(new TestException()).WaitAndUnwrap());
 
             #endregion
         }

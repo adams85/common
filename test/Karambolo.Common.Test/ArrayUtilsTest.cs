@@ -47,11 +47,24 @@ namespace Karambolo.Common
         public void FillTest()
         {
             var array = new int[10];
+
             array.Fill(1);
             Assert.Equal(new[] { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }, array);
 
+            array.Fill(0, 2, 3);
+            Assert.Equal(new[] { 1, 1, 0, 0, 0, 1, 1, 1, 1, 1 }, array);
+
+            Assert.Throws<ArgumentOutOfRangeException>(() => array.Fill(0, -1, 2));
+            Assert.Throws<ArgumentOutOfRangeException>(() => array.Fill(0, array.Length, 1));
+
             array.Fill(Identity<int>.Func);
             Assert.Equal(new[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }, array);
+
+            array.Fill(DefaultMap<int>.Func, 2, 3);
+            Assert.Equal(new[] { 0, 1, 0, 0, 0, 5, 6, 7, 8, 9 }, array);
+
+            Assert.Throws<ArgumentOutOfRangeException>(() => array.Fill(DefaultMap<int>.Func, -1, 2));
+            Assert.Throws<ArgumentOutOfRangeException>(() => array.Fill(DefaultMap<int>.Func, array.Length, 1));
         }
 
         [Fact]

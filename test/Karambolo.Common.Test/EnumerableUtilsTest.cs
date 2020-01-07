@@ -20,6 +20,29 @@ namespace Karambolo.Common
         }
 
         [Fact]
+        public void SkipLastTest()
+        {
+            Assert.Equal(Enumerable.Empty<int>(), Enumerable.Empty<int>().SkipLast());
+            Assert.Equal(Enumerable.Empty<string>(), new[] { "a" }.SkipLast());
+            Assert.Equal(new[] { "a", "b" }, new[] { "a", "b", "c" }.SkipLast());
+        }
+
+        [Fact]
+        public void TakeLastTest()
+        {
+            Assert.Equal(Enumerable.Empty<int>(), Enumerable.Empty<int>().TakeLast());
+            Assert.Equal(new[] { "a" }, new[] { "a" }.TakeLast());
+            Assert.Equal(new[] { "c" }, new[] { "a", "b", "c" }.TakeLast());
+        }
+
+        [Fact]
+        public void ScanTest()
+        {
+            Assert.Equal(new[] { 1, 3, 6, 10, 15 }, Enumerable.Range(1, 5).Scan((a, b) => a + b));
+            Assert.Equal(new[] { 0, 1, 3, 6, 10, 15 }, Enumerable.Range(1, 5).Scan(0, (a, b) => a + b));
+        }
+
+        [Fact]
         public void PrependTest()
         {
             Assert.Equal(new[] { 0 }, Enumerable.Empty<int>().Prepend(0));
@@ -48,29 +71,6 @@ namespace Karambolo.Common
             Assert.True(new[] { "a", "a", "b", "b", "c" }.SequenceEqualUnordered(new[] { "a", "b", "c", "b", "a" }));
 
             Assert.True(new[] { "a", "b", "c" }.SequenceEqualUnordered(new[] { "C", "b", "a" }, StringComparer.OrdinalIgnoreCase));
-        }
-
-        [Fact]
-        public void SkipLastTest()
-        {
-            Assert.Equal(Enumerable.Empty<int>(), Enumerable.Empty<int>().SkipLast());
-            Assert.Equal(Enumerable.Empty<string>(), new[] { "a" }.SkipLast());
-            Assert.Equal(new[] { "a", "b" }, new[] { "a", "b", "c" }.SkipLast());
-        }
-
-        [Fact]
-        public void TakeLastTest()
-        {
-            Assert.Equal(Enumerable.Empty<int>(), Enumerable.Empty<int>().TakeLast());
-            Assert.Equal(new[] { "a" }, new[] { "a" }.TakeLast());
-            Assert.Equal(new[] { "c" }, new[] { "a", "b", "c" }.TakeLast());
-        }
-
-        [Fact]
-        public void ScanTest()
-        {
-            Assert.Equal(new[] { 1, 3, 6, 10, 15 }, Enumerable.Range(1, 5).Scan((a, b) => a + b));
-            Assert.Equal(new[] { 0, 1, 3, 6, 10, 15 }, Enumerable.Range(1, 5).Scan(0, (a, b) => a + b));
         }
     }
 }

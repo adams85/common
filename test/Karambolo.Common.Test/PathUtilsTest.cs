@@ -7,7 +7,7 @@ namespace Karambolo.Common
 {
     public class PathUtilsTest
     {
-#if NET461
+#if NET45 || NET461
         [Fact]
         public void IsReservedFileNameTest()
         {
@@ -24,7 +24,7 @@ namespace Karambolo.Common
             Assert.Equal("__", PathUtils.MakeValidFileName("  "));
             Assert.Equal(" a ", PathUtils.MakeValidFileName(" a "));
 
-#if NET461
+#if NET45 || NET461
             Assert.Equal("_nul", PathUtils.MakeValidFileName("nul"));
             Assert.Equal("_prn.txt", PathUtils.MakeValidFileName("prn.txt"));
 #endif
@@ -104,7 +104,12 @@ namespace Karambolo.Common
 
                 Assert.Throws<ArgumentException>(() => PathUtils.MakeRelativePath(@"C:\", @"D:\"));
                 Assert.Throws<ArgumentException>(() => PathUtils.MakeRelativePath(@"C:\DIR", @"D:\DIR"));
+#if NET45 || NET461
                 Assert.Throws<NotSupportedException>(() => PathUtils.MakeRelativePath(@"A:\", @"AA:\"));
+#else
+                // Path.GetFullPath has a weird behavior in .NET Core when called with an argument like @"AA:\"...
+                Assert.Throws<ArgumentException>(() => PathUtils.MakeRelativePath(@"A:\", @"AA:\"));
+#endif
             }
         }
     }
