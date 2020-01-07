@@ -39,13 +39,18 @@ namespace Karambolo.Common
             MemberExpression memberExpression;
             do
             {
-                memberExpression =
-                    GetMemberExpression(currentExpression, allowedMemberTypes) ??
+                memberExpression = GetMemberExpression(currentExpression, allowedMemberTypes);
+                if (memberExpression != null)
+                {
+                    memberExpressions.Add(memberExpression.Member);
+                    currentExpression = memberExpression.Expression;
+                }
+                else if (currentExpression.NodeType == ExpressionType.Convert)
+                    currentExpression = ((UnaryExpression)currentExpression).Operand;
+                else
                     throw new ArgumentException(Resources.InvalidValue, nameof(expression));
-
-                memberExpressions.Add(memberExpression.Member);
             }
-            while (!isSource(currentExpression = memberExpression.Expression));
+            while (!isSource(currentExpression));
 
             memberExpressions.Reverse();
             return memberExpressions;

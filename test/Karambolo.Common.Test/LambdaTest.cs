@@ -11,6 +11,7 @@ using System.Reflection;
 using System.Linq.Expressions;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Karambolo.Common
 {
@@ -77,6 +78,9 @@ namespace Karambolo.Common
             Assert.Equal("MaxValue.Hour", Lambda.MemberPath(() => DateTime.MaxValue.Hour, CommonMemberTypes.Field | CommonMemberTypes.Property));
 
             Assert.Equal("Date.Day", string.Join(".", Lambda.MemberPath((DateTime dt) => dt.Date.Day)));
+
+            Assert.Equal("Now", string.Join(".", Lambda.MemberPath<object>(() => DateTime.Now)));
+            Assert.Equal("Task.Result.Length", string.Join(".", Lambda.MemberPath((object o) => ((string)((TaskCompletionSource<object>)o).Task.Result).Length)));
         }
 
         [Fact]
