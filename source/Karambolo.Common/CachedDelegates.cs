@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace Karambolo.Common
 {
@@ -34,7 +35,9 @@ namespace Karambolo.Common
 
     public static class False<T>
     {
-        public static readonly Func<T, bool> Func = _ => false;
+        private static bool Impl(T _) => false;
+        public static readonly Func<T, bool> Func = Impl;
+        public static readonly Predicate<T> Predicate = Impl;
     }
 
     public static class True
@@ -44,6 +47,8 @@ namespace Karambolo.Common
 
     public static class True<T>
     {
-        public static readonly Func<T, bool> Func = _ => true;
+        private static bool Impl(T _) => true;
+        public static readonly Func<T, bool> Func = Impl;
+        public static readonly Predicate<T> Predicate = Impl;
     }
 }
