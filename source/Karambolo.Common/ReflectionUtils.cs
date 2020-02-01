@@ -175,7 +175,7 @@ namespace Karambolo.Common
             return expression;
         }
 
-        private static Func<TContainer, TMember> MakeFastGetter<TContainer, TMember>(MemberInfo member, MemberTypes allowedMemberTypes)
+        public static Func<TContainer, TMember> MakeFastGetter<TContainer, TMember>(this MemberInfo member, MemberTypes allowedMemberTypes)
         {
             Type memberType = member.GetMemberType(allowedMemberTypes);
 
@@ -206,7 +206,7 @@ namespace Karambolo.Common
             return MakeFastGetter<TContainer, TMember>(memberExpression.Member, MemberTypes.Field | MemberTypes.Property);
         }
 
-        private static Action<TContainer, TMember> MakeFastSetter<TContainer, TMember>(MemberInfo member, MemberTypes allowedMemberTypes)
+        public static Action<TContainer, TMember> MakeFastSetter<TContainer, TMember>(this MemberInfo member, MemberTypes allowedMemberTypes)
         {
             Type memberType = member.GetMemberType(allowedMemberTypes);
 
