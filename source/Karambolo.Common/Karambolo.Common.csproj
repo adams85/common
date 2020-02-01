@@ -33,49 +33,61 @@
     </EmbeddedResource>
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net40'">
-    <Compile Remove="Compatibility.Netstd10.cs" />
-  </ItemGroup>
+  <Choose>
+    <When Condition="'$(TargetFramework)' == 'net40'">
+      <ItemGroup>
+        <Compile Remove="Compatibility.Netstd10.cs" />
+      </ItemGroup>
+    </When>
+    
+    <When Condition="'$(TargetFramework)' == 'net45'">
+      <ItemGroup>
+        <Compile Remove="Compatibility.Net40.cs" />
+        <Compile Remove="Compatibility.Netstd10.cs" />
+      </ItemGroup>
+    </When>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
-    <Compile Remove="Compatibility.Net40.cs" />
-    <Compile Remove="Compatibility.Netstd10.cs" />
-  </ItemGroup>
+    <When Condition="'$(TargetFramework)' == 'netstandard1.0'">
+      <ItemGroup>
+        <Compile Remove="Compatibility.Net40.cs" />
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.0'">
-    <Compile Remove="Compatibility.Net40.cs" />
+        <Compile Remove="PathUtils.cs" />
 
-    <Compile Remove="PathUtils.cs" />
+        <Compile Remove="Localization\**" />
+        <Compile Include="Localization\Plural.cs" />
+        <Compile Include="Localization\TextContext.cs" />
+        <Compile Include="Localization\TextLocalizer.cs" />
 
-    <Compile Remove="Localization\**" />
-    <Compile Include="Localization\Plural.cs" />
-    <Compile Include="Localization\TextContext.cs" />
-    <Compile Include="Localization\TextLocalizer.cs" />
+        <Compile Remove="Logging\**" />
+      </ItemGroup>
+    </When>
 
-    <Compile Remove="Logging\**" />
-  </ItemGroup>
+    <When Condition="'$(TargetFramework)' == 'netstandard2.0'">
+      <ItemGroup>
+        <Compile Remove="Compatibility.Net40.cs" />
+        <Compile Remove="Compatibility.Netstd10.cs" />
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-    <Compile Remove="Compatibility.Net40.cs" />
-    <Compile Remove="Compatibility.Netstd10.cs" />
+        <Compile Remove="Localization\**" />
+        <Compile Include="Localization\Plural.cs" />
+        <Compile Include="Localization\TextContext.cs" />
+        <Compile Include="Localization\TextLocalizer.cs" />
 
-    <Compile Remove="Localization\**" />
-    <Compile Include="Localization\Plural.cs" />
-    <Compile Include="Localization\TextContext.cs" />
-    <Compile Include="Localization\TextLocalizer.cs" />
+        <Compile Remove="Logging\**" />
+      </ItemGroup>
+    </When>
 
-    <Compile Remove="Logging\**" />
-  </ItemGroup>
+    <When Condition="'$(TargetFramework)' == 'netstandard2.1'">
+      <ItemGroup>
+        <Compile Remove="Compatibility.Net40.cs" />
+        <Compile Remove="Compatibility.Netstd10.cs" />
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
-    <Compile Remove="Compatibility.Net40.cs" />
-    <Compile Remove="Compatibility.Netstd10.cs" />
+        <Compile Remove="Localization\**" />
+        <Compile Include="Localization\Plural.cs" />
+        <Compile Include="Localization\TextContext.cs" />
+        <Compile Include="Localization\TextLocalizer.cs" />
 
-    <Compile Remove="Localization\**" />
-    <Compile Include="Localization\Plural.cs" />
-    <Compile Include="Localization\TextContext.cs" />
-    <Compile Include="Localization\TextLocalizer.cs" />
-
-    <Compile Remove="Logging\**" />
-  </ItemGroup>
+        <Compile Remove="Logging\**" />
+      </ItemGroup>
+    </When>
+  </Choose>
 </Project>
