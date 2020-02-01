@@ -308,7 +308,7 @@ namespace Karambolo.Common.Monetary
                 return 1;
 
             if (!(obj is Money))
-                throw new InvalidOperationException(string.Format(Resources.UnexpectedObjectType, typeof(Money).Name));
+                throw new InvalidOperationException(string.Format(Resources.UnexpectedObjectType, typeof(Money)));
 
             return CompareTo((Money)obj);
         }

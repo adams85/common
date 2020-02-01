@@ -487,7 +487,7 @@ namespace Karambolo.Common.Collections
                 throw new ArgumentNullException(nameof(key));
 
             if (!(key is TKey))
-                throw new ArgumentException(string.Format(Resources.InvalidKeyType, typeof(TKey).FullName), nameof(key));
+                throw new ArgumentException(string.Format(Resources.InvalidKeyType, typeof(TKey)), nameof(key));
 
             return (TKey)key;
         }
@@ -510,7 +510,7 @@ namespace Karambolo.Common.Collections
             }
 
             if (!(value is TValue))
-                throw new ArgumentException(string.Format(Resources.InvalidValueType, typeof(TValue).FullName), nameof(value));
+                throw new ArgumentException(string.Format(Resources.InvalidValueType, typeof(TValue)), nameof(value));
 
             return (TValue)value;
         }
