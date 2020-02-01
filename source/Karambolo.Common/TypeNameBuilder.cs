@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 
 namespace Karambolo.Common
@@ -529,6 +530,78 @@ namespace Karambolo.Common
             return sb;
         }
 
+        private static TypeNameBuilder Initialize(TypeNameBuilder builder, Type type, Func<Assembly, string> getAssemblyName)
+        {
+            int i, j, n, m;
+
+            if (type.IsArray)
+            {
+                do
+                {
+                    builder.ArrayDimensions.Add(type.GetArrayRank());
+                    type = type.GetElementType();
+                }
+                while (type.IsArray);
+
+                for (i = 0, j = builder.ArrayDimensions.Count - 1; i < j; i++, j--)
+                    GeneralUtils.Swap(builder.ArrayDimensions, i, j);
+            }
+
+            Type[] genericTypeArguments;
+            bool isOpenGeneric;
+            if (type.IsGenericType())
+            {
+                genericTypeArguments = type.GetGenericTypeArguments();
+                isOpenGeneric = type.IsGenericTypeDefinition();
+            }
+            else
+            {
+                genericTypeArguments = null;
+                isOpenGeneric = false;
+            }
+
+            TypeName currentTypeName = null;
+            do
+            {
+                if (type.DeclaringType == null)
+                {
+                    builder.Nested = currentTypeName;
+                    currentTypeName = builder;
+
+                    builder.AssemblyName = getAssemblyName(type.Assembly());
+
+                    builder.Namespace = type.Namespace;
+                }
+                else
+                    currentTypeName = new TypeName { Nested = currentTypeName };
+
+                var index = type.Name.LastIndexOf('`');
+                if (index >= 0)
+                {
+                    currentTypeName.BaseName = type.Name.Substring(0, index);
+                    n = int.Parse(type.Name.Substring(index + 1));
+                    for (; n > 0; n--)
+                        currentTypeName.GenericArguments.Add(null);
+                }
+                else
+                    currentTypeName.BaseName = type.Name;
+
+                type = type.DeclaringType;
+            }
+            while (type != null);
+
+            if (genericTypeArguments != null && !isOpenGeneric)
+                for (i = 0, n = genericTypeArguments.Length; i < n;)
+                {
+                    for (j = 0, m = currentTypeName.GenericArguments.Count; j < m; j++)
+                        currentTypeName.GenericArguments[j] = Initialize(new TypeNameBuilder(), genericTypeArguments[i++], getAssemblyName);
+
+                    currentTypeName = currentTypeName.Nested;
+                }
+
+            return builder;
+        }
+
         public TypeNameBuilder() { }
 
         public TypeNameBuilder(string typeName)
@@ -537,6 +610,16 @@ namespace Karambolo.Common
                 throw new ArgumentNullException(nameof(typeName));
 
             Parse(typeName, 0, typeName.Length, this);
+        }
+
+        public TypeNameBuilder(Type type) : this(type, null) { }
+
+        public TypeNameBuilder(Type type, Func<Assembly, string> getAssemblyName)
+        {
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
+
+            Initialize(this, type, getAssemblyName ?? (assembly => assembly.FullName));
         }
 
         private string _assemblyName;

@@ -145,5 +145,13 @@ namespace Karambolo.Common
             builder.RemoveAttributes();
             Assert.Equal("lib", builder.ToString());
         }
+
+        [Fact]
+        public void InitializeTest()
+        {
+            Assembly assembly = typeof(AssemblyNameBuilder).Assembly();
+            var builder = new AssemblyNameBuilder(assembly);
+            Assert.Equal(assembly, Assembly.Load(new AssemblyName(builder.ToString())));
+        }
     }
 }

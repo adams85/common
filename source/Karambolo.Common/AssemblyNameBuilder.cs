@@ -51,6 +51,31 @@ namespace Karambolo.Common
             Parse(assemblyName);
         }
 
+        public AssemblyNameBuilder(Assembly assembly)
+        {
+            if (assembly == null)
+                throw new ArgumentNullException(nameof(assembly));
+
+            AssemblyName assemblyName = assembly.GetName();
+            
+            Name = assemblyName.Name;
+            Version = assemblyName.Version;
+            PublicKeyToken = assemblyName.GetPublicKeyToken();
+
+#if !NETSTANDARD1_0
+            CultureInfo = assemblyName.CultureInfo;
+            ProcessorArchitecture = assemblyName.ProcessorArchitecture;
+#else
+            CultureName = assemblyName.CultureName;
+#endif
+
+#if !NET40
+            ContentType = assemblyName.ContentType;
+#else
+            Retargetable = (assemblyName.Flags & AssemblyNameFlags.Retargetable) != 0;
+#endif
+        }
+
         private void Parse(string input)
         {
             var parts = input.Split(new[] { ',' }, StringSplitOptions.None);

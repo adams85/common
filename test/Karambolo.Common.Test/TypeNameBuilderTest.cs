@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Xunit;
@@ -7,6 +8,11 @@ namespace Karambolo.Common
 {
     public class TypeNameBuilderTest
     {
+        private class Foo<T1, T2>
+        {
+            public class Bar<T3> { }
+        }
+
         [Fact]
         public void ParseTest()
         {
@@ -598,6 +604,59 @@ namespace Karambolo.Common
             Assert.Equal("System.Collections.Generic.Dictionary`2+Enumerator[[System.Int32, mscorlib],[System.Collections.Generic.List`1[[System.String[][,], mscorlib]], mscorlib]], mscorlib", builder.ToString());
 
             #endregion
+        }
+
+        [Fact]
+        public void InitializeTest()
+        {
+            var type = typeof(string);
+            var builder = new TypeNameBuilder(type);
+            Assert.Equal(builder.AssemblyName, type.Assembly().FullName);
+            Assert.Equal(type, Type.GetType(builder.ToString()));
+
+            builder = new TypeNameBuilder(type, assembly => assembly.GetName().Name);
+            Assert.Equal(builder.AssemblyName, type.Assembly().GetName().Name);
+            Assert.Equal(type, Type.GetType(builder.ToString()));
+
+            type = typeof(string[]);
+            builder = new TypeNameBuilder(type);
+            Assert.Equal(type, Type.GetType(builder.ToString()));
+
+            type = typeof(string[][,]);
+            builder = new TypeNameBuilder(type);
+            Assert.Equal(type, Type.GetType(builder.ToString()));
+
+            type = typeof(Foo<,>);
+            builder = new TypeNameBuilder(type);
+            Assert.Equal(type, Type.GetType(builder.ToString()));
+
+            type = typeof(Foo<int, string>);
+            builder = new TypeNameBuilder(type);
+            Assert.Equal(type, Type.GetType(builder.ToString()));
+
+            type = typeof(Foo<int, string>[][,][,,]);
+            builder = new TypeNameBuilder(type);
+            Assert.Equal(type, Type.GetType(builder.ToString()));
+
+            type = typeof(Foo<,>.Bar<>);
+            builder = new TypeNameBuilder(type);
+            Assert.Equal(type, Type.GetType(builder.ToString()));
+
+            type = typeof(Foo<int, string>.Bar<bool>);
+            builder = new TypeNameBuilder(type);
+            Assert.Equal(type, Type.GetType(builder.ToString()));
+
+            type = typeof(Foo<int, string>.Bar<bool>[]);
+            builder = new TypeNameBuilder(type);
+            Assert.Equal(type, Type.GetType(builder.ToString()));
+
+            type = typeof(Foo<int, List<string>>.Bar<bool>);
+            builder = new TypeNameBuilder(type);
+            Assert.Equal(type, Type.GetType(builder.ToString()));
+
+            type = typeof(Foo<(int, string), List<string>[][,]>.Bar<bool>[]);
+            builder = new TypeNameBuilder(type);
+            Assert.Equal(type, Type.GetType(builder.ToString()));
         }
     }
 }

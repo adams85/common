@@ -121,6 +121,18 @@ namespace Karambolo.Common
 #if !NET40
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 #endif
+        public static Type[] GetGenericTypeArguments(this Type type)
+        {
+#if !NETSTANDARD1_0
+            return type.GetGenericArguments();
+#else
+            return type.GetTypeInfo().GenericTypeArguments;
+#endif
+        }
+
+#if !NET40
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+#endif
         public static Type BaseType(this Type type)
         {
 #if !NETSTANDARD1_0
