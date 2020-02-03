@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Reflection;
 using System.Text;
 
@@ -579,7 +580,7 @@ namespace Karambolo.Common
                 if (index >= 0)
                 {
                     currentTypeName.BaseName = type.Name.Substring(0, index);
-                    n = int.Parse(type.Name.Substring(index + 1));
+                    n = int.Parse(type.Name.Substring(index + 1), CultureInfo.InvariantCulture);
                     for (; n > 0; n--)
                         currentTypeName.GenericArguments.Add(null);
                 }
