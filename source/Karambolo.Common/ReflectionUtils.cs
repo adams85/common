@@ -135,7 +135,7 @@ namespace Karambolo.Common
         }
 
 #if !NETSTANDARD1_0
-        public static IEnumerable<TAttribute> GetAttributes<TAttribute>(this ICustomAttributeProvider attributeProvider, bool inherit = false)
+        public static TAttribute[] GetAttributes<TAttribute>(this ICustomAttributeProvider attributeProvider, bool inherit = false)
             where TAttribute : Attribute
         {
             if (attributeProvider == null)
@@ -144,8 +144,8 @@ namespace Karambolo.Common
             // http://blog.seancarpenter.net/2012/12/15/getcustomattributes-and-overridden-properties/
             return
                 (!inherit || !(attributeProvider is MemberInfo memberInfo) ?
-                attributeProvider.GetCustomAttributes(typeof(TAttribute), inherit) :
-                Attribute.GetCustomAttributes(memberInfo, typeof(TAttribute), inherit)).Cast<TAttribute>();
+                (TAttribute[])attributeProvider.GetCustomAttributes(typeof(TAttribute), inherit) :
+                (TAttribute[])Attribute.GetCustomAttributes(memberInfo, typeof(TAttribute), inherit));
         }
 
         public static bool HasAttribute<TAttribute>(this ICustomAttributeProvider attributeProvider, bool inherit = false)
