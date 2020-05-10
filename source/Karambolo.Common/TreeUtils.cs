@@ -1,14 +1,19 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace Karambolo.Common
 {
+    [Obsolete("This type is unuseful, thus it will be removed in the next major version.")]
     public delegate IEnumerable<T> TreeTraversal<T>(T node, Func<T, IEnumerable<T>> childrenSelector);
 
     public abstract class TreeTraversal
     {
-        private class PreOrderTraversal : TreeTraversal
+        #region Pre-order
+
+        private class PreOrderImpl : TreeTraversal
         {
             private static IEnumerable<T> Traverse<T>(T node, Func<T, IEnumerable<T>> childrenSelector)
             {
@@ -26,12 +31,58 @@ namespace Karambolo.Common
 
             public override IEnumerable<T> Traverse<T>(T node, Func<T, IEnumerable<T>> childrenSelector, bool includeSelf)
             {
-                IEnumerable<T> result = Traverse(node, childrenSelector);
-                return includeSelf ? result : result.Skip(1);
+                IEnumerable<T> traversal = Traverse(node, childrenSelector);
+                return includeSelf ? traversal : traversal.Skip(1);
             }
         }
 
-        private class PostOrderTraversal : TreeTraversal
+        /// <summary>
+        /// Non-recursive, heap-based, pre-order (depth-first) tree traversal. Provides right-to-left order. Use <see cref="Enumerable.Reverse{TSource}(IEnumerable{TSource})"/> in children selector to get left-to-right order.
+        /// </summary>
+        public static readonly TreeTraversal PreOrder = new PreOrderImpl();
+
+        private class PreOrderRecursiveImpl : TreeTraversal
+        {
+            private readonly struct Traversal<T> : IEnumerable<T>
+            {
+                private readonly T _node;
+                private readonly Func<T, IEnumerable<T>> _childrenSelector;
+
+                public Traversal(T node, Func<T, IEnumerable<T>> childrenSelector)
+                {
+                    _node = node;
+                    _childrenSelector = childrenSelector;
+                }
+
+                public IEnumerator<T> GetEnumerator()
+                {
+                    yield return _node;
+
+                    foreach (T child in _childrenSelector(_node) ?? Enumerable.Empty<T>())
+                        foreach (T node in new Traversal<T>(child, _childrenSelector))
+                            yield return node;
+                }
+
+                IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+            }
+
+            public override IEnumerable<T> Traverse<T>(T node, Func<T, IEnumerable<T>> childrenSelector, bool includeSelf = false)
+            {
+                IEnumerable<T> traversal = new Traversal<T>(node, childrenSelector);
+                return includeSelf ? traversal : traversal.Skip(1);
+            }
+        }
+
+        /// <summary>
+        /// Recursive, stack-based, pre-order (depth-first) tree traversal. Provides left-to-right order. Use <see cref="Enumerable.Reverse{TSource}(IEnumerable{TSource})"/> in children selector to get right-to-left order.
+        /// </summary>
+        public static readonly TreeTraversal PreOrderRecursive = new PreOrderRecursiveImpl();
+
+        #endregion
+
+        #region Post-order
+
+        private class PostOrderImpl : TreeTraversal
         {
             private static IEnumerable<T> Traverse<T>(T node, Func<T, IEnumerable<T>> childrenSelector)
             {
@@ -66,12 +117,61 @@ namespace Karambolo.Common
 
             public override IEnumerable<T> Traverse<T>(T node, Func<T, IEnumerable<T>> childrenSelector, bool includeSelf)
             {
-                IEnumerable<T> result = Traverse(node, childrenSelector);
-                return includeSelf ? result : result.SkipLast();
+                IEnumerable<T> traversal = Traverse(node, childrenSelector);
+                return includeSelf ? traversal : traversal.SkipLast();
             }
         }
 
-        private class LevelOrderTraversal : TreeTraversal
+        /// <summary>
+        /// Non-recursive, heap-based, post-order (depth-first) tree traversal. Provides right-to-left order. Use <see cref="Enumerable.Reverse{TSource}(IEnumerable{TSource})"/> in children selector to get left-to-right order.
+        /// </summary>
+        /// <remarks>
+        /// For correct behavior, tree nodes must be comparable by <see cref="EqualityComparer.Default"/>.
+        /// </remarks>
+        public static readonly TreeTraversal PostOrder = new PostOrderImpl();
+
+        private class PostOrderRecursiveImpl : TreeTraversal
+        {
+            private readonly struct Traversal<T> : IEnumerable<T>
+            {
+                private readonly T _node;
+                private readonly Func<T, IEnumerable<T>> _childrenSelector;
+
+                public Traversal(T node, Func<T, IEnumerable<T>> childrenSelector)
+                {
+                    _node = node;
+                    _childrenSelector = childrenSelector;
+                }
+
+                public IEnumerator<T> GetEnumerator()
+                {
+                    foreach (T child in _childrenSelector(_node) ?? Enumerable.Empty<T>())
+                        foreach (T node in new Traversal<T>(child, _childrenSelector))
+                            yield return node;
+
+                    yield return _node;
+                }
+
+                IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+            }
+
+            public override IEnumerable<T> Traverse<T>(T node, Func<T, IEnumerable<T>> childrenSelector, bool includeSelf = false)
+            {
+                IEnumerable<T> traversal = new Traversal<T>(node, childrenSelector);
+                return includeSelf ? traversal : traversal.SkipLast();
+            }
+        }
+
+        /// <summary>
+        /// Recursive, stack-based, post-order (depth-first) tree traversal. Provides left-to-right order. Use <see cref="Enumerable.Reverse{TSource}(IEnumerable{TSource})"/> in children selector to get right-to-left order.
+        /// </summary>
+        public static readonly TreeTraversal PostOrderRecursive = new PostOrderRecursiveImpl();
+
+        #endregion
+
+        #region Level-order
+
+        private class LevelOrderImpl : TreeTraversal
         {
             private static IEnumerable<T> Traverse<T>(T node, Func<T, IEnumerable<T>> childrenSelector)
             {
@@ -89,23 +189,79 @@ namespace Karambolo.Common
 
             public override IEnumerable<T> Traverse<T>(T node, Func<T, IEnumerable<T>> childrenSelector, bool includeSelf)
             {
-                IEnumerable<T> result = Traverse(node, childrenSelector);
-                return includeSelf ? result : result.Skip(1);
+                IEnumerable<T> traversal = Traverse(node, childrenSelector);
+                return includeSelf ? traversal : traversal.Skip(1);
             }
         }
 
+        /// <summary>
+        /// Non-recursive, heap-based, level-order (breadth-first) tree traversal. Provides left-to-right order. Use <see cref="Enumerable.Reverse{TSource}(IEnumerable{TSource})"/> in children selector to get right-to-left order.
+        /// </summary>
+        public static readonly TreeTraversal LevelOrder = new LevelOrderImpl();
+
+        private class LevelOrderRecursiveImpl : TreeTraversal
+        {
+            private readonly struct Traversal<T> : IEnumerable<T>
+            {
+                private readonly T _node;
+                private readonly Func<T, IEnumerable<T>> _childrenSelector;
+
+                public Traversal(T node, Func<T, IEnumerable<T>> childrenSelector)
+                {
+                    _node = node;
+                    _childrenSelector = childrenSelector;
+                }
+
+                private IEnumerator<T> VisitChildren(IEnumerator<T> treeEnumerator, int nodeCount)
+                {
+                    var childCount = 0;
+
+                    for (; nodeCount > 0; nodeCount--)
+                    {
+                        treeEnumerator.MoveNext();
+
+                        foreach (T child in _childrenSelector(treeEnumerator.Current) ?? Enumerable.Empty<T>())
+                        {
+                            yield return child;
+                            childCount++;
+                        }
+                    }
+
+                    if (childCount > 0)
+                        using (IEnumerator<T> enumerator = VisitChildren(treeEnumerator, childCount))
+                            while (enumerator.MoveNext())
+                                yield return enumerator.Current;
+                }
+
+                public IEnumerator<T> GetEnumerator()
+                {
+                    yield return _node;
+
+                    using (IEnumerator<T> treeEnumerator = new Traversal<T>(_node, _childrenSelector).GetEnumerator())
+                    using (IEnumerator<T> enumerator = VisitChildren(treeEnumerator, 1))
+                        while (enumerator.MoveNext())
+                            yield return enumerator.Current;
+                }
+
+                IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+            }
+
+            public override IEnumerable<T> Traverse<T>(T node, Func<T, IEnumerable<T>> childrenSelector, bool includeSelf = false)
+            {
+                IEnumerable<T> traversal = new Traversal<T>(node, childrenSelector);
+                return includeSelf ? traversal : traversal.Skip(1);
+            }
+        }
+
+        /// <summary>
+        /// Recursive, stack-based, level-order (breadth-first) tree traversal. Provides left-to-right order. Use <see cref="Enumerable.Reverse{TSource}(IEnumerable{TSource})"/> in children selector to get right-to-left order.
+        /// </summary>
         /// <remarks>
-        /// Provides right-to-left order because of performance considerations. Use Reverse() on children selector to get left-to-right order.
+        /// Use only when enumerating children is not an expensive operation as children are enumerated twice.
         /// </remarks>
-        public static readonly TreeTraversal PreOrder = new PreOrderTraversal();
-        /// <remarks>
-        /// Provides right-to-left order because of performance considerations. Use Reverse() on children selector to get left-to-right order.
-        /// </remarks>
-        public static readonly TreeTraversal PostOrder = new PostOrderTraversal();
-        /// <remarks>
-        /// Provides left-to-right order because of performance considerations. Use Reverse() on children selector to get right-to-left order.
-        /// </remarks>
-        public static readonly TreeTraversal LevelOrder = new LevelOrderTraversal();
+        public static readonly TreeTraversal LevelOrderRecursive = new LevelOrderRecursiveImpl();
+
+        #endregion
 
         public abstract IEnumerable<T> Traverse<T>(T node, Func<T, IEnumerable<T>> childrenSelector, bool includeSelf = false);
     }

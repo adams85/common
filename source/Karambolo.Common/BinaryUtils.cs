@@ -113,7 +113,6 @@
                 s_bits[(int)(bitField >> 56 & mask)];
         }
 
-
         /// <summary>
         /// Fast Bitcounting method (adapted from snippets.org)
         /// </summary>

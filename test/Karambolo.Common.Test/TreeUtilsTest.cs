@@ -131,23 +131,53 @@ namespace Karambolo.Common
                     .AddChild("I")
                         .AddChild("H");
 
+            #region Pre-order
+
             IEnumerable<TreeNode<string>> traversal = TreeTraversal.PreOrder.Traverse(tree, t => t.Children.AsEnumerable().Reverse(), includeSelf: true);
+            Assert.Equal("F, B, A, D, C, E, G, I, H", string.Join(", ", traversal.Select(n => n.Id)));
+
+            traversal = TreeTraversal.PreOrderRecursive.Traverse(tree, t => t.Children.AsEnumerable(), includeSelf: true);
             Assert.Equal("F, B, A, D, C, E, G, I, H", string.Join(", ", traversal.Select(n => n.Id)));
 
             traversal = TreeTraversal.PreOrder.Traverse(tree, t => t.Children.AsEnumerable().Reverse(), includeSelf: false);
             Assert.Equal("B, A, D, C, E, G, I, H", string.Join(", ", traversal.Select(n => n.Id)));
 
+            traversal = TreeTraversal.PreOrderRecursive.Traverse(tree, t => t.Children.AsEnumerable(), includeSelf: false);
+            Assert.Equal("B, A, D, C, E, G, I, H", string.Join(", ", traversal.Select(n => n.Id)));
+
+            #endregion
+
+            #region Post-order
+
             traversal = TreeTraversal.PostOrder.Traverse(tree, t => t.Children.AsEnumerable().Reverse(), includeSelf: true);
+            Assert.Equal("A, C, E, D, B, H, I, G, F", string.Join(", ", traversal.Select(n => n.Id)));
+
+            traversal = TreeTraversal.PostOrderRecursive.Traverse(tree, t => t.Children.AsEnumerable(), includeSelf: true);
             Assert.Equal("A, C, E, D, B, H, I, G, F", string.Join(", ", traversal.Select(n => n.Id)));
 
             traversal = TreeTraversal.PostOrder.Traverse(tree, t => t.Children.AsEnumerable().Reverse(), includeSelf: false);
             Assert.Equal("A, C, E, D, B, H, I, G", string.Join(", ", traversal.Select(n => n.Id)));
 
+            traversal = TreeTraversal.PostOrderRecursive.Traverse(tree, t => t.Children.AsEnumerable(), includeSelf: false);
+            Assert.Equal("A, C, E, D, B, H, I, G", string.Join(", ", traversal.Select(n => n.Id)));
+
+            #endregion
+
+            #region Level-order
+
             traversal = TreeTraversal.LevelOrder.Traverse(tree, t => t.Children, includeSelf: true);
+            Assert.Equal("F, B, G, A, D, I, C, E, H", string.Join(", ", traversal.Select(n => n.Id)));
+
+            traversal = TreeTraversal.LevelOrderRecursive.Traverse(tree, t => t.Children, includeSelf: true);
             Assert.Equal("F, B, G, A, D, I, C, E, H", string.Join(", ", traversal.Select(n => n.Id)));
 
             traversal = TreeTraversal.LevelOrder.Traverse(tree, t => t.Children, includeSelf: false);
             Assert.Equal("B, G, A, D, I, C, E, H", string.Join(", ", traversal.Select(n => n.Id)));
+
+            traversal = TreeTraversal.LevelOrderRecursive.Traverse(tree, t => t.Children, includeSelf: false);
+            Assert.Equal("B, G, A, D, I, C, E, H", string.Join(", ", traversal.Select(n => n.Id)));
+
+            #endregion
         }
 
         /// <summary>
