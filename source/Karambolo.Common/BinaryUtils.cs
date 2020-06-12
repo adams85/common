@@ -1,5 +1,8 @@
-﻿namespace Karambolo.Common
+﻿using System;
+
+namespace Karambolo.Common
 {
+    [Obsolete("This type provides too specific features, thus it will be removed in the next major version.")]
     public static class BinaryUtils
     {
         #region Fast BitCounter
