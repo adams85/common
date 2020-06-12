@@ -44,9 +44,10 @@ namespace Karambolo.Common
         [Fact]
         public void MakeRelativePathTest()
         {
+#if NET45 || NET461 || NETCOREAPP1_0 || NETCOREAPP2_0
             var s = Path.DirectorySeparatorChar;
 
-            Assert.Equal(string.Empty, PathUtils.MakeRelativePathCore($"{s}", $"{s}"));
+            Assert.Equal(".", PathUtils.MakeRelativePathCore($"{s}", $"{s}"));
 
             Assert.Equal($"aa", PathUtils.MakeRelativePathCore($"{s}", $"{s}aa"));
             Assert.Equal($"aa{s}", PathUtils.MakeRelativePathCore($"{s}", $"{s}aa{s}"));
@@ -58,22 +59,23 @@ namespace Karambolo.Common
             Assert.Equal($"..{s}bb", PathUtils.MakeRelativePathCore($"{s}aa{s}", $"{s}bb"));
             Assert.Equal($"..{s}bb{s}", PathUtils.MakeRelativePathCore($"{s}aa", $"{s}bb{s}"));
             Assert.Equal($"..{s}bb{s}", PathUtils.MakeRelativePathCore($"{s}aa{s}", $"{s}bb{s}"));
+#endif
 
             if (Platform.IsWindowsOS == true)
             {
-                Assert.Equal(string.Empty, PathUtils.MakeRelativePath(@"C:\", @"C:\"));
-                Assert.Equal(string.Empty, PathUtils.MakeRelativePath(@"C:", @"C:"));
-                Assert.Equal(string.Empty, PathUtils.MakeRelativePath(@"C:", @"C:"));
+                Assert.Equal(".", PathUtils.MakeRelativePath(@"C:\", @"C:\"));
+                Assert.Equal(".", PathUtils.MakeRelativePath(@"C:", @"C:"));
+                Assert.Equal(".", PathUtils.MakeRelativePath(@"C:", @"C:"));
 
                 Assert.Equal("..", PathUtils.MakeRelativePath(@"\DIR", @"\"));
                 Assert.Equal("..", PathUtils.MakeRelativePath(@"\DIR", @"\"));
                 Assert.Equal("..", PathUtils.MakeRelativePath(@"C:\DIR", @"C:\"));
                 Assert.Equal("..", PathUtils.MakeRelativePath(@"C:\DIR\", @"C:\"));
 
-                Assert.Equal(string.Empty, PathUtils.MakeRelativePath(@"C:\DIR", @"C:\DIR"));
-                Assert.Equal(string.Empty, PathUtils.MakeRelativePath(@"C:\DIR\", @"C:\DIR"));
-                Assert.Equal(@".\", PathUtils.MakeRelativePath(@"C:\DIR", @"C:\DIR\"));
-                Assert.Equal(@".\", PathUtils.MakeRelativePath(@"C:\DIR\", @"C:\DIR\"));
+                Assert.Equal(".", PathUtils.MakeRelativePath(@"C:\DIR", @"C:\DIR"));
+                Assert.Equal(".", PathUtils.MakeRelativePath(@"C:\DIR\", @"C:\DIR"));
+                Assert.Equal(".", PathUtils.MakeRelativePath(@"C:\DIR", @"C:\DIR\"));
+                Assert.Equal(".", PathUtils.MakeRelativePath(@"C:\DIR\", @"C:\DIR\"));
 
                 Assert.Equal(@"SUBDIR", PathUtils.MakeRelativePath(@"C:\DIR", @"C:\DIR\SUBDIR"));
                 Assert.Equal(@"SUBDIR", PathUtils.MakeRelativePath(@"C:\DIR\", @"C:\DIR\SUBDIR"));
@@ -102,13 +104,14 @@ namespace Karambolo.Common
 
                 Assert.Equal(@"..\x", PathUtils.MakeRelativePath(@"c:\dir\.\SUBDIR\\", @"C:\DIR\\SuBDiR\..\x"));
 
-                Assert.Throws<ArgumentException>(() => PathUtils.MakeRelativePath(@"C:\", @"D:\"));
-                Assert.Throws<ArgumentException>(() => PathUtils.MakeRelativePath(@"C:\DIR", @"D:\DIR"));
+                Assert.Equal(Path.GetFullPath(@"D:\"), PathUtils.MakeRelativePath(@"C:\", @"D:\"));
+                Assert.Equal(Path.GetFullPath(@"D:\DIR"), PathUtils.MakeRelativePath(@"C:\DIR", @"D:\DIR"));
+
 #if NET45 || NET461
                 Assert.Throws<NotSupportedException>(() => PathUtils.MakeRelativePath(@"A:\", @"AA:\"));
 #else
                 // Path.GetFullPath has a weird behavior in .NET Core when called with an argument like @"AA:\"...
-                Assert.Throws<ArgumentException>(() => PathUtils.MakeRelativePath(@"A:\", @"AA:\"));
+                Assert.Equal(Path.GetFullPath(@"AA:\"), PathUtils.MakeRelativePath(@"A:\", @"AA:\"));
 #endif
             }
         }

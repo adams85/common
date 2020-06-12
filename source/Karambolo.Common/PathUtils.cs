@@ -12,7 +12,9 @@ namespace Karambolo.Common
         private static readonly HashSet<char> s_illegalFileNameChars;
         private static readonly HashSet<string> s_reservedFileNames;
         private static readonly Func<string, bool> s_isReservedFileName;
+#if NET40 || NET45 || NETSTANDARD1_0 || NETSTANDARD2_0
         private static readonly Func<char, char, bool> s_areEqualPathChars;
+#endif
 
         static PathUtils()
         {
@@ -27,12 +29,16 @@ namespace Karambolo.Common
                     "lpt1", "lpt2", "lpt3", "lpt4", "lpt5", "lpt6", "lpt7", "lpt8", "lpt9",
                 };
                 s_isReservedFileName = value => s_reservedFileNames.Contains(Path.GetFileNameWithoutExtension(value));
+#if NET40 || NET45 || NETSTANDARD1_0 || NETSTANDARD2_0
                 s_areEqualPathChars = (x, y) => char.ToUpperInvariant(x) == char.ToUpperInvariant(y);
+#endif
             }
             else
             {
                 s_isReservedFileName = False<string>.Func;
+#if NET40 || NET45 || NETSTANDARD1_0 || NETSTANDARD2_0
                 s_areEqualPathChars = EqualityComparer<char>.Default.Equals;
+#endif
             }
         }
 
@@ -77,6 +83,7 @@ namespace Karambolo.Common
             return value.Truncate(maxLength);
         }
 
+#if NET40 || NET45 || NETSTANDARD1_0 || NETSTANDARD2_0
         internal static string MakeRelativePathCore(string basePath, string path)
         {
             // length of basePath without trailing separator
@@ -103,7 +110,7 @@ namespace Karambolo.Common
             if (index == basePathLength)
                 // are basePath and path identical (except for trailing separators)?
                 if (pathLength == basePathLength)
-                    return lastSeparatorIndex > 0 && path.Length > pathLength ? "." + Path.DirectorySeparatorChar : string.Empty;
+                    return ".";
                 // is basePath a prefix of path?
                 else if (path[index] == Path.DirectorySeparatorChar)
                     return path.Substring(index + 1);
@@ -116,7 +123,7 @@ namespace Karambolo.Common
                     lastSeparatorIndex = index;
                 // no common part?
                 if (index <= pathLength && basePath.Length > lastSeparatorIndex && basePath[lastSeparatorIndex] != Path.DirectorySeparatorChar)
-                    throw new ArgumentException(Resources.NoCommonBasePath, nameof(path));
+                    return path;
             }
 
             // determining relative part
@@ -150,6 +157,18 @@ namespace Karambolo.Common
             // normalizing paths
             return MakeRelativePathCore(Path.GetFullPath(basePath), Path.GetFullPath(path));
         }
+#else
+        [Obsolete("This method is redundant (due to the introduction of Path.GetRelativePath), thus it will be removed in the next major version.")]
+        public static string MakeRelativePath(string basePath, string path)
+        {
+            if (basePath == null)
+                throw new ArgumentNullException(nameof(basePath));
+
+            if (path == null)
+                throw new ArgumentNullException(nameof(path));
+
+            return Path.GetRelativePath(basePath, path);
+        }
+#endif
     }
 }
-
