@@ -263,7 +263,10 @@ namespace Karambolo.Common.Monetary
 
         public override int GetHashCode()
         {
-            return _amount.GetHashCode() ^ _currency.GetHashCode();
+            int hashCode = -259941593;
+            hashCode = hashCode * -1521134295 + _currency.GetHashCode();
+            hashCode = hashCode * -1521134295 + _amount.GetHashCode();
+            return hashCode;
         }
 
         public override bool Equals(object obj)
