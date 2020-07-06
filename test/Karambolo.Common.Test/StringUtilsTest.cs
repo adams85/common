@@ -7,6 +7,24 @@ namespace Karambolo.Common
     public class StringUtilsTest
     {
         [Fact]
+        public void IsNullOrEmptyTest()
+        {
+            Assert.True(StringUtils.IsNullOrEmpty(null));
+            Assert.True(StringUtils.IsNullOrEmpty(""));
+            Assert.False(StringUtils.IsNullOrEmpty("     "));
+            Assert.False(StringUtils.IsNullOrEmpty("    x "));
+        }
+
+        [Fact]
+        public void IsNullOrWhiteSpaceTest()
+        {
+            Assert.True(StringUtils.IsNullOrWhiteSpace(null));
+            Assert.True(StringUtils.IsNullOrWhiteSpace(""));
+            Assert.True(StringUtils.IsNullOrWhiteSpace("     "));
+            Assert.False(StringUtils.IsNullOrWhiteSpace("    x "));
+        }
+
+        [Fact]
         public void BytesToHexStringTest()
         {
             byte[] bytes = { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef };

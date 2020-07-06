@@ -29,7 +29,7 @@ namespace Karambolo.Common
 #if !NET40
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 #endif
-        public static bool IsNullOrEmpty(Array array)
+        public static bool IsNullOrEmpty(this Array array)
         {
             return
                 array == null ||
@@ -44,7 +44,7 @@ namespace Karambolo.Common
 #if !NET40
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
 #endif
-        public static bool IsNullOrEmpty<T>(T[] array)
+        public static bool IsNullOrEmpty<T>(this T[] array)
         {
             return array == null || array.Length == 0;
         }
