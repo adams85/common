@@ -29,7 +29,7 @@ namespace Karambolo.Common
 
         private static List<TypeNameBuilder> CreateGenericArguments(string input, int startIndex, int endIndex)
         {
-            if (!int.TryParse(input.Substring(startIndex, endIndex - startIndex), out var count))
+            if (!int.TryParse(input.Substring(startIndex, endIndex - startIndex), NumberStyles.Integer, CultureInfo.InvariantCulture, out var count))
                 throw new FormatException();
 
             var genericArguments = new List<TypeNameBuilder>(count);

@@ -93,16 +93,16 @@ namespace Karambolo.Common.Monetary
 
         private static string RemoveSignFromCurrencyString(string part, NumberFormatInfo numberFormat)
         {
-            if (part.StartsWith(numberFormat.PositiveSign))
+            if (part.StartsWith(numberFormat.PositiveSign, StringComparison.Ordinal))
                 return part.Remove(0, numberFormat.PositiveSign.Length);
 
-            if (part.StartsWith(numberFormat.NegativeSign))
+            if (part.StartsWith(numberFormat.NegativeSign, StringComparison.Ordinal))
                 return part.Remove(0, numberFormat.NegativeSign.Length);
 
-            if (part.EndsWith(numberFormat.PositiveSign))
+            if (part.EndsWith(numberFormat.PositiveSign, StringComparison.Ordinal))
                 return part.Remove(part.Length - numberFormat.PositiveSign.Length, numberFormat.PositiveSign.Length);
 
-            if (part.EndsWith(numberFormat.NegativeSign))
+            if (part.EndsWith(numberFormat.NegativeSign, StringComparison.Ordinal))
                 return part.Remove(part.Length - numberFormat.NegativeSign.Length, numberFormat.NegativeSign.Length);
 
             return part;
