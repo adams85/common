@@ -47,8 +47,7 @@ namespace Karambolo.Common
                 var part = parts[0];
                 var delimiter = !string.IsNullOrEmpty(part) && part[0] == '/' ? "/" : null;
 
-                var count = parts.Length;
-                for (var i = 0; i < count; i++)
+                for (int i = 0, n = parts.Length; i < n; i++)
                 {
                     sb.Append(delimiter);
 

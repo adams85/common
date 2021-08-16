@@ -356,8 +356,7 @@ namespace Karambolo.Common
             var dictionary = new Dictionary<string, object>((flags & ObjectToDictionaryFlags.IgnoreCase) == 0 ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase);
 
             MemberDescriptor memberDescriptor;
-            var n = memberDescriptors.Length;
-            for (var i = 0; i < n; i++)
+            for (int i = 0, n = memberDescriptors.Length; i < n; i++)
                 if (((memberDescriptor = memberDescriptors[i]).Member.MemberType() & memberTypes) != 0 &&
                     (!excludeReadOnly || !memberDescriptor.IsReadOnly))
                     dictionary.Add(memberDescriptor.Member.Name, memberDescriptor.ValueAccessor(obj));

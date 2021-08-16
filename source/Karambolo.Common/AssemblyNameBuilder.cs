@@ -84,8 +84,7 @@ namespace Karambolo.Common
 
             string part;
             int index;
-            var n = parts.Length;
-            for (var i = 1; i < n; i++)
+            for (int i = 1, n = parts.Length; i < n; i++)
                 if ((index = (part = parts[i]).IndexOf('=')) > 0)
                 {
                     value = part.Remove(0, index + 1).Trim();

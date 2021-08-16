@@ -118,7 +118,7 @@ namespace Karambolo.Common.Monetary
             char c;
             var sb = new StringBuilder();
             var separator = numberFormat.CurrencyDecimalSeparator.AsEnumerable().First();
-            for (var i = 0; i < length - 1; i++)
+            for (int i = 0, n = length - 1; i < n; i++)
                 if (!char.IsDigit(c = value[i]) && c != separator)
                     sb.Append(c);
                 else

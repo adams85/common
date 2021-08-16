@@ -136,8 +136,7 @@ namespace Karambolo.Common
             if (value == null)
                 throw new ArgumentNullException(nameof(value));
 
-            var n = array.Length;
-            for (var i = 0; i < n; i++)
+            for (int i = 0, n = array.Length; i < n; i++)
                 array[i] = value(i);
         }
 

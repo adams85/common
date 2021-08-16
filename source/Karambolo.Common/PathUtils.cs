@@ -69,8 +69,7 @@ namespace Karambolo.Common
                 return new string('_', value.Length);
 
             char[] chars = null;
-            var n = Math.Min(value.Length, maxLength);
-            for (var i = 0; i < n; i++)
+            for (int i = 0, n = Math.Min(value.Length, maxLength); i < n; i++)
                 if (s_illegalFileNameChars.Contains(value[i]))
                     (chars ?? (chars = value.ToCharArray()))[i] = '_';
 

@@ -329,8 +329,7 @@ namespace Karambolo.Common.Collections
                 if (index < 0 || array.Length < index)
                     throw new ArgumentOutOfRangeException(nameof(index), Resources.IndexOutOfRange);
 
-                var count = _dictionary._list.Count;
-                for (var i = 0; i < count; i++)
+                for (int i = 0, n = _dictionary._list.Count; i < n; i++)
                     array[index++] = _dictionary._dictionary[_dictionary._list[i]];
             }
 
@@ -380,10 +379,9 @@ namespace Karambolo.Common.Collections
                 if (!(array is object[] array3))
                     throw new ArgumentException(Resources.InvalidArrayType, nameof(array));
 
-                var count = _dictionary._list.Count;
                 try
                 {
-                    for (var i = 0; i < count; i++)
+                    for (int i = 0, n = _dictionary._list.Count; i < n; i++)
                         array3[index++] = _dictionary._dictionary[_dictionary._list[i]];
                 }
                 catch (ArrayTypeMismatchException)
@@ -756,10 +754,9 @@ namespace Karambolo.Common.Collections
                 throw new ArgumentNullException(nameof(key));
 
             IEqualityComparer<TKey> comparer = _dictionary.Comparer;
-            var count = _list.Count;
-            for (var index = 0; index < count; index++)
-                if (comparer.Equals(_list[index], key))
-                    return index;
+            for (int i = 0, n = _list.Count; i < n; i++)
+                if (comparer.Equals(_list[i], key))
+                    return i;
 
             return -1;
         }
@@ -856,8 +853,7 @@ namespace Karambolo.Common.Collections
             if (array is DictionaryEntry[] deArray)
             {
                 TKey key;
-                var count = _list.Count;
-                for (var i = 0; i < count; i++)
+                for (int i = 0, n = _list.Count; i < n; i++)
                     deArray[index++] = new DictionaryEntry(key = _list[i], _dictionary[key]);
                 return;
             }
@@ -866,8 +862,7 @@ namespace Karambolo.Common.Collections
                 try
                 {
                     TKey key;
-                    var count = _list.Count;
-                    for (var i = 0; i < count; i++)
+                    for (int i = 0, n = _list.Count; i < n; i++)
                         objArray[index++] = new KeyValuePair<TKey, TValue>(key = _list[i], _dictionary[key]);
                     return;
                 }
@@ -975,8 +970,7 @@ namespace Karambolo.Common.Collections
                 throw new ArgumentOutOfRangeException(nameof(arrayIndex), Resources.IndexOutOfRange);
 
             TKey key;
-            var count = _list.Count;
-            for (var i = 0; i < count; i++)
+            for (int i = 0, n = _list.Count; i < n; i++)
                 array[arrayIndex++] = new KeyValuePair<TKey, TValue>(key = _list[i], _dictionary[key]);
         }
 
