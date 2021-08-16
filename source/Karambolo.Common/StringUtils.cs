@@ -406,13 +406,15 @@ namespace Karambolo.Common
                 yield break;
             }
 
+            var separatorCharArray = new[] { separatorChar };
+
             var startIndex = 0;
             do
             {
                 var index = startIndex < @string.Length ? @string.IndexOfEscaped(escapeChar, separatorChar, startIndex) : -1;
                 var section = index >= 0 ? @string.Substring(startIndex, index - startIndex) : @string.Substring(startIndex);
                 if (options != StringSplitOptions.RemoveEmptyEntries || section.Length > 0)
-                    yield return section.Unescape(escapeChar, separatorChar);
+                    yield return section.Unescape(escapeChar, separatorCharArray);
                 startIndex = index + 1;
             }
             while (startIndex > 0);
@@ -420,7 +422,9 @@ namespace Karambolo.Common
 
         public static string JoinEscaped(char escapeChar, char separatorChar, IEnumerable<string> values)
         {
-            return string.Join(separatorChar.ToString(), values.Select(v => v.Escape(escapeChar, separatorChar)));
+            var separatorCharArray = new[] { separatorChar };
+
+            return string.Join(separatorChar.ToString(), values.Select(v => v.Escape(escapeChar, separatorCharArray)));
         }
 
 #if !NETSTANDARD1_0
