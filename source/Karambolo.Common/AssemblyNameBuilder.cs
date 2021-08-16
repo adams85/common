@@ -13,19 +13,6 @@ namespace Karambolo.Common
 {
     public sealed class AssemblyNameBuilder
     {
-        [Flags]
-        private enum Attributes
-        {
-            None = 0,
-            Version = 0x1,
-            CultureOrLanguage = 0x2,
-            PublicKeyOrToken = 0x4,
-            ProcessorArchitecture = 0x8,
-            Retargetable = 0x10,
-            ContentType = 0x20,
-            Custom = -0x8000_0000
-        }
-
         private const string VersionKey = "Version";
         private const string CultureKey = "Culture";
         private const string LanguageKey = "Language";
@@ -85,7 +72,15 @@ namespace Karambolo.Common
                 throw new FormatException();
             Name = value;
 
-            Attributes attributesParsed = Attributes.None;
+            const int versionAttribute = 0x1;
+            const int cultureOrLanguageAttribute = 0x2;
+            const int publicKeyOrTokenAttribute = 0x4;
+            const int processorArchitectureAttribute = 0x8;
+            const int retargetableAttribute = 0x10;
+            const int contentTypeAttribute = 0x20;
+            const int customAttribute = -0x8000_0000;
+
+            int attributesParsed = 0;
 
             string part;
             int index;
@@ -99,70 +94,70 @@ namespace Karambolo.Common
 
                     var key = part.Substring(0, index).Trim();
 
-                    if (ShouldParseAttribute(ref attributesParsed, Attributes.Version) &&
+                    if (ShouldParseAttribute(ref attributesParsed, versionAttribute) &&
                         VersionKey.Equals(key, StringComparison.OrdinalIgnoreCase))
                     {
-                        attributesParsed |= Attributes.Version;
+                        attributesParsed |= versionAttribute;
 
                         if (Version.TryParse(value, out Version version))
                             Version = version;
                     }
-                    else if (ShouldParseAttribute(ref attributesParsed, Attributes.CultureOrLanguage) &&
+                    else if (ShouldParseAttribute(ref attributesParsed, cultureOrLanguageAttribute) &&
                         CultureKey.Equals(key, StringComparison.OrdinalIgnoreCase) || LanguageKey.Equals(key, StringComparison.OrdinalIgnoreCase))
                     {
-                        attributesParsed |= Attributes.CultureOrLanguage;
+                        attributesParsed |= cultureOrLanguageAttribute;
 
                         try { CultureName = value; }
                         catch (CultureNotFoundException) { }
                     }
-                    else if (ShouldParseAttribute(ref attributesParsed, Attributes.PublicKeyOrToken) &&
+                    else if (ShouldParseAttribute(ref attributesParsed, publicKeyOrTokenAttribute) &&
                         PublicKeyTokenKey.Equals(key, StringComparison.OrdinalIgnoreCase))
                     {
-                        attributesParsed |= Attributes.PublicKeyOrToken;
+                        attributesParsed |= publicKeyOrTokenAttribute;
 
                         if (value.Length == PublicKeyTokenLength << 1)
                             try { PublicKeyTokenString = value; }
                             catch (FormatException) { }
                     }
-                    else if (ShouldParseAttribute(ref attributesParsed, Attributes.PublicKeyOrToken) &&
+                    else if (ShouldParseAttribute(ref attributesParsed, publicKeyOrTokenAttribute) &&
                         PublicKeyKey.Equals(key, StringComparison.OrdinalIgnoreCase))
                     {
-                        attributesParsed |= Attributes.PublicKeyOrToken;
+                        attributesParsed |= publicKeyOrTokenAttribute;
 
                         if (value.Length <= PublicKeyMaxLength << 1)
                             try { PublicKeyString = value; }
                             catch (FormatException) { }
                     }
-                    else if (ShouldParseAttribute(ref attributesParsed, Attributes.ProcessorArchitecture) &&
+                    else if (ShouldParseAttribute(ref attributesParsed, processorArchitectureAttribute) &&
                         ProcessorArchitectureKey.Equals(key, StringComparison.OrdinalIgnoreCase))
                     {
-                        attributesParsed |= Attributes.ProcessorArchitecture;
+                        attributesParsed |= processorArchitectureAttribute;
 
                         if (Enum.TryParse(value, ignoreCase: true, out _ProcessorArchitecture processorArchitecture) &&
                             processorArchitecture != _ProcessorArchitecture.None)
                             ProcessorArchitecture = processorArchitecture;
                     }
-                    else if (ShouldParseAttribute(ref attributesParsed, Attributes.Retargetable) &&
+                    else if (ShouldParseAttribute(ref attributesParsed, retargetableAttribute) &&
                         RetargetableKey.Equals(key, StringComparison.OrdinalIgnoreCase))
                     {
-                        attributesParsed |= Attributes.Retargetable;
+                        attributesParsed |= retargetableAttribute;
 
                         if (YesValue.Equals(value, StringComparison.OrdinalIgnoreCase))
                             Retargetable = true;
                     }
-                    else if (ShouldParseAttribute(ref attributesParsed, Attributes.ContentType) &&
+                    else if (ShouldParseAttribute(ref attributesParsed, contentTypeAttribute) &&
                         ContentTypeKey.Equals(key, StringComparison.OrdinalIgnoreCase))
                     {
-                        attributesParsed |= Attributes.ContentType;
+                        attributesParsed |= contentTypeAttribute;
 
                         if (Enum.TryParse(value, ignoreCase: true, out AssemblyContentType contentType) &&
                             contentType != AssemblyContentType.Default)
                             ContentType = contentType;
                     }
-                    else if (ShouldParseAttribute(ref attributesParsed, Attributes.Custom) &&
+                    else if (ShouldParseAttribute(ref attributesParsed, customAttribute) &&
                         CustomKey.Equals(key, StringComparison.OrdinalIgnoreCase))
                     {
-                        attributesParsed |= Attributes.Custom;
+                        attributesParsed |= customAttribute;
 
                         if (NullValue.Equals(value, StringComparison.OrdinalIgnoreCase))
                             Custom = ArrayUtils.Empty<byte>();
@@ -172,7 +167,7 @@ namespace Karambolo.Common
                     }
                 }
 
-            bool ShouldParseAttribute(ref Attributes attrsParsed, Attributes attr)
+            bool ShouldParseAttribute(ref int attrsParsed, int attr)
             {
                 return (attrsParsed & attr) == 0;
             }

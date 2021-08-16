@@ -95,21 +95,18 @@ namespace Karambolo.Common
             return sb.ToString();
         }
 
-        private enum GcpState
-        {
-            Initial,
-            OneDotRead,
-            TwoDotsRead,
-            SlashRead,
-            SkipUntilSlash,
-        }
-
         public static string GetCanonicalPath(string path)
         {
             if (path == null)
                 throw new ArgumentNullException(nameof(path));
 
-            GcpState state = GcpState.Initial;
+            const int initialState = 0;
+            const int oneDotReadState = 1;
+            const int twoDotsReadState = 2;
+            const int slashReadState = 3;
+            const int skipUntilSlashState = 4;
+
+            int state = initialState;
             int sectionStartIndex = 0, sectionEndIndex;
             int level = 0;
             StringBuilder sb = null;
@@ -121,18 +118,18 @@ namespace Karambolo.Common
 
                 switch (state)
                 {
-                    case GcpState.Initial:
+                    case initialState:
                         if (c == '/')
                         {
                             sectionStartIndex++;
-                            state = GcpState.SlashRead;
+                            state = slashReadState;
                         }
                         else if (c == '.')
-                            state = GcpState.OneDotRead;
+                            state = oneDotReadState;
                         else
-                            state = GcpState.SkipUntilSlash;
+                            state = skipUntilSlashState;
                         break;
-                    case GcpState.OneDotRead:
+                    case oneDotReadState:
                         if (c == '/')
                         {
                             sectionEndIndex = index + 1;
@@ -140,14 +137,14 @@ namespace Karambolo.Common
                                 sb = new StringBuilder(path, 0, sectionStartIndex, length - (sectionEndIndex - sectionStartIndex));
 
                             sectionStartIndex = sectionEndIndex;
-                            state = GcpState.SlashRead;
+                            state = slashReadState;
                         }
                         else if (c == '.')
-                            state = GcpState.TwoDotsRead;
+                            state = twoDotsReadState;
                         else
-                            state = GcpState.SkipUntilSlash;
+                            state = skipUntilSlashState;
                         break;
-                    case GcpState.TwoDotsRead:
+                    case twoDotsReadState:
                         if (c == '/')
                         {
                             sectionEndIndex = index + 1;
@@ -157,12 +154,12 @@ namespace Karambolo.Common
                             AddSection(sb, path, sectionStartIndex, sectionEndIndex, -(--level));
 
                             sectionStartIndex = sectionEndIndex;
-                            state = GcpState.SlashRead;
+                            state = slashReadState;
                         }
                         else
-                            state = GcpState.SkipUntilSlash;
+                            state = skipUntilSlashState;
                         break;
-                    case GcpState.SlashRead:
+                    case slashReadState:
                         if (c == '/')
                         {
                             sectionEndIndex = index + 1;
@@ -172,11 +169,11 @@ namespace Karambolo.Common
                             sectionStartIndex++;
                         }
                         else if (c == '.')
-                            state = GcpState.OneDotRead;
+                            state = oneDotReadState;
                         else
-                            state = GcpState.SkipUntilSlash;
+                            state = skipUntilSlashState;
                         break;
-                    case GcpState.SkipUntilSlash:
+                    case skipUntilSlashState:
                         if (c == '/')
                         {
                             sectionEndIndex = index + 1;
@@ -185,7 +182,7 @@ namespace Karambolo.Common
                                 AddSection(sb, path, sectionStartIndex, sectionEndIndex, level);
 
                             sectionStartIndex = sectionEndIndex;
-                            state = GcpState.SlashRead;
+                            state = slashReadState;
                         }
                         break;
                 }
@@ -193,22 +190,22 @@ namespace Karambolo.Common
 
             switch (state)
             {
-                case GcpState.OneDotRead:
+                case oneDotReadState:
                     if (sb == null)
                         return path.Length > 2 ? path.Substring(0, length - 2) : path[0] == '/' ? "/" : string.Empty;
 
                     return (sb.Length > 1 ? sb.Remove(sb.Length - 1, 1) : sb).ToString();
-                case GcpState.TwoDotsRead:
+                case twoDotsReadState:
                     if (sb == null)
                         sb = new StringBuilder(path, 0, sectionStartIndex, sectionStartIndex);
 
                     return AddSection(sb, path, sectionStartIndex, length, -(--level)).ToString();
-                case GcpState.SlashRead:
+                case slashReadState:
                     if (sb == null)
                         return path;
 
                     return (sb.Length > 0 && sb[sb.Length - 1] != '/' ? sb.Append('/') : sb).ToString();
-                case GcpState.SkipUntilSlash:
+                case skipUntilSlashState:
                     if (sb == null)
                         return path;
 

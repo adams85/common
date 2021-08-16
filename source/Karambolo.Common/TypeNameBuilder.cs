@@ -8,14 +8,6 @@ namespace Karambolo.Common
 {
     public class TypeName
     {
-        private enum ParserState
-        {
-            BeforeTypeName,
-            InTypeName,
-            InGenericArgCount,
-            AfterTypeName,
-        }
-
         private static string GetBaseName(string input, int startIndex, int endIndex, int dotIndex, bool isNested, ref string @namespace)
         {
             // name is missing or ends with dot?
@@ -54,7 +46,12 @@ namespace Karambolo.Common
             var dotIndex = -1;
             var isNested = false;
 
-            ParserState state = ParserState.BeforeTypeName;
+            const int beforeTypeNameState = 0;
+            const int inTypeNameState = 1;
+            const int inGenericArgCountState = 2;
+            const int afterTypeNameState = 3;
+
+            int state = beforeTypeNameState;
             int i;
             for (i = startIndex; i < endIndex; i++)
             {
@@ -62,7 +59,7 @@ namespace Karambolo.Common
 
                 switch (state)
                 {
-                    case ParserState.BeforeTypeName:
+                    case beforeTypeNameState:
                         switch (c)
                         {
                             case '`':
@@ -76,12 +73,12 @@ namespace Karambolo.Common
                                 if (!char.IsWhiteSpace(c))
                                 {
                                     sectionStartIndex = i;
-                                    state = ParserState.InTypeName;
+                                    state = inTypeNameState;
                                 }
                                 break;
                         }
                         break;
-                    case ParserState.InTypeName:
+                    case inTypeNameState:
                         switch (c)
                         {
                             case '[':
@@ -99,7 +96,7 @@ namespace Karambolo.Common
                                 typeName._baseName = GetBaseName(input, sectionStartIndex, i, dotIndex, isNested, ref @namespace);
 
                                 sectionStartIndex = i + 1;
-                                state = ParserState.InGenericArgCount;
+                                state = inGenericArgCountState;
                                 break;
                             case '+':
                                 typeName._baseName = GetBaseName(input, sectionStartIndex, i, dotIndex, isNested, ref @namespace);
@@ -115,12 +112,12 @@ namespace Karambolo.Common
                                 {
                                     typeName._baseName = GetBaseName(input, sectionStartIndex, i, dotIndex, isNested, ref @namespace);
 
-                                    state = ParserState.AfterTypeName;
+                                    state = afterTypeNameState;
                                 }
                                 break;
                         }
                         break;
-                    case ParserState.InGenericArgCount:
+                    case inGenericArgCountState:
                         switch (c)
                         {
                             case '[':
@@ -135,21 +132,21 @@ namespace Karambolo.Common
 
                                 sectionStartIndex = i + 1;
                                 dotIndex = -1;
-                                state = ParserState.InTypeName;
+                                state = inTypeNameState;
                                 break;
                             default:
                                 if (char.IsWhiteSpace(c))
                                 {
                                     typeName._genericArguments = CreateGenericArguments(input, sectionStartIndex, i);
 
-                                    state = ParserState.AfterTypeName;
+                                    state = afterTypeNameState;
                                 }
                                 else if (!char.IsDigit(c))
                                     throw new FormatException();
                                 break;
                         }
                         break;
-                    case ParserState.AfterTypeName:
+                    case afterTypeNameState:
                         switch (c)
                         {
                             case ',':
@@ -168,15 +165,15 @@ namespace Karambolo.Common
 
             switch (state)
             {
-                case ParserState.InTypeName:
+                case inTypeNameState:
                     typeName._baseName = GetBaseName(input, sectionStartIndex, i, dotIndex, isNested, ref @namespace);
                     return i;
-                case ParserState.InGenericArgCount:
+                case inGenericArgCountState:
                     typeName._genericArguments = CreateGenericArguments(input, sectionStartIndex, i);
                     return i;
-                case ParserState.AfterTypeName:
+                case afterTypeNameState:
                     return i;
-                case ParserState.BeforeTypeName:
+                case beforeTypeNameState:
                     throw new FormatException();
                 default:
                     throw new InvalidOperationException();
@@ -261,16 +258,6 @@ namespace Karambolo.Common
 
     public sealed class TypeNameBuilder : TypeName
     {
-        private enum ParserState
-        {
-            InBrackets,
-            InGenericBracketsBeforeArg,
-            InNestedBrackets,
-            InGenericBracketsAfterArg,
-            InArrayBrackets,
-            AfterBrackets,
-        }
-
         private static void SeekNextGenericArg(ref TypeName typeName, ref int genericArgIndex)
         {
             genericArgIndex++;
@@ -288,7 +275,14 @@ namespace Karambolo.Common
             var sectionStartIndex = -1;
             var counter = 0;
 
-            ParserState state = ParserState.InBrackets;
+            const int inBracketsState = 0;
+            const int inGenericBracketsBeforeArgState = 1;
+            const int inNestedBracketsState = 2;
+            const int inGenericBracketsAfterArgState = 3;
+            const int inArrayBracketsState = 4;
+            const int inAfterBracketsState = 5;
+
+            int state = inBracketsState;
             int i;
             for (i = startIndex; i < endIndex; i++)
             {
@@ -296,20 +290,20 @@ namespace Karambolo.Common
 
                 switch (state)
                 {
-                    case ParserState.InBrackets:
+                    case inBracketsState:
                         switch (c)
                         {
                             case '[':
                                 sectionStartIndex = i + 1;
-                                state = ParserState.InNestedBrackets;
+                                state = inNestedBracketsState;
                                 break;
                             case ']':
                                 builder.ArrayDimensions.Add(counter + 1);
-                                state = ParserState.AfterBrackets;
+                                state = inAfterBracketsState;
                                 break;
                             case ',':
                                 counter++;
-                                state = ParserState.InArrayBrackets;
+                                state = inArrayBracketsState;
                                 break;
                             default:
                                 if (!char.IsWhiteSpace(c))
@@ -317,12 +311,12 @@ namespace Karambolo.Common
                                 break;
                         }
                         break;
-                    case ParserState.InGenericBracketsBeforeArg:
+                    case inGenericBracketsBeforeArgState:
                         switch (c)
                         {
                             case '[':
                                 sectionStartIndex = i + 1;
-                                state = ParserState.InNestedBrackets;
+                                state = inNestedBracketsState;
                                 break;
                             default:
                                 if (!char.IsWhiteSpace(c))
@@ -330,7 +324,7 @@ namespace Karambolo.Common
                                 break;
                         }
                         break;
-                    case ParserState.InNestedBrackets:
+                    case inNestedBracketsState:
                         switch (c)
                         {
                             case '[':
@@ -346,14 +340,14 @@ namespace Karambolo.Common
 
                                     Parse(input, sectionStartIndex, i, typeName._genericArguments[genericArgIndex] = new TypeNameBuilder());
 
-                                    state = ParserState.InGenericBracketsAfterArg;
+                                    state = inGenericBracketsAfterArgState;
                                 }
                                 else
                                     counter--;
                                 break;
                         }
                         break;
-                    case ParserState.InGenericBracketsAfterArg:
+                    case inGenericBracketsAfterArgState:
                         switch (c)
                         {
                             case ']':
@@ -362,10 +356,10 @@ namespace Karambolo.Common
                                 if (typeName != null)
                                     throw new FormatException();
 
-                                state = ParserState.AfterBrackets;
+                                state = inAfterBracketsState;
                                 break;
                             case ',':
-                                state = ParserState.InGenericBracketsBeforeArg;
+                                state = inGenericBracketsBeforeArgState;
                                 break;
                             default:
                                 if (!char.IsWhiteSpace(c))
@@ -373,12 +367,12 @@ namespace Karambolo.Common
                                 break;
                         }
                         break;
-                    case ParserState.InArrayBrackets:
+                    case inArrayBracketsState:
                         switch (c)
                         {
                             case ']':
                                 builder.ArrayDimensions.Add(counter + 1);
-                                state = ParserState.AfterBrackets;
+                                state = inAfterBracketsState;
                                 break;
                             case ',':
                                 counter++;
@@ -389,14 +383,14 @@ namespace Karambolo.Common
                                 break;
                         }
                         break;
-                    case ParserState.AfterBrackets:
+                    case inAfterBracketsState:
                         switch (c)
                         {
                             case ',':
                                 return i;
                             case '[':
                                 counter = 0;
-                                state = ParserState.InArrayBrackets;
+                                state = inArrayBracketsState;
                                 break;
                             default:
                                 if (!char.IsWhiteSpace(c))
@@ -409,13 +403,13 @@ namespace Karambolo.Common
 
             switch (state)
             {
-                case ParserState.AfterBrackets:
+                case inAfterBracketsState:
                     return i;
-                case ParserState.InBrackets:
-                case ParserState.InGenericBracketsBeforeArg:
-                case ParserState.InGenericBracketsAfterArg:
-                case ParserState.InArrayBrackets:
-                case ParserState.InNestedBrackets:
+                case inBracketsState:
+                case inGenericBracketsBeforeArgState:
+                case inGenericBracketsAfterArgState:
+                case inArrayBracketsState:
+                case inNestedBracketsState:
                     throw new FormatException();
                 default:
                     throw new InvalidOperationException();
