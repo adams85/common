@@ -18,7 +18,6 @@ namespace Karambolo.Common
             return EmptyArray<T>.Instance;
         }
 #else
-        [Obsolete("This method is redundant (due to the introduction of Array.Empty<T>), thus it will be removed in the next major version.")]
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static T[] Empty<T>()
         {

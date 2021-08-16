@@ -57,21 +57,21 @@ namespace Karambolo.Common
             Assert.Throws<ArgumentOutOfRangeException>(() => array.Fill(0, -1, 2));
             Assert.Throws<ArgumentOutOfRangeException>(() => array.Fill(0, array.Length, 1));
 
-            array.Fill(Identity<int>.Func);
+            array.Fill(CachedDelegates.Identity<int>.Func);
             Assert.Equal(new[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }, array);
 
-            array.Fill(DefaultMap<int>.Func, 2, 3);
+            array.Fill(CachedDelegates.DefaultMap<int>.Func, 2, 3);
             Assert.Equal(new[] { 0, 1, 0, 0, 0, 5, 6, 7, 8, 9 }, array);
 
-            Assert.Throws<ArgumentOutOfRangeException>(() => array.Fill(DefaultMap<int>.Func, -1, 2));
-            Assert.Throws<ArgumentOutOfRangeException>(() => array.Fill(DefaultMap<int>.Func, array.Length, 1));
+            Assert.Throws<ArgumentOutOfRangeException>(() => array.Fill(CachedDelegates.DefaultMap<int>.Func, -1, 2));
+            Assert.Throws<ArgumentOutOfRangeException>(() => array.Fill(CachedDelegates.DefaultMap<int>.Func, array.Length, 1));
         }
 
         [Fact]
         public void ShuffleTest()
         {
             var array = new int[10];
-            array.Fill(Identity<int>.Func);
+            array.Fill(CachedDelegates.Identity<int>.Func);
             var shuffledArray = (int[])array.Clone();
 
             shuffledArray.Shuffle(new Random(0));
@@ -94,7 +94,7 @@ namespace Karambolo.Common
             Assert.False(ArrayUtils.ContentEquals(null, ArrayUtils.Empty<int>()));
 
             var array = new int[10];
-            array.Fill(Identity<int>.Func);
+            array.Fill(CachedDelegates.Identity<int>.Func);
             Assert.False(ArrayUtils.ContentEquals(array, ArrayUtils.Empty<int>()));
 
             var otherArray = (int[])array.Clone();

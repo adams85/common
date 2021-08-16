@@ -101,6 +101,7 @@ namespace Karambolo.Common
         }
     }
 
+    [Obsolete("This type is redundant (due to the existence of Comparer<T>.Create), thus it will be removed in the next major version.")]
     public sealed class DelegatedComparer<TSource> : IComparer<TSource>
     {
         private readonly Func<TSource, TSource, int> _comparer;
@@ -125,6 +126,7 @@ namespace Karambolo.Common
 
     public static class DelegatedComparer
     {
+        [Obsolete("This method is redundant (due to the existence of Comparer<T>.Create), thus it will be removed in the next major version.")]
         public static DelegatedComparer<TSource> Create<TSource>(Func<TSource, TSource, int> comparer)
         {
             return new DelegatedComparer<TSource>(comparer);

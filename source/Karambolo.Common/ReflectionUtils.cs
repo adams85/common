@@ -268,7 +268,7 @@ namespace Karambolo.Common
 
             if (type.IsClass() && (type = type.BaseType()) != null)
             {
-                var membersByName = members.ToDictionary(member => member.Name, Identity<MemberInfo>.Func);
+                var membersByName = members.ToDictionary(member => member.Name, CachedDelegates.Identity<MemberInfo>.Func);
 
                 do
                 {

@@ -35,7 +35,7 @@ namespace Karambolo.Common
             }
             else
             {
-                s_isReservedFileName = False<string>.Func;
+                s_isReservedFileName = CachedDelegates.False<string>.Func;
 #if NET40 || NET45 || NETSTANDARD1_0 || NETSTANDARD2_0
                 s_areEqualPathChars = EqualityComparer<char>.Default.Equals;
 #endif
@@ -158,7 +158,6 @@ namespace Karambolo.Common
             return MakeRelativePathCore(Path.GetFullPath(basePath), Path.GetFullPath(path));
         }
 #else
-        [Obsolete("This method is redundant (due to the introduction of Path.GetRelativePath), thus it will be removed in the next major version.")]
         public static string MakeRelativePath(string basePath, string path)
         {
             if (basePath == null)

@@ -20,7 +20,7 @@ namespace Karambolo.Common
             // (https://blogs.msdn.microsoft.com/seteplia/2018/10/01/the-danger-of-taskcompletionsourcet-class/);
             // the flag is only available as of .NET 4.6 (and is buggy up to 4.6.1) so we resort to async task continuations
             // (https://stackoverflow.com/questions/22579206/how-can-i-prevent-synchronous-continuations-on-a-task)
-            return tcs.Task.ContinueWith(Identity<Task<TResult>>.Func, default, TaskContinuationOptions.None, TaskScheduler.Default).Unwrap();
+            return tcs.Task.ContinueWith(CachedDelegates.Identity<Task<TResult>>.Func, default, TaskContinuationOptions.None, TaskScheduler.Default).Unwrap();
         }
 #else
         internal static readonly TaskCreationOptions DefaultTcsCreationOptions = TaskCreationOptions.RunContinuationsAsynchronously;

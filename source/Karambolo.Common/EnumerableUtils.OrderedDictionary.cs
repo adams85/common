@@ -28,12 +28,12 @@ namespace Karambolo.Common
         public static OrderedDictionary<TKey, T> ToOrderedDictionary<T, TKey>(this IEnumerable<T> source, Func<T, TKey> keySelector,
             IEqualityComparer<TKey> comparer)
         {
-            return ToOrderedDictionary(source, keySelector, Identity<T>.Func, comparer);
+            return ToOrderedDictionary(source, keySelector, CachedDelegates.Identity<T>.Func, comparer);
         }
 
         public static OrderedDictionary<TKey, T> ToOrderedDictionary<T, TKey>(this IEnumerable<T> source, Func<T, TKey> keySelector)
         {
-            return ToOrderedDictionary(source, keySelector, Identity<T>.Func, null);
+            return ToOrderedDictionary(source, keySelector, CachedDelegates.Identity<T>.Func, null);
         }
     }
 }

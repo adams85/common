@@ -28,5 +28,4 @@ namespace Karambolo.Common.Internal
             return _expression;
         }
     }
-
 }

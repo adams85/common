@@ -4,6 +4,7 @@ using Karambolo.Common.Internal;
 
 namespace Karambolo.Common
 {
+    [Obsolete("This type is mostly useful in contexts that also demand LINQKit, which provides the same functionality, thus this implementation will be removed in the next major version.")]
     public class PredicateBuilder<T>
     {
         public static PredicateBuilder<T> True()
