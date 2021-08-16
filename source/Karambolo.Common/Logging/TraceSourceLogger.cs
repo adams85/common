@@ -40,9 +40,14 @@ namespace Karambolo.Common.Logging
 
         private readonly ConcurrentDictionary<string, TraceSource> _traceSources = new ConcurrentDictionary<string, TraceSource>();
 
+        protected virtual TraceSource CreateTraceSource(string sourceName)
+        {
+            return new TraceSource(sourceName, SourceLevels.Information);
+        }
+
         public void LogEvent(LoggerEventType level, string message, object[] args)
         {
-            TraceSource traceSource = _traceSources.GetOrAdd(_sourceName, sn => new TraceSource(sn, SourceLevels.Information));
+            TraceSource traceSource = _traceSources.GetOrAdd(_sourceName, CreateTraceSource);
 
             if (ArrayUtils.IsNullOrEmpty(args))
                 traceSource.TraceEvent(MapLevelToEventType(level), 0, message);
