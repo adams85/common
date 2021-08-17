@@ -175,10 +175,8 @@ namespace Karambolo.Common
             return expression;
         }
 
-        public static Func<TContainer, TMember> MakeFastGetter<TContainer, TMember>(this MemberInfo member, MemberTypes allowedMemberTypes)
+        private static Func<TContainer, TMember> MakeFastGetterCore<TContainer, TMember>(this MemberInfo member, Type memberType)
         {
-            Type memberType = member.GetMemberType(allowedMemberTypes);
-
             Expression memberAccess = BuildMemberAccessExpression<TContainer>(member, out ParameterExpression param);
 
             if (typeof(TMember) != memberType)
@@ -187,14 +185,49 @@ namespace Karambolo.Common
             return Expression.Lambda<Func<TContainer, TMember>>(memberAccess, param).Compile();
         }
 
+        public static Func<TContainer, TMember> MakeFastGetter<TContainer, TMember>(this MemberInfo member, MemberTypes allowedMemberTypes)
+        {
+            if (member == null)
+                throw new ArgumentNullException(nameof(member));
+
+            if ((allowedMemberTypes & ~(MemberTypes.Field | MemberTypes.Property)) != 0)
+                throw new ArgumentException(Resources.FieldOrPropertyAllowedOnly, nameof(allowedMemberTypes));
+
+            MemberTypes memberType = member.MemberType();
+            if ((allowedMemberTypes & memberType) == 0)
+                throw new ArgumentException(Resources.InvalidValue, nameof(member));
+
+            return
+                memberType == MemberTypes.Property ?
+                ((PropertyInfo)member).MakeFastGetter<TContainer, TMember>() :
+                ((FieldInfo)member).MakeFastGetter<TContainer, TMember>();
+        }
+
         public static Func<TContainer, TMember> MakeFastGetter<TContainer, TMember>(this FieldInfo field)
         {
-            return MakeFastGetter<TContainer, TMember>(field, MemberTypes.Field);
+            if (field == null)
+                throw new ArgumentNullException(nameof(field));
+
+            return MakeFastGetterCore<TContainer, TMember>(field, field.FieldType);
         }
 
         public static Func<TContainer, TMember> MakeFastGetter<TContainer, TMember>(this PropertyInfo property)
         {
-            return MakeFastGetter<TContainer, TMember>(property, MemberTypes.Property);
+            if (property == null)
+                throw new ArgumentNullException(nameof(property));
+
+#if !NETSTANDARD1_0
+            MethodInfo getMethod = property.GetGetMethod(nonPublic: true);
+            if (getMethod != null)
+            {
+                Type getMethodDelegateType = typeof(Func<,>).MakeGenericType(getMethod.DeclaringType, getMethod.ReturnType);
+
+                if (typeof(Func<TContainer, TMember>).IsAssignableFrom(getMethodDelegateType))
+                    return (Func<TContainer, TMember>)Delegate.CreateDelegate(getMethodDelegateType, getMethod);
+            }
+#endif
+
+            return MakeFastGetterCore<TContainer, TMember>(property, property.PropertyType);
         }
 
         public static Func<TContainer, TMember> MakeFastGetter<TContainer, TMember>(this Expression<Func<TContainer, TMember>> expression)
@@ -203,13 +236,14 @@ namespace Karambolo.Common
             if (memberExpression == null)
                 throw new ArgumentException(Resources.InvalidValue, nameof(expression));
 
-            return MakeFastGetter<TContainer, TMember>(memberExpression.Member, MemberTypes.Field | MemberTypes.Property);
+            return
+                memberExpression.Member is PropertyInfo property ?
+                property.MakeFastGetter<TContainer, TMember>() :
+                ((FieldInfo)memberExpression.Member).MakeFastGetter<TContainer, TMember>();
         }
 
-        public static Action<TContainer, TMember> MakeFastSetter<TContainer, TMember>(this MemberInfo member, MemberTypes allowedMemberTypes)
+        private static Action<TContainer, TMember> MakeFastSetterCore<TContainer, TMember>(this MemberInfo member, Type memberType)
         {
-            Type memberType = member.GetMemberType(allowedMemberTypes);
-
             Expression expression = BuildMemberAccessExpression<TContainer>(member, out ParameterExpression param);
 
             ParameterExpression valueParam = Expression.Parameter(typeof(TMember));
@@ -222,9 +256,49 @@ namespace Karambolo.Common
             return Expression.Lambda<Action<TContainer, TMember>>(expression, param, valueParam).Compile();
         }
 
+        public static Action<TContainer, TMember> MakeFastSetter<TContainer, TMember>(this MemberInfo member, MemberTypes allowedMemberTypes)
+        {
+            if (member == null)
+                throw new ArgumentNullException(nameof(member));
+
+            if ((allowedMemberTypes & ~(MemberTypes.Field | MemberTypes.Property)) != 0)
+                throw new ArgumentException(Resources.FieldOrPropertyAllowedOnly, nameof(allowedMemberTypes));
+
+            MemberTypes memberType = member.MemberType();
+            if ((allowedMemberTypes & memberType) == 0)
+                throw new ArgumentException(Resources.InvalidValue, nameof(member));
+
+            return
+                memberType == MemberTypes.Property ?
+                ((PropertyInfo)member).MakeFastSetter<TContainer, TMember>() :
+                ((FieldInfo)member).MakeFastSetter<TContainer, TMember>();
+        }
+
         public static Action<TContainer, TMember> MakeFastSetter<TContainer, TMember>(this FieldInfo field)
         {
-            return MakeFastSetter<TContainer, TMember>(field, MemberTypes.Field);
+            if (field == null)
+                throw new ArgumentNullException(nameof(field));
+
+            return MakeFastSetterCore<TContainer, TMember>(field, field.FieldType);
+        }
+
+        public static Action<TContainer, TMember> MakeFastSetter<TContainer, TMember>(this PropertyInfo property)
+        {
+            if (property == null)
+                throw new ArgumentNullException(nameof(property));
+
+#if !NETSTANDARD1_0
+            MethodInfo setMethod = property.GetSetMethod(nonPublic: true);
+            if (setMethod != null)
+            {
+                Type setMethodDelegateType = typeof(Action<,>).MakeGenericType(setMethod.DeclaringType, setMethod.GetParameters()[0].ParameterType);
+
+                if (typeof(Action<TContainer, TMember>).IsAssignableFrom(setMethodDelegateType))
+                    return (Action<TContainer, TMember>)Delegate.CreateDelegate(setMethodDelegateType, setMethod);
+            }
+#endif
+
+            return MakeFastSetterCore<TContainer, TMember>(property, property.PropertyType);
         }
 
         public static Action<TContainer, TMember> MakeFastSetter<TContainer, TMember>(this Expression<Func<TContainer, TMember>> expression)
@@ -233,12 +307,10 @@ namespace Karambolo.Common
             if (memberExpression == null)
                 throw new ArgumentException(Resources.InvalidValue, nameof(expression));
 
-            return MakeFastSetter<TContainer, TMember>(memberExpression.Member, MemberTypes.Field | MemberTypes.Property);
-        }
-
-        public static Action<TContainer, TMember> MakeFastSetter<TContainer, TMember>(this PropertyInfo property)
-        {
-            return MakeFastSetter<TContainer, TMember>(property, MemberTypes.Property);
+            return
+                memberExpression.Member is PropertyInfo property ?
+                property.MakeFastSetter<TContainer, TMember>() :
+                ((FieldInfo)memberExpression.Member).MakeFastSetter<TContainer, TMember>();
         }
 
         private static bool IsPropertyReadOnly(PropertyInfo property)

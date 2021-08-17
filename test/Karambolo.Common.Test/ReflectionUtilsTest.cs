@@ -55,6 +55,9 @@ namespace Karambolo.Common
             [NonInherited(0), Inherited(0)]
             public int Property { get; set; }
 
+            internal string Property2 { get; set; }
+            internal object Property3 { get; set; }
+
             [NonInherited(0), Inherited(0)]
             public virtual int VirtualProperty { get; set; }
 
@@ -437,16 +440,22 @@ namespace Karambolo.Common
         {
             Type type = typeof(TestClass);
 
-            var obj = new DerivedTestClass { _field = "x", Property = 1 };
+            var obj = new DerivedTestClass { _field = "x", Property = 1, Property2 = "y" };
+
+            Assert.Equal(obj._field, ReflectionUtils.MakeFastGetter<TestClass, string>(c => c._field)(obj));
 
             FieldInfo field = type.GetField(nameof(TestClass._field), SystemBindingFlags.Instance | SystemBindingFlags.NonPublic);
+            Assert.Equal(obj._field, field.MakeFastGetter<TestClass, string>(MemberTypes.Field | MemberTypes.Property)(obj));
             Assert.Equal(obj._field, field.MakeFastGetter<TestClass, string>()(obj));
             Assert.Equal(obj._field, field.MakeFastGetter<TestClass, object>()(obj));
             Assert.Equal(obj._field, field.MakeFastGetter<object, object>()(obj));
             Assert.Throws<InvalidOperationException>(() => field.MakeFastGetter<object, StringBuilder>()(obj));
             Assert.Throws<InvalidCastException>(() => field.MakeFastGetter<object, string>()(new object()));
 
+            Assert.Equal(obj.Property, ReflectionUtils.MakeFastGetter<TestClass, int>(c => c.Property)(obj));
+
             PropertyInfo property = type.GetProperty(nameof(TestClass.Property));
+            Assert.Equal(obj.Property, property.MakeFastGetter<TestClass, int>(MemberTypes.Field | MemberTypes.Property)(obj));
             Assert.Equal(obj.Property, property.MakeFastGetter<TestClass, int>()(obj));
             Assert.Equal(obj.Property, property.MakeFastGetter<TestClass, int?>()(obj));
             Assert.Equal(obj.Property, property.MakeFastGetter<TestClass, short>()(obj));
@@ -454,6 +463,9 @@ namespace Karambolo.Common
             Assert.Equal(obj.Property, property.MakeFastGetter<object, object>()(obj));
             Assert.Throws<InvalidOperationException>(() => property.MakeFastGetter<object, DateTime>()(obj));
             Assert.Throws<InvalidCastException>(() => property.MakeFastGetter<object, int>()(new object()));
+
+            PropertyInfo property2 = type.GetProperty(nameof(TestClass.Property2), SystemBindingFlags.Instance | SystemBindingFlags.NonPublic);
+            Assert.Equal(obj.Property2, property2.MakeFastGetter<DerivedTestClass, object>()(obj));
         }
 
         [Fact]
@@ -461,9 +473,17 @@ namespace Karambolo.Common
         {
             Type type = typeof(TestClass);
 
+            var obj = new DerivedTestClass { _field = "x" };
+            ReflectionUtils.MakeFastSetter<TestClass, string>(c => c._field)(obj, "y");
+            Assert.Equal("y", obj._field);
+
             FieldInfo field = type.GetField(nameof(TestClass._field), SystemBindingFlags.Instance | SystemBindingFlags.NonPublic);
 
-            var obj = new DerivedTestClass { _field = "x" };
+            obj = new DerivedTestClass { _field = "x" };
+            field.MakeFastSetter<TestClass, string>(MemberTypes.Field | MemberTypes.Property)(obj, "y");
+            Assert.Equal("y", obj._field);
+
+            obj = new DerivedTestClass { _field = "x" };
             field.MakeFastSetter<TestClass, string>()(obj, "y");
             Assert.Equal("y", obj._field);
 
@@ -478,7 +498,15 @@ namespace Karambolo.Common
             Assert.Throws<InvalidOperationException>(() => field.MakeFastSetter<object, StringBuilder>()(obj, new StringBuilder()));
             Assert.Throws<InvalidCastException>(() => field.MakeFastSetter<object, string>()(new object(), "y"));
 
+            obj = new DerivedTestClass { Property = 1 };
+            ReflectionUtils.MakeFastSetter<TestClass, int>(c => c.Property)(obj, 2);
+            Assert.Equal(2, obj.Property);
+
             PropertyInfo property = type.GetProperty(nameof(TestClass.Property));
+
+            obj = new DerivedTestClass { Property = 1 };
+            property.MakeFastSetter<TestClass, int>(MemberTypes.Field | MemberTypes.Property)(obj, 2);
+            Assert.Equal(2, obj.Property);
 
             obj = new DerivedTestClass { Property = 1 };
             property.MakeFastSetter<TestClass, int>()(obj, 2);
@@ -502,6 +530,12 @@ namespace Karambolo.Common
 
             Assert.Throws<InvalidOperationException>(() => property.MakeFastSetter<object, DateTime>()(obj, default));
             Assert.Throws<InvalidCastException>(() => property.MakeFastSetter<object, int>()(new object(), 2));
+
+            PropertyInfo property3 = type.GetProperty(nameof(TestClass.Property3), SystemBindingFlags.Instance | SystemBindingFlags.NonPublic);
+
+            obj = new DerivedTestClass { Property3 = "y" };
+            property3.MakeFastSetter<DerivedTestClass, string>()(obj, "z");
+            Assert.Equal("z", obj.Property3);
         }
 
         [Fact]
