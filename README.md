@@ -3,6 +3,7 @@
 The main goal of this library is to gather base functionality that is frequently needed but not built into the .NET Base Class Library. It also provides backports of a few APIs for legacy target frameworks. (Target frameworks: .NET Framework 4 & 4.5, .NET Standard 1.0 & 2.0).
 
 [![NuGet Release](https://img.shields.io/nuget/v/Karambolo.Common.svg)](https://www.nuget.org/packages/Karambolo.Common/)
+[![Donate](https://img.shields.io/badge/-buy_me_a%C2%A0coffee-gray?logo=buy-me-a-coffee)](https://www.buymeacoffee.com/adams85)
 
 Before version 3.0 the library rather served as a common base for my projects including a bunch of APIs not so relevant for the public. The codebase of version 3 went through a major revision and the APIs to include were carefully selected to keep the library as focused and lightweight as possible. This, of course, involved a lot of breaking changes, what users of the previous versions should keep in mind when considering upgrading.
 
@@ -29,7 +30,7 @@ You can find some more or less complete solutions on the internet but it's surpr
 
 #### Localization base types
 
-.NET Core has built-in ways to support localization, but .NET Framework offers no such functionality out-of-the-box. For that reason, the builds targeting the .NET Framework include some fundamental types for a similar localization solution. [My sample ASP.NET project](https://github.com/adams85/aspnetskeleton/tree/NetFramework/source/Web/UI/Infrastructure/Localization "My sample ASP.NET project") demonstrates how localization can be implemented on top of this foundation to make localization as painless as possible.
+.NET Core has built-in ways to support localization, but .NET Framework offers no such functionality out-of-the-box. For that reason, the builds targeting the .NET Framework include some fundamental types for a similar localization solution. [My ASP.NET project](https://github.com/adams85/aspnetskeleton/tree/NetFramework/source/Web/UI/Infrastructure/Localization) demonstrates how localization can be implemented on top of this foundation to make localization as painless as possible.
 
 #### Monetary types
 
@@ -117,7 +118,7 @@ The `TimeSpanUtils` class has a really neat feature: the `ToTimeReference` exten
 
 #### Tree traversal
 
-The `TreeUtils` class provides depth-first search (pre-order, post-order) and breadth-first search (level order) traversal algorithms for generic tree data structures. The implementation is non-recursive and heap-based, so it can be safely used on huge tree graphs without the risk of stack overflow.
+The `TreeUtils` class provides depth-first search (pre-order, post-order) and breadth-first search (level order) traversal algorithms for generic tree data structures. You can choose between recursive (stack-based) and non-recursive (heap-based)  implementations. The latter can be safely used on huge tree graphs without the risk of stack overflow.
 
 You can traverse the tree towards the leaves with the help of the  `Descendants` method:
 
@@ -163,7 +164,7 @@ Post-order traversal: 2, 6, 5, 4, 3, 1, 0
 Level order traversal: 0, 1, 2, 3, 4, 5, 6
 ```
 
-Please note that the DFS traversals (pre-order, post-order) visit children in right-to-left order for performance reasons. If you need left-to-right order, you need to change the children selector to enumerate them in reverse order.
+Please note that heap-based DFS (pre-order, post-order) traversals visit children in right-to-left order for performance reasons. If you need left-to-right order, you need to change the children selector to enumerate them in reverse order.
 
 There are further methods in the class at your service:
 * `Ancestors`, which traverses the tree towards the root,
@@ -184,7 +185,7 @@ E.g. you can get property paths with `Lambda.MemberPath`:
 
 ##### MemberInfo from expression
 
-You can get `FieldInfo`, `PropertyInfo`, `MethodInfo` in a typesafe way by the `Lambda.Field`, `Lambda.Property`, `Lambda.Method` functions.
+You can get `FieldInfo`, `PropertyInfo`, `MethodInfo` in a typesafe way by means of the `Lambda.Field`, `Lambda.Property`, `Lambda.Method` functions.
 
 For example, you want to call a generic method with type arguments known only at run-time. You will need a generic method definition for that which you can obtain simply and safely like this:
 
@@ -240,33 +241,6 @@ The roles of users whose name starts with 'A':
 * Ann's role is User
 ```
 
-##### Predicate builder
-
-Another problem which occurs frequently when building dynamic `IQueryable<T>` queries is that there is no built-in way to create filter criteria from disjunct sub-criteria if they are not known at compile-time. The `PredicateBuilder` class offers a solution:
-
-```
-static void Main()
-{
-	var builder = PredicateBuilder<User>.False()
-		.Or(user => user.UserName.StartsWith("P"))
-		.Or(user => user.UserName.EndsWith("n"));
-
-	Console.WriteLine($"The users whose name starts with 'P' or ends with 'n':");
-	foreach (var user in new DbContext().UserRoles.Select(ur => ur.User).Where(builder.Build()))
-		Console.WriteLine($"* {user.UserName}");
-}
-```
-
-Output:
-
-```
-The users whose name starts with 'P' or ends with 'n':
-* Ann
-* Peter
-```
-
-However, composing LINQ queries may easily get so convoluted that you cannot get along even with these techniques. For those cases I recommend the excellent [LinqKit](https://github.com/scottksmith95/LINQKit "LinqKit library") library.
-
 #### Reflection utilities
 
 The `ReflectionUtils` class contains some stop-gap extension methods for `Type` like
@@ -279,7 +253,7 @@ The `ReflectionUtils` class contains some stop-gap extension methods for `Type` 
 
 ##### Fast setters/getters for object properties
 
-This class also provides you with a few helpers to build better performing applications when reflection is unavoidable: `MakeFastGetter`/`MakeFastSetter` create you type-safe, fast accessors to object properties using expression trees:
+This class also provides you with a few helpers to build better performing applications when reflection is unavoidable: `MakeFastGetter`/`MakeFastSetter` create you type-safe, fast accessors to object properties (by wrapping property getters/setter in delegates or, if that is not possible, by expression trees and dynamic code generation):
 
 ```
 class MyClass
@@ -323,7 +297,7 @@ Id=1
 Text=ABC
 ```
 
-The function has an alternative version (`ReflectionUtils.ObjectToDictionaryCached`) for those cases when multiple instances of the same type needs to be converted. So reflection metadata will be cached instead of being collected on every call.)
+The function has an alternative version (`ReflectionUtils.ObjectToDictionaryCached`) for those cases when multiple instances of the same type needs to be converted. By using this method, reflection metadata will be cached instead of being collected on every call.)
 
 #### Building/parsing assembly and type names
 
