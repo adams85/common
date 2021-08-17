@@ -157,6 +157,7 @@ namespace Karambolo.Common
             return MakeRelativePathCore(Path.GetFullPath(basePath), Path.GetFullPath(path));
         }
 #else
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         public static string MakeRelativePath(string basePath, string path)
         {
             if (basePath == null)

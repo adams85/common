@@ -32,20 +32,9 @@ namespace Karambolo.Common
         }
 #endif
 
-#if NET45 || NETSTANDARD1_0
-        public static Task CompletedTask { get; } = Task.FromResult<object>(null);
-#elif NET40
-        public static Task CompletedTask { get; } = FromResult<object>(null);
-
-        public static Task<TResult> FromResult<TResult>(TResult result)
-        {
-            var tcs = new TaskCompletionSource<TResult>();
-            tcs.SetResult(result);
-            return tcs.Task;
-        }
-#endif
-
 #if NET40 || NET45 || NETSTANDARD1_0
+        public static Task CompletedTask => CachedTasks.Default<object>.Task;
+
         public static Task FromException(Exception exception)
         {
             return FromException<object>(exception);
@@ -76,10 +65,49 @@ namespace Karambolo.Common
             return tcs.Task;
         }
 #else
+        public static Task CompletedTask 
+        {
+            [MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+            get => Task.CompletedTask;
+        }
+
         [MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-        private static Task<TResult> FromCanceled<TResult>(CancellationToken cancellationToken)
+        public static Task FromException(Exception exception)
+        {
+            return Task.FromException(exception);
+        }
+
+        [MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static Task<TResult> FromException<TResult>(Exception exception)
+        {
+            return Task.FromException<TResult>(exception);
+        }
+
+        [MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static Task FromCanceled(CancellationToken cancellationToken)
+        {
+            return Task.FromCanceled(cancellationToken);
+        }
+
+        [MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static Task<TResult> FromCanceled<TResult>(CancellationToken cancellationToken)
         {
             return Task.FromCanceled<TResult>(cancellationToken);
+        }
+#endif
+
+#if NET40
+        public static Task<TResult> FromResult<TResult>(TResult result)
+        {
+            var tcs = new TaskCompletionSource<TResult>();
+            tcs.SetResult(result);
+            return tcs.Task;
+        }
+#else
+        [MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        public static Task<TResult> FromResult<TResult>(TResult result)
+        {
+            return Task.FromResult(result);
         }
 #endif
 
@@ -106,7 +134,7 @@ namespace Karambolo.Common
 #endif
 
 #if !NET40
-        #region Timeout
+#region Timeout
 
         internal static async Task WithTimeoutAsync(Task task, TimeSpan timeout)
         {
@@ -163,9 +191,9 @@ namespace Karambolo.Common
 
         }
 
-        #endregion
+#endregion
 
-        #region Cancellation
+#region Cancellation
 
         private readonly struct CancellationTokenTaskSource<TResult> : IDisposable
         {
@@ -236,7 +264,7 @@ namespace Karambolo.Common
             return AsCancelableAsync(task, cancellationToken);
         }
 
-        #endregion
+#endregion
 
         public static async void FireAndForget(this Task task, Action<Exception> exceptionHandler, bool propagateCancellation = false)
         {
