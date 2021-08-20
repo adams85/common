@@ -6,7 +6,7 @@ namespace Karambolo.Common
 {
     public static class TimeSpanUtils
     {
-        private class PeriodDescriptor
+        private sealed class PeriodDescriptor
         {
             public PeriodDescriptor(string singularName, string pluralName, int divisor)
             {

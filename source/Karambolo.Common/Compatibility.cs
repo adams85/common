@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using System.Text;
 
 namespace Karambolo.Common
 {
@@ -161,6 +162,17 @@ namespace Karambolo.Common
                 default: return MemberTypes.Custom;
             }
 #endif
+        }
+    }
+    
+    internal static class StringBuilderExtensions
+    {
+        public static StringBuilder Append(this StringBuilder builder, int value, IFormatProvider provider)
+        {
+            // TODO: .NET 6 will provide a more efficient solution:
+            // https://github.com/dotnet/runtime/issues/50674#issuecomment-812782309
+
+            return builder.Append(value.ToString(provider));
         }
     }
 }

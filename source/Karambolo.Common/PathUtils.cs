@@ -140,7 +140,7 @@ namespace Karambolo.Common
                 sb.Append(Path.DirectorySeparatorChar).Append("..");
 
             if (length > 0)
-                sb.Append(Path.DirectorySeparatorChar).Append(path.Substring(lastSeparatorIndex));
+                sb.Append(Path.DirectorySeparatorChar).Append(path, lastSeparatorIndex, path.Length - lastSeparatorIndex);
 
             return sb.ToString();
         }

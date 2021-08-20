@@ -12,7 +12,7 @@ namespace Karambolo.Common
     {
         #region Pre-order
 
-        private class PreOrderImpl : TreeTraversal
+        private sealed class PreOrderImpl : TreeTraversal
         {
             private static IEnumerable<T> Traverse<T>(T node, Func<T, IEnumerable<T>> childrenSelector)
             {
@@ -40,7 +40,7 @@ namespace Karambolo.Common
         /// </summary>
         public static readonly TreeTraversal PreOrder = new PreOrderImpl();
 
-        private class PreOrderRecursiveImpl : TreeTraversal
+        private sealed class PreOrderRecursiveImpl : TreeTraversal
         {
             private readonly struct Traversal<T> : IEnumerable<T>
             {
@@ -81,7 +81,7 @@ namespace Karambolo.Common
 
         #region Post-order
 
-        private class PostOrderImpl : TreeTraversal
+        private sealed class PostOrderImpl : TreeTraversal
         {
             private static IEnumerable<T> Traverse<T>(T node, Func<T, IEnumerable<T>> childrenSelector)
             {
@@ -129,7 +129,7 @@ namespace Karambolo.Common
         /// </remarks>
         public static readonly TreeTraversal PostOrder = new PostOrderImpl();
 
-        private class PostOrderRecursiveImpl : TreeTraversal
+        private sealed class PostOrderRecursiveImpl : TreeTraversal
         {
             private readonly struct Traversal<T> : IEnumerable<T>
             {
@@ -170,7 +170,7 @@ namespace Karambolo.Common
 
         #region Level-order
 
-        private class LevelOrderImpl : TreeTraversal
+        private sealed class LevelOrderImpl : TreeTraversal
         {
             private static IEnumerable<T> Traverse<T>(T node, Func<T, IEnumerable<T>> childrenSelector)
             {
@@ -198,7 +198,7 @@ namespace Karambolo.Common
         /// </summary>
         public static readonly TreeTraversal LevelOrder = new LevelOrderImpl();
 
-        private class LevelOrderRecursiveImpl : TreeTraversal
+        private sealed class LevelOrderRecursiveImpl : TreeTraversal
         {
             private readonly struct Traversal<T> : IEnumerable<T>
             {

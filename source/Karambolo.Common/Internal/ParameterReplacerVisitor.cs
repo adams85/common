@@ -2,7 +2,7 @@
 
 namespace Karambolo.Common.Internal
 {
-    internal class ParameterReplacerVisitor : ExpressionVisitor
+    internal sealed class ParameterReplacerVisitor : ExpressionVisitor
     {
         private readonly ParameterExpression _param;
         private readonly Expression _expression;

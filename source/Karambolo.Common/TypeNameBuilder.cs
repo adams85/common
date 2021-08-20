@@ -180,15 +180,12 @@ namespace Karambolo.Common
             }
         }
 
-        internal static StringBuilder BuildTypeName(TypeName typeName, StringBuilder sb, int index)
+        internal static StringBuilder BuildTypeName(StringBuilder sb, TypeName typeName)
         {
-            if (typeName.IsGeneric)
-                sb.Insert(index, typeName._genericArguments.Count).Insert(index, '`');
+            sb.Append(!string.IsNullOrEmpty(typeName._baseName) ? typeName._baseName : "?");
 
-            if (!string.IsNullOrEmpty(typeName._baseName))
-                sb.Insert(index, typeName._baseName);
-            else
-                sb.Insert(index, '?');
+            if (typeName.IsGeneric)
+                sb.Append('`').Append(typeName._genericArguments.Count, CultureInfo.InvariantCulture);
 
             return sb;
         }
@@ -222,7 +219,7 @@ namespace Karambolo.Common
 
         public bool HasNested => _nested != null;
 
-        internal IList<TypeNameBuilder> _genericArguments;
+        internal List<TypeNameBuilder> _genericArguments;
         public IList<TypeNameBuilder> GenericArguments => _genericArguments ?? (_genericArguments = new List<TypeNameBuilder>());
 
         public bool IsGeneric => _genericArguments != null && _genericArguments.Count > 0;
@@ -247,7 +244,7 @@ namespace Karambolo.Common
             if (_baseName == null)
                 return string.Empty;
 
-            return BuildTypeName(this, new StringBuilder(), 0).ToString();
+            return BuildTypeName(new StringBuilder(), this).ToString();
         }
 
         public override string ToString()
@@ -443,84 +440,70 @@ namespace Karambolo.Common
             }
         }
 
-        private static StringBuilder Build(TypeNameBuilder builder, StringBuilder sb, int index, bool appendAssemblyName)
+        private static StringBuilder Build(StringBuilder sb, TypeNameBuilder builder, bool appendAssemblyName)
         {
-            var length = sb.Length;
-            var isNestedType = false;
-            var isClosedGenericType = false;
-            var genericIndex = -1;
+            const int isNestedTypeFlag = 0x1;
+            const int isGenericFlag = 0x2;
+            const int isOpenGenericFlag = 0x4;
+
+            int flags = 0;
             int i, n;
+
+            if (!string.IsNullOrEmpty(builder.Namespace))
+                sb.Append(builder.Namespace).Append('.');
 
             TypeName typeName = builder;
             do
             {
-                BuildTypeName(typeName, sb, index);
-
-                if (!isNestedType)
-                {
-                    if (!string.IsNullOrEmpty(builder.Namespace))
-                        sb.Insert(index, '.').Insert(index, builder.Namespace);
-
-                    isNestedType = true;
-                }
+                if (flags == 0)
+                    flags = isNestedTypeFlag;
                 else
-                    sb.Insert(index, '+');
+                    sb.Append('+');
 
-                n = sb.Length - length;
-                index += n;
-                genericIndex += n;
-                length = sb.Length;
+                BuildTypeName(sb, typeName);
 
-                if (typeName.IsGeneric && !typeName.IsOpenGeneric)
+                if (typeName.IsGeneric)
                 {
-                    if (genericIndex < index)
-                    {
-                        sb.Insert(genericIndex = index, '[');
-                        genericIndex++;
-                        length++;
-                    }
+                    flags |= isGenericFlag;
 
-                    for (i = 0, n = typeName._genericArguments.Count; i < n; i++)
-                    {
-                        sb.Insert(genericIndex, ']');
-                        Build(typeName._genericArguments[i], sb, genericIndex, appendAssemblyName: true);
-                        sb.Insert(genericIndex, '[');
-
-                        if (!isClosedGenericType)
-                            isClosedGenericType = true;
-                        else
-                            sb.Insert(genericIndex, ',');
-
-                        genericIndex += sb.Length - length;
-                        length = sb.Length;
-                    }
+                    if (typeName.IsOpenGeneric)
+                        flags |= isOpenGenericFlag;
                 }
             }
             while ((typeName = typeName._nested) != null);
 
-            if (isClosedGenericType)
+            if ((flags & (isGenericFlag | isOpenGenericFlag)) == isGenericFlag)
             {
-                sb.Insert(index = genericIndex, ']');
-                index++;
-                length++;
+                sb.Append('[');
+
+                typeName = builder;
+                do
+                {
+                    if (typeName._genericArguments != null)
+                        for (i = 0, n = typeName._genericArguments.Count; i < n; i++)
+                        {
+                            sb.Append('[');
+                            Build(sb, typeName._genericArguments[i], appendAssemblyName: true);
+                            sb.Append(']').Append(',');
+                        }
+                }
+                while ((typeName = typeName._nested) != null);
+
+                sb[sb.Length - 1] = ']';
             }
 
             if (builder.IsArray)
-            {
-                for (i = builder._arrayDimensions.Count - 1; i >= 0; i--)
+                for (i = 0, n = builder._arrayDimensions.Count; i < n; i++)
                 {
-                    sb.Insert(index, ']');
-                    n = builder._arrayDimensions[i];
-                    if (--n > 0)
-                        sb.Insert(index, new string(',', n));
-                    sb.Insert(index, '[');
+                    sb.Append('[');
+                    var count = builder._arrayDimensions[i];
+                    if (--count > 0)
+                        sb.Append(',', count);
+                    sb.Append(']');
                 }
 
-                index += sb.Length - length;
-            }
-
             if (appendAssemblyName && !string.IsNullOrEmpty(builder._assemblyName))
-                sb.Insert(index, builder._assemblyName).Insert(index, ' ').Insert(index, ',');
+                sb.Append(',').Append(' ').Append(builder._assemblyName);
 
             return sb;
         }
@@ -631,7 +614,7 @@ namespace Karambolo.Common
             set { _namespace = value; }
         }
 
-        private IList<int> _arrayDimensions;
+        private List<int> _arrayDimensions;
         public IList<int> ArrayDimensions => _arrayDimensions ?? (_arrayDimensions = new List<int>());
         public bool IsArray => _arrayDimensions != null && _arrayDimensions.Count > 0;
 
@@ -656,7 +639,7 @@ namespace Karambolo.Common
             if (_baseName == null)
                 return string.Empty;
 
-            return Build(this, new StringBuilder(), 0, appendAssemblyName: false).ToString();
+            return Build(new StringBuilder(), this, appendAssemblyName: false).ToString();
         }
 
         public override string ToString()
@@ -664,7 +647,7 @@ namespace Karambolo.Common
             if (_baseName == null)
                 return string.Empty;
 
-            return Build(this, new StringBuilder(), 0, appendAssemblyName: true).ToString();
+            return Build(new StringBuilder(), this, appendAssemblyName: true).ToString();
         }
     }
 }

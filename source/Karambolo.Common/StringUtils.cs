@@ -435,10 +435,10 @@ namespace Karambolo.Common
                 throw new ArgumentNullException(nameof(@string));
 
             if (@string.Length == 0)
-                return string.Empty;
+                return @string;
 
             var normalizedString = @string.Normalize(NormalizationForm.FormD);
-            var sb = new StringBuilder();
+            var sb = new StringBuilder(@string.Length);
 
             for (var i = 0; i < normalizedString.Length; i++)
             {

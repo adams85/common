@@ -11,7 +11,7 @@ namespace Karambolo.Common.Monetary
 #endif
     public readonly struct Currency : IEquatable<Currency>
     {
-        private class Metadata
+        private sealed class Metadata
         {
             public string Symbol { get; set; }
             public int DefaultDecimals { get; set; }
