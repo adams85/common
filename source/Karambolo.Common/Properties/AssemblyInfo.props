@@ -6,7 +6,7 @@
     <Company>Karambolo</Company>
     <Product>Karambolo.Common</Product>
     <Description>Solutions to common problems not covered by the BCL. Please note that version 3 is a major revision with many breaking changes!</Description>
-    <Copyright>© 2021 Adam Simon</Copyright>
+    <Copyright>© 2022 Adam Simon</Copyright>
     <AssemblyVersion>1.0</AssemblyVersion>
     <FileVersion>1.0.0.0</FileVersion>
     <PackageLicenseUrl>https://github.com/adams85/common/blob/master/LICENSE</PackageLicenseUrl>
