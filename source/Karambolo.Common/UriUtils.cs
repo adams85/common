@@ -15,7 +15,7 @@ namespace Karambolo.Common
 
         public static string BuildQuery(object query)
         {
-            return BuildUrl(null, ReflectionUtils.ObjectToDictionaryCached(query), null);
+            return BuildUrl(null, query != null ? ReflectionUtils.ObjectToDictionaryCached(query) : null, null);
         }
 
         public static string BuildQuery(IDictionary<string, object> query)
@@ -25,7 +25,7 @@ namespace Karambolo.Common
 
         public static string BuildUrl(string[] parts, object query)
         {
-            return BuildUrl(parts, ReflectionUtils.ObjectToDictionaryCached(query), null);
+            return BuildUrl(parts, query != null ? ReflectionUtils.ObjectToDictionaryCached(query) : null, null);
         }
 
         public static string BuildUrl(string[] parts, IDictionary<string, object> query)
@@ -35,7 +35,7 @@ namespace Karambolo.Common
 
         public static string BuildUrl(string[] parts, object query, string fragment)
         {
-            return BuildUrl(parts, ReflectionUtils.ObjectToDictionaryCached(query), fragment);
+            return BuildUrl(parts, query != null ? ReflectionUtils.ObjectToDictionaryCached(query) : null, fragment);
         }
 
         public static string BuildUrl(string[] parts, IDictionary<string, object> query, string fragment)
