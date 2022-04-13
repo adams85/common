@@ -206,10 +206,7 @@ namespace Karambolo.Common.Monetary
 
         public static Money Parse(string value, IFormatProvider formatProvider)
         {
-            if (TryParse(value, formatProvider, out Money result))
-                return result;
-            else
-                throw new FormatException();
+            return TryParse(value, formatProvider, out Money result) ? result : throw new FormatException();
         }
 
         public static Money Parse(string value)
@@ -261,17 +258,41 @@ namespace Karambolo.Common.Monetary
             return _currency == money._currency;
         }
 
+        public int CompareTo(Money other)
+        {
+            if (!IsCompatibleWith(other))
+                throw new InvalidOperationException(Resources.IncompatibleCurrencies);
+
+            return _amount.CompareTo(other._amount);
+        }
+
+        int IComparable.CompareTo(object obj)
+        {
+            if (obj == null)
+                return 1;
+
+            if (!(obj is Money))
+                throw new InvalidOperationException(string.Format(Resources.UnexpectedObjectType, typeof(Money)));
+
+            return CompareTo((Money)obj);
+        }
+
+        public bool Equals(Money other)
+        {
+            return IsCompatibleWith(other) && _amount == other._amount;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is Money money && Equals(money);
+        }
+
         public override int GetHashCode()
         {
             int hashCode = -259941593;
             hashCode = hashCode * -1521134295 + _currency.GetHashCode();
             hashCode = hashCode * -1521134295 + _amount.GetHashCode();
             return hashCode;
-        }
-
-        public override bool Equals(object obj)
-        {
-            return obj is Money money && Equals(money);
         }
 
         private NumberFormatInfo CustomizeNumberFormat(NumberFormatInfo numberFormat)
@@ -290,30 +311,6 @@ namespace Karambolo.Common.Monetary
         public string ToString(string format)
         {
             return ToString(format, null);
-        }
-
-        public bool Equals(Money other)
-        {
-            return IsCompatibleWith(other) && _amount == other._amount;
-        }
-
-        public int CompareTo(Money other)
-        {
-            if (!IsCompatibleWith(other))
-                throw new InvalidOperationException(Resources.IncompatibleCurrencies);
-
-            return _amount.CompareTo(other._amount);
-        }
-
-        int IComparable.CompareTo(object obj)
-        {
-            if (obj == null)
-                return 1;
-
-            if (!(obj is Money))
-                throw new InvalidOperationException(string.Format(Resources.UnexpectedObjectType, typeof(Money)));
-
-            return CompareTo((Money)obj);
         }
 
         public string ToString(string format, IFormatProvider formatProvider)
