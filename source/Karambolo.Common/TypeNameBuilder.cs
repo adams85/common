@@ -193,7 +193,7 @@ namespace Karambolo.Common
         public TypeName() { }
 
         public TypeName(string typeName)
-            : this(typeName, out var _) { }
+            : this(typeName, out _) { }
 
         public TypeName(string typeName, out string @namespace)
         {
