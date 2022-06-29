@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 
@@ -59,6 +60,10 @@ namespace Karambolo.Common
         [Fact]
         public void SequenceEqualUnorderedTest()
         {
+            Assert.True(Enumerable.Empty<object>().SequenceEqualUnordered(Enumerable.Empty<object>()));
+            Assert.False(Enumerable.Empty<object>().SequenceEqualUnordered(new object[] { "a" }));
+            Assert.False(new object[] { "a" }.SequenceEqualUnordered(Enumerable.Empty<object>()));
+
             Assert.False(new[] { "a", "b", "c" }.SequenceEqualUnordered(new[] { "a", "b" }));
             Assert.False(new[] { "a", "b", "c" }.SequenceEqualUnordered(new[] { "a", "b", "c", "d" }));
             Assert.True(new[] { "a", "b", "c" }.SequenceEqualUnordered(new[] { "a", "b", "c" }));
@@ -71,6 +76,18 @@ namespace Karambolo.Common
             Assert.True(new[] { "a", "a", "b", "b", "c" }.SequenceEqualUnordered(new[] { "a", "b", "c", "b", "a" }));
 
             Assert.True(new[] { "a", "b", "c" }.SequenceEqualUnordered(new[] { "C", "b", "a" }, StringComparer.OrdinalIgnoreCase));
+
+            Assert.False(new[] { null, "b", "c" }.SequenceEqualUnordered(new[] { null, "b" }));
+            Assert.False(new[] { null, "b", "c" }.SequenceEqualUnordered(new[] { null, "b", "c", "d" }));
+            Assert.True(new[] { null, "b", "c" }.SequenceEqualUnordered(new[] { "c", "b", null }));
+
+            Assert.True(new[] { null, null, "b", "b", "c" }.SequenceEqualUnordered(new[] { null, "b", "c", "b", null }));
+
+            IEqualityComparer<string> comparer = DelegatedEqualityComparer.Create<string>(
+                comparer: (x, y) => StringComparer.OrdinalIgnoreCase.Equals(x, y),
+                hasher: (obj) => obj != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(obj) : 0);
+
+            Assert.True(new[] { null, "b", "c" }.SequenceEqualUnordered(new[] { "C", "b", null }, comparer));
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Karambolo.Common.Internal;
 
 namespace Karambolo.Common
 {
@@ -127,22 +128,52 @@ namespace Karambolo.Common
             if (second == null)
                 throw new ArgumentNullException(nameof(second));
 
-            var counters = new Dictionary<TSource, int>(comparer);
-            foreach (TSource item in source)
-                if (counters.ContainsKey(item))
-                    counters[item]++;
-                else
-                    counters.Add(item, 1);
+            IEqualityComparer<ValueWrapper<TSource>> wrapperComparer = 
+                comparer != null ? 
+                DelegatedEqualityComparer.Create<ValueWrapper<TSource>>(
+                    comparer: (x, y) => comparer.Equals(x.Value, y.Value),
+                    hasher: obj => comparer.GetHashCode(obj.Value)) :
+                null;
+
+            Dictionary<ValueWrapper<TSource>, int> counters;
+            ValueWrapper<TSource> key;
+            int counter;
+
+            using (IEnumerator<TSource> enumerator = source.GetEnumerator())
+            {
+                if (!enumerator.MoveNext())
+                    return !second.Any();
+
+                counters = new Dictionary<ValueWrapper<TSource>, int>(wrapperComparer);
+
+                do
+                {
+                    key = new ValueWrapper<TSource>(enumerator.Current);
+
+                    if (counters.TryGetValue(key, out counter))
+                        counters[key] = counter + 1;
+                    else
+                        counters.Add(key, 1);
+                }
+                while (enumerator.MoveNext());
+            }
 
             foreach (TSource item in second)
             {
-                if (counters.ContainsKey(item))
-                    counters[item]--;
+                key = new ValueWrapper<TSource>(item);
+
+                if (counters.TryGetValue(key, out counter))
+                {
+                    if (counter <= 0)
+                        return false;
+
+                    counters[key] = counter - 1;
+                }
                 else
                     return false;
             }
 
-            return counters.Values.All(counter => counter == 0);
+            return counters.Values.All(cnt => cnt == 0);
         }
     }
 }
